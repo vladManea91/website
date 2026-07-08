@@ -26,7 +26,7 @@ auth:
   last_name_claim: last_name
   avatar_url_claim: avatar_url
 
-site_url: https://vlad-maneade.netlify.app
+site_url: https://vlad-manea.de
 logo_url: https://decapbridge.com/decapcms-with-bridge.svg
 
 media_folder: "src/img"
