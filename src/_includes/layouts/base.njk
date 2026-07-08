@@ -92,10 +92,16 @@
   <nav class="nav">
     <div class="nav-inner">
       <a class="brand" href="/">{{ site.name }}<span>.</span></a>
+
+      <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+      <label for="nav-toggle" class="nav-toggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </label>
+
       <div class="nav-links">
         <a href="/articles/">Articles</a>
         {% for p in collections.navPages %}
-        <a href="{{ p.url }}" class="hide-mobile">{{ p.data.nav_label or p.data.title }}</a>
+        <a href="{{ p.url }}">{{ p.data.nav_label or p.data.title }}</a>
         {% endfor %}
         <a href="{{ site.community_url }}" class="btn" rel="noopener">Join the community</a>
       </div>

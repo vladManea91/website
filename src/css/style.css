@@ -58,7 +58,7 @@ a:hover { color: var(--orange); }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(248, 244, 236, 0.92);
+  background: rgba(248, 244, 236, 0.94);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
 }
@@ -67,31 +67,40 @@ a:hover { color: var(--orange); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 14px 20px;
   max-width: var(--max);
   margin: 0 auto;
+  position: relative;
+  flex-wrap: wrap;
+  gap: 8px 16px;
 }
 
 .brand {
   font-family: "Fraunces", serif;
   font-weight: 700;
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   color: var(--green-deep);
 }
 .brand span { color: var(--orange); }
 
-.nav-links { display: flex; gap: 28px; align-items: center; }
+.nav-links { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
 .nav-links a { color: var(--green-deep); font-weight: 500; }
 .nav-links a:hover { color: var(--orange-dark); }
+
+.nav-toggle-input { display: none; }
+.nav-toggle { display: none; }
 
 .btn {
   display: inline-block;
   background: var(--orange);
   color: #fff !important;
   font-weight: 600;
-  padding: 12px 24px;
+  padding: 13px 24px;
+  min-height: 44px;
   border-radius: 999px;
   transition: background 0.15s ease, transform 0.15s ease;
+  text-align: center;
+  line-height: 1.2;
 }
 .btn:hover { background: var(--orange-dark); transform: translateY(-1px); }
 
@@ -290,11 +299,126 @@ footer {
 
 /* ---------- Responsive ---------- */
 
+/* ============================================================
+   Responsive: tablet (≤1024px) and mobile (≤640px)
+============================================================ */
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1024px) {
+  .wrap, .nav-inner, .footer-inner { padding-left: 20px; padding-right: 20px; }
+
+  .hero { padding: 64px 0 48px; }
+  .hero h1 { font-size: clamp(2rem, 5.5vw, 3rem); }
+  .hero p { font-size: 1.05rem; }
+
+  .band { padding: 42px 36px; }
+  .band h2 { font-size: 1.7rem; }
+
+  .article { padding: 48px 20px 32px; }
+  .page { padding: 48px 20px; }
+}
+
+/* ---------- Mobile nav: hamburger + dropdown ---------- */
+@media (max-width: 760px) {
+  .nav-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    order: 2;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--green-deep);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .nav-links {
+    order: 3;
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+  }
+  .nav-links a {
+    padding: 12px 4px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-links .btn {
+    margin: 10px 0 6px;
+    text-align: center;
+  }
+
+  .nav-toggle-input:checked ~ .nav-links {
+    max-height: 600px;
+  }
+  .nav-toggle-input:checked ~ .nav-toggle span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav-toggle-input:checked ~ .nav-toggle span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-toggle-input:checked ~ .nav-toggle span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+}
+
+/* ---------- Mobile ---------- */
 @media (max-width: 640px) {
-  .nav-links { gap: 16px; }
-  .nav-links .hide-mobile { display: none; }
-  .hero { padding: 56px 0 48px; }
-  .band { padding: 36px 26px; }
+  body { font-size: 1rem; }
+
+  .wrap, .nav-inner, .footer-inner { padding-left: 18px; padding-right: 18px; }
+
+  .hero { padding: 44px 0 36px; }
+  .hero h1 { font-size: clamp(1.75rem, 8vw, 2.4rem); max-width: none; }
+  .hero p { font-size: 1rem; margin-bottom: 26px; }
+  .hero-actions { flex-direction: column; align-items: stretch; gap: 12px; }
+  .hero-actions .btn { width: 100%; }
+  .hero-actions .quiet { text-align: center; }
+
+  .section { padding: 36px 0; }
+  .section-head { flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 22px; }
+  .section-head h2 { font-size: 1.5rem; }
+
+  .post-card { padding: 20px 20px; }
+  .post-card h3 { font-size: 1.2rem; }
+
+  .band { padding: 30px 22px; margin: 28px 0 48px; border-radius: 10px; }
+  .band h2 { font-size: 1.4rem; }
+  .band .btn { width: 100%; }
+
+  .article { padding: 36px 18px 28px; }
+  .article-header h1 { font-size: clamp(1.6rem, 7vw, 2rem); }
+  .article-body h2 { font-size: 1.35rem; margin: 32px 0 12px; }
+  .article-body h3 { font-size: 1.1rem; margin: 26px 0 10px; }
+  .article-body blockquote { font-size: 1.05rem; padding-left: 16px; }
+
+  .callout { padding: 20px 20px; }
+  .callout .btn { width: 100%; }
+
+  .page { padding: 40px 18px; }
+  .page h1 { font-size: 2rem; }
+
+  footer { padding: 32px 0 40px; }
+  .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .footer-links { flex-wrap: wrap; gap: 14px 18px; }
+}
+
+/* ---------- Small phones ---------- */
+@media (max-width: 380px) {
+  .brand { font-size: 1.15rem; }
+  .hero h1 { font-size: 1.6rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
