@@ -1,0 +1,7 @@
+{
+  "layout": "layouts/page.njk",
+  "permalink": "/{{ page.fileSlug }}/",
+  "eleventyComputed": {
+    "eleventyNavigationLabel": "{{ nav_label or title }}"
+  }
+}

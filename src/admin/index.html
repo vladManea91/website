@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Dashboard | Vlad</title>
+</head>
+<body>
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    // Make the live preview inside the editor use the real site styles,
+    // so what you see while writing is what readers see.
+    CMS.registerPreviewStyle("/css/style.css");
+    CMS.registerPreviewStyle(
+      ".frame-content { background: #f8f4ec; padding: 40px; } " +
+      ".frame-content > div { max-width: 700px; margin: 0 auto; }",
+      { raw: true }
+    );
+  </script>
+</body>
+</html>

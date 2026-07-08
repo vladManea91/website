@@ -1,0 +1,24 @@
+---
+layout: layouts/base.njk
+title: Articles
+description: Articles on turning photography and creative skills into digital products, color grading, and building an online business as an artist.
+permalink: /articles/
+---
+<div class="wrap">
+  <section class="hero" style="padding-bottom: 32px;">
+    <h1>Articles</h1>
+    <p>Everything I have learned about selling knowledge as a photographer, written down so you can skip the years of trial and error.</p>
+  </section>
+
+  <section class="section" style="padding-top: 0;">
+    <div class="post-list">
+      {% for post in collections.posts %}
+      <a class="post-card" href="{{ post.url }}">
+        <div class="post-meta">{{ post.date | readableDate }} &middot; {{ post.templateContent | readingTime }} min read</div>
+        <h3>{{ post.data.title }}</h3>
+        <p>{{ post.data.description or (post.templateContent | excerpt) }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+</div>

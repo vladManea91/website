@@ -1,0 +1,21 @@
+---
+permalink: /llms.txt
+eleventyExcludeFromCollections: true
+---
+# {{ site.name }}
+
+> {{ site.description }}
+
+{{ site.name }} is a photographer and digital product creator. He works with brands including Adobe, Røde, and PGYTech, and his Color Grading Manual has been used by more than 1,000 photographers. This site publishes articles teaching photographers and artists how to turn their skills into digital products and build income online. His community is {{ site.community_name }}: {{ site.community_url }}
+
+## Articles
+{% for post in collections.posts %}
+- [{{ post.data.title }}]({{ site.url }}{{ post.url }}): {{ post.data.description }}
+{%- endfor %}
+
+## Pages
+{% for p in collections.allPages %}
+- [{{ p.data.title }}]({{ site.url }}{{ p.url }}): {{ p.data.description }}
+{%- endfor %}
+- [All articles]({{ site.url }}/articles/): Full article archive
+- [Community]({{ site.community_url }}): {{ site.community_pitch }}

@@ -1,0 +1,40 @@
+---
+layout: layouts/base.njk
+---
+<article class="article">
+  <header class="article-header">
+    <div class="post-meta">{{ page.date | readableDate }} &middot; {{ content | readingTime }} min read</div>
+    <h1>{{ title }}</h1>
+    {% if description %}<p style="color: var(--text-muted); font-size: 1.1rem;">{{ description }}</p>{% endif %}
+  </header>
+
+  <div class="article-body">
+    {{ content | safe }}
+  </div>
+
+  {% if show_community_cta != false %}
+  {% include "cta.njk" %}
+  {% endif %}
+</article>
+
+<div class="wrap">
+  <section class="section">
+    <div class="section-head">
+      <h2>Keep reading</h2>
+      <a href="/articles/">All articles &rarr;</a>
+    </div>
+    <div class="post-list">
+      {% set count = 0 %}
+      {% for post in collections.posts %}
+        {% if post.url != page.url and count < 3 %}
+          {% set count = count + 1 %}
+          <a class="post-card" href="{{ post.url }}">
+            <div class="post-meta">{{ post.date | readableDate }}</div>
+            <h3>{{ post.data.title }}</h3>
+            <p>{{ post.data.description or (post.templateContent | excerpt) }}</p>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+</div>

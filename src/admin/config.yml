@@ -1,0 +1,94 @@
+# -------------------------------------------------------------
+# Decap CMS configuration
+#
+# AUTH: this uses DecapBridge (free replacement for the
+# deprecated Netlify Identity). After you create your site on
+# https://decapbridge.com you will get the three values below.
+# Replace the placeholders, commit, done.
+# -------------------------------------------------------------
+
+backend:
+  name: git-gateway
+  repo: YOUR_GITHUB_USERNAME/YOUR_REPO_NAME   # provided by DecapBridge
+  branch: main
+  identity_url: https://auth.decapbridge.com/sites/YOUR_SITE_ID   # provided by DecapBridge
+  gateway_url: https://gateway.decapbridge.com
+
+site_url: https://yourdomain.com
+logo_url: https://decapbridge.com/decapcms-with-bridge.svg
+
+media_folder: "src/img"
+public_folder: "/img"
+
+collections:
+  - name: "posts"
+    label: "Articles"
+    folder: "src/posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    editor:
+      preview: true
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description (shows in Google + article cards)", name: "description", widget: "text", required: true, hint: "One or two sentences. This is your SEO meta description." }
+      - { label: "Publish date", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false }
+      - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Show CTA at the bottom", name: "show_community_cta", widget: "boolean", default: true, required: false }
+      - { label: "Custom CTA heading (optional)", name: "cta_heading", widget: "string", required: false, hint: "Leave empty to use the global CTA from Site settings. Fill in to customize this article only." }
+      - { label: "Custom CTA text (optional)", name: "cta_text", widget: "text", required: false }
+      - { label: "Custom CTA button label (optional)", name: "cta_button", widget: "string", required: false }
+      - { label: "Custom CTA button link (optional)", name: "cta_url", widget: "string", required: false, hint: "E.g. link this article's CTA to a specific product instead of the community." }
+      - { label: "Body", name: "body", widget: "markdown", hint: "Use the link button to add hyperlinks to your community page anywhere in the text." }
+
+  - name: "pages"
+    label: "Pages"
+    label_singular: "Page"
+    folder: "src/pages"
+    create: true
+    slug: "{{slug}}"
+    editor:
+      preview: true
+    fields:
+      - { label: "Page title", name: "title", widget: "string" }
+      - { label: "Description (SEO meta description)", name: "description", widget: "text" }
+      - { label: "Show in navigation menu", name: "show_in_nav", widget: "boolean", default: true }
+      - { label: "Navigation label", name: "nav_label", widget: "string", required: false, hint: "Short word for the menu, e.g. 'About'. Leave empty to use the page title." }
+      - { label: "Navigation order", name: "nav_order", widget: "number", default: 5, value_type: "int", hint: "Lower numbers appear first in the menu." }
+      - { label: "Show community CTA at the bottom", name: "show_community_cta", widget: "boolean", default: true }
+      - { label: "Custom CTA heading (optional)", name: "cta_heading", widget: "string", required: false, hint: "Leave empty to use the global CTA from Site settings. Fill in to customize this page only." }
+      - { label: "Custom CTA text (optional)", name: "cta_text", widget: "text", required: false }
+      - { label: "Custom CTA button label (optional)", name: "cta_button", widget: "string", required: false }
+      - { label: "Custom CTA button link (optional)", name: "cta_url", widget: "string", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "settings"
+    label: "Site settings"
+    files:
+      - label: "General"
+        name: "general"
+        file: "src/_data/site.json"
+        fields:
+          - { label: "Your name", name: "name", widget: "string" }
+          - { label: "Site title (browser tab + Google)", name: "title", widget: "string" }
+          - { label: "Site URL", name: "url", widget: "string" }
+          - { label: "Site description (SEO)", name: "description", widget: "text" }
+          - { label: "Author name", name: "author", widget: "string" }
+          - { label: "Community URL (Skool / Circle)", name: "community_url", widget: "string" }
+          - { label: "Community name", name: "community_name", widget: "string" }
+          - { label: "Community pitch (fallback CTA text)", name: "community_pitch", widget: "text" }
+          - { label: "Global CTA heading", name: "cta_heading", widget: "string", hint: "This CTA appears on the homepage and on every article and page that has no custom CTA. Edit it here and it updates everywhere at once." }
+          - { label: "Global CTA text", name: "cta_text", widget: "text" }
+          - { label: "Global CTA button label", name: "cta_button", widget: "string" }
+          - { label: "Global CTA button link (optional)", name: "cta_url", widget: "string", required: false, hint: "Leave empty to use your Community URL." }
+          - { label: "Instagram URL", name: "instagram", widget: "string" }
+          - { label: "YouTube URL", name: "youtube", widget: "string" }
+          - { label: "Hero eyebrow line", name: "hero_eyebrow", widget: "string" }
+          - { label: "Hero headline", name: "hero_headline", widget: "string" }
+          - { label: "Hero subtext", name: "hero_sub", widget: "text" }
+          - { label: "Google Analytics 4 ID (e.g. G-XXXXXXXXXX)", name: "ga4_id", widget: "string", required: false, hint: "Paste your GA4 Measurement ID to turn on analytics. Leave empty to disable." }
+          - { label: "Plausible domain (optional)", name: "plausible_domain", widget: "string", required: false, hint: "e.g. yourdomain.com. Only if you use Plausible." }
+          - { label: "Outbound UTM source", name: "utm_source", widget: "string", default: "website" }
+          - { label: "Outbound UTM medium", name: "utm_medium", widget: "string", default: "article" }
+          - { label: "Brand color: deep green", name: "brand_green", widget: "color", required: false, allow_input: true, hint: "Leave empty to use the default #16342a" }
+          - { label: "Brand color: orange", name: "brand_orange", widget: "color", required: false, allow_input: true, hint: "Leave empty to use the default #e8622c" }
+          - { label: "Brand color: cream background", name: "brand_cream", widget: "color", required: false, allow_input: true, hint: "Leave empty to use the default #f8f4ec" }

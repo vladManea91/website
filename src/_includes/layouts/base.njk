@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if title %}{{ title }} | {{ site.name }}{% else %}{{ site.title }}{% endif %}</title>
+  <meta name="description" content="{{ description or site.description }}">
+  <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+
+  <meta property="og:type" content="{% if layout == 'layouts/post.njk' %}article{% else %}website{% endif %}">
+  <meta property="og:title" content="{{ title or site.title }}">
+  <meta property="og:description" content="{{ description or site.description }}">
+  <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+  <meta property="og:site_name" content="{{ site.name }}">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="alternate" type="application/rss+xml" title="{{ site.name }}" href="{{ site.url }}/feed.xml">
+  <meta name="author" content="{{ site.author }}">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+
+  {% if site.ga4_id %}
+  <!-- Google Analytics 4: tracks traffic sources, UTM campaigns, referrers -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.ga4_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ site.ga4_id }}');
+  </script>
+  {% endif %}
+
+  {% if site.plausible_domain %}
+  <script defer data-domain="{{ site.plausible_domain }}" src="https://plausible.io/js/script.outbound-links.js"></script>
+  {% endif %}
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  {% if site.brand_green or site.brand_orange or site.brand_cream %}
+  <style>
+    :root {
+      {% if site.brand_green %}--green-deep: {{ site.brand_green }};{% endif %}
+      {% if site.brand_orange %}--orange: {{ site.brand_orange }};{% endif %}
+      {% if site.brand_cream %}--cream: {{ site.brand_cream }};{% endif %}
+    }
+  </style>
+  {% endif %}
+
+  {% if layout == 'layouts/post.njk' %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": {{ title | dump | safe }},
+    "description": {{ (description or site.description) | dump | safe }},
+    "author": { "@type": "Person", "name": "{{ site.author }}", "url": "{{ site.url }}/about/" },
+    "publisher": { "@type": "Person", "name": "{{ site.author }}" },
+    "datePublished": "{{ page.date | isoDate }}",
+    "dateModified": "{{ page.date | isoDate }}",
+    "mainEntityOfPage": "{{ site.url }}{{ page.url }}",
+    "url": "{{ site.url }}{{ page.url }}"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ site.url }}/" },
+      { "@type": "ListItem", "position": 2, "name": "Articles", "item": "{{ site.url }}/articles/" },
+      { "@type": "ListItem", "position": 3, "name": {{ title | dump | safe }}, "item": "{{ site.url }}{{ page.url }}" }
+    ]
+  }
+  </script>
+  {% else %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{{ site.name }}",
+    "url": "{{ site.url }}/",
+    "description": {{ site.description | dump | safe }},
+    "author": { "@type": "Person", "name": "{{ site.author }}", "url": "{{ site.url }}/about/" }
+  }
+  </script>
+  {% endif %}
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">{{ site.name }}<span>.</span></a>
+      <div class="nav-links">
+        <a href="/articles/">Articles</a>
+        {% for p in collections.navPages %}
+        <a href="{{ p.url }}" class="hide-mobile">{{ p.data.nav_label or p.data.title }}</a>
+        {% endfor %}
+        <a href="{{ site.community_url }}" class="btn" rel="noopener">Join the community</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    {{ content | safe }}
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>&copy; {% year %} {{ site.name }}. All rights reserved.</div>
+      <div class="footer-links">
+        <a href="/articles/">Articles</a>
+        {% for p in collections.navPages %}
+        <a href="{{ p.url }}">{{ p.data.nav_label or p.data.title }}</a>
+        {% endfor %}
+        <a href="{{ site.instagram }}" rel="noopener">Instagram</a>
+        <a href="{{ site.youtube }}" rel="noopener">YouTube</a>
+        <a href="/feed.xml">RSS</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  /* UTM engine:
+     1. Captures inbound UTM parameters on first touch and remembers them for 30 days.
+     2. Tags every outbound community link with utm_source, utm_medium,
+        utm_campaign (the inbound campaign if one exists, otherwise "organic")
+        and utm_content (the page that sent the click).
+     Result: inside Skool/Circle and GA4 you can see exactly which article
+     converted each visitor, and which ad or post brought them to the site. */
+  (function () {
+    var COMMUNITY = "{{ site.community_url }}";
+    if (!COMMUNITY || COMMUNITY.indexOf("http") !== 0) return;
+    var communityHost;
+    try { communityHost = new URL(COMMUNITY).host; } catch (e) { return; }
+
+    // 1. First-touch capture
+    var KEY = "vlad_first_touch";
+    var params = new URLSearchParams(window.location.search);
+    var inbound = {};
+    ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"].forEach(function (k) {
+      if (params.get(k)) inbound[k] = params.get(k);
+    });
+    var stored = null;
+    try {
+      stored = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (stored && Date.now() - stored.t > 30 * 864e5) stored = null;
+      if (!stored && Object.keys(inbound).length) {
+        stored = { t: Date.now(), utm: inbound, ref: document.referrer || "" };
+        localStorage.setItem(KEY, JSON.stringify(stored));
+      }
+    } catch (e) { /* private mode etc., fail silently */ }
+
+    // 2. Outbound tagging
+    var slug = window.location.pathname.replace(/\/$/, "").split("/").pop() || "home";
+    document.querySelectorAll('a[href]').forEach(function (a) {
+      var url;
+      try { url = new URL(a.href); } catch (e) { return; }
+      if (url.host !== communityHost) return;
+      url.searchParams.set("utm_source", "{{ site.utm_source }}");
+      url.searchParams.set("utm_medium", "{{ site.utm_medium }}");
+      url.searchParams.set("utm_content", slug);
+      var campaign = (stored && stored.utm && stored.utm.utm_campaign) || "organic";
+      url.searchParams.set("utm_campaign", campaign);
+      if (stored && stored.utm && stored.utm.utm_source) {
+        url.searchParams.set("first_source", stored.utm.utm_source);
+      }
+      a.href = url.toString();
+    });
+  })();
+  </script>
+</body>
+</html>

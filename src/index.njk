@@ -1,0 +1,38 @@
+---
+layout: layouts/base.njk
+---
+<div class="wrap">
+
+  <section class="hero">
+    <div class="eyebrow">{{ site.hero_eyebrow }}</div>
+    <h1>{{ site.hero_headline }}</h1>
+    <p>{{ site.hero_sub }}</p>
+    <div class="hero-actions">
+      <a class="btn" href="{{ site.community_url }}" rel="noopener">Join {{ site.community_name }}</a>
+      <a class="quiet" href="/articles/">Read the articles &rarr;</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Latest articles</h2>
+      <a href="/articles/">View all &rarr;</a>
+    </div>
+    <div class="post-list">
+      {% for post in collections.posts | limit(5) %}
+      <a class="post-card" href="{{ post.url }}">
+        <div class="post-meta">{{ post.date | readableDate }} &middot; {{ post.templateContent | readingTime }} min read</div>
+        <h3>{{ post.data.title }}</h3>
+        <p>{{ post.data.description or (post.templateContent | excerpt) }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="band">
+    <h2>{{ site.cta_heading }}</h2>
+    <p>{{ site.cta_text or site.community_pitch }}</p>
+    <a class="btn" href="{{ site.cta_url or site.community_url }}" rel="noopener">{{ site.cta_button or ("Join " + site.community_name) }}</a>
+  </section>
+
+</div>

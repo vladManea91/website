@@ -1,0 +1,18 @@
+{# ------------------------------------------------------------
+   CTA component.
+   Fallback chain: page frontmatter value -> global site setting.
+   Fill an override field on a page/article to customize just
+   that page. Leave empty to inherit the global CTA, so editing
+   the global one in Site settings updates every page at once.
+------------------------------------------------------------ #}
+{% set _cta_heading = cta_heading or site.cta_heading %}
+{% set _cta_text = cta_text or site.cta_text or site.community_pitch %}
+{% set _cta_button = cta_button or site.cta_button %}
+{% set _cta_url = cta_url or site.cta_url or site.community_url %}
+{% if not _cta_button %}{% set _cta_button = "Join " + site.community_name %}{% endif %}
+
+<div class="callout">
+  <h3>{{ _cta_heading }}</h3>
+  <p>{{ _cta_text }}</p>
+  <a class="btn" href="{{ _cta_url }}" rel="noopener">{{ _cta_button }}</a>
+</div>
