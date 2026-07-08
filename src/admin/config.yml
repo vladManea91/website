@@ -1,106 +1,32 @@
-# -------------------------------------------------------------
-# Decap CMS configuration
-# Auth via DecapBridge (PKCE)
-# -------------------------------------------------------------
-
+# Use DecapBridge PKCE auth (required)
 backend:
   name: git-gateway
   repo: vladManea91/website
   branch: main
   auth_type: pkce
   base_url: https://auth.decapbridge.com
-  auth_endpoint: /sites/f848d050-f594-4485-82bd-04054e5407cc/pkce
-  auth_token_endpoint: /sites/f848d050-f594-4485-82bd-04054e5407cc/token
+  auth_endpoint: /sites/ea8d2f16-1470-4fb8-ab50-dc1c2174f5c0/pkce
+  auth_token_endpoint: /sites/ea8d2f16-1470-4fb8-ab50-dc1c2174f5c0/token
   gateway_url: https://gateway.decapbridge.com
+
+  # See who did what (optional)
   commit_messages:
-    create: Create {{collection}} "{{slug}}" - {{author-name}} <{{author-login}}> via DecapBridge
-    update: Update {{collection}} "{{slug}}" - {{author-name}} <{{author-login}}> via DecapBridge
-    delete: Delete {{collection}} "{{slug}}" - {{author-name}} <{{author-login}}> via DecapBridge
-    uploadMedia: Upload "{{path}}" - {{author-name}} <{{author-login}}> via DecapBridge
-    deleteMedia: Delete "{{path}}" - {{author-name}} <{{author-login}}> via DecapBridge
+    create: Create {{collection}} “{{slug}}” - {{author-name}} <{{author-login}}> via DecapBridge
+    update: Update {{collection}} “{{slug}}” - {{author-name}} <{{author-login}}> via DecapBridge
+    delete: Delete {{collection}} “{{slug}}” - {{author-name}} <{{author-login}}> via DecapBridge
+    uploadMedia: Upload “{{path}}” - {{author-name}} <{{author-login}}> via DecapBridge
+    deleteMedia: Delete “{{path}}” - {{author-name}} <{{author-login}}> via DecapBridge
     openAuthoring: Message {{message}} - {{author-name}} <{{author-login}}> via DecapBridge
 
+# Enable PKCE fields (optional, recommended)
 auth:
   email_claim: email
   first_name_claim: first_name
   last_name_claim: last_name
   avatar_url_claim: avatar_url
 
-site_url: https://vlad-manea.de
+# Better Decap + Bridge logo (optional)
 logo_url: https://decapbridge.com/decapcms-with-bridge.svg
 
-media_folder: "src/img"
-public_folder: "/img"
-
-collections:
-  - name: "posts"
-    label: "Articles"
-    folder: "src/posts"
-    create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
-    editor:
-      preview: true
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description (shows in Google + article cards)", name: "description", widget: "text", required: true, hint: "One or two sentences. This is your SEO meta description." }
-      - { label: "Publish date", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false }
-      - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false, required: false }
-      - { label: "Show CTA at the bottom", name: "show_community_cta", widget: "boolean", default: true, required: false }
-      - { label: "Custom CTA heading (optional)", name: "cta_heading", widget: "string", required: false, hint: "Leave empty to use the global CTA from Site settings. Fill in to customize this article only." }
-      - { label: "Custom CTA text (optional)", name: "cta_text", widget: "text", required: false }
-      - { label: "Custom CTA button label (optional)", name: "cta_button", widget: "string", required: false }
-      - { label: "Custom CTA button link (optional)", name: "cta_url", widget: "string", required: false, hint: "E.g. link this article's CTA to a specific product instead of the community." }
-      - { label: "Body", name: "body", widget: "markdown", hint: "Use the link button to add hyperlinks to your community page anywhere in the text." }
-
-  - name: "pages"
-    label: "Pages"
-    label_singular: "Page"
-    folder: "src/pages"
-    create: true
-    slug: "{{slug}}"
-    editor:
-      preview: true
-    fields:
-      - { label: "Page title", name: "title", widget: "string" }
-      - { label: "Description (SEO meta description)", name: "description", widget: "text" }
-      - { label: "Show in navigation menu", name: "show_in_nav", widget: "boolean", default: true }
-      - { label: "Navigation label", name: "nav_label", widget: "string", required: false, hint: "Short word for the menu, e.g. 'About'. Leave empty to use the page title." }
-      - { label: "Navigation order", name: "nav_order", widget: "number", default: 5, value_type: "int", hint: "Lower numbers appear first in the menu." }
-      - { label: "Show community CTA at the bottom", name: "show_community_cta", widget: "boolean", default: true }
-      - { label: "Custom CTA heading (optional)", name: "cta_heading", widget: "string", required: false, hint: "Leave empty to use the global CTA from Site settings. Fill in to customize this page only." }
-      - { label: "Custom CTA text (optional)", name: "cta_text", widget: "text", required: false }
-      - { label: "Custom CTA button label (optional)", name: "cta_button", widget: "string", required: false }
-      - { label: "Custom CTA button link (optional)", name: "cta_url", widget: "string", required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
-
-  - name: "settings"
-    label: "Site settings"
-    files:
-      - label: "General"
-        name: "general"
-        file: "src/_data/site.json"
-        fields:
-          - { label: "Your name", name: "name", widget: "string" }
-          - { label: "Site title (browser tab + Google)", name: "title", widget: "string" }
-          - { label: "Site URL", name: "url", widget: "string" }
-          - { label: "Site description (SEO)", name: "description", widget: "text" }
-          - { label: "Author name", name: "author", widget: "string" }
-          - { label: "Community URL (Skool / Circle)", name: "community_url", widget: "string" }
-          - { label: "Community name", name: "community_name", widget: "string" }
-          - { label: "Community pitch (fallback CTA text)", name: "community_pitch", widget: "text" }
-          - { label: "Global CTA heading", name: "cta_heading", widget: "string", hint: "This CTA appears on the homepage and on every article and page that has no custom CTA. Edit it here and it updates everywhere at once." }
-          - { label: "Global CTA text", name: "cta_text", widget: "text" }
-          - { label: "Global CTA button label", name: "cta_button", widget: "string" }
-          - { label: "Global CTA button link (optional)", name: "cta_url", widget: "string", required: false, hint: "Leave empty to use your Community URL." }
-          - { label: "Instagram URL", name: "instagram", widget: "string" }
-          - { label: "YouTube URL", name: "youtube", widget: "string" }
-          - { label: "Hero eyebrow line", name: "hero_eyebrow", widget: "string" }
-          - { label: "Hero headline", name: "hero_headline", widget: "string" }
-          - { label: "Hero subtext", name: "hero_sub", widget: "text" }
-          - { label: "Google Analytics 4 ID (e.g. G-XXXXXXXXXX)", name: "ga4_id", widget: "string", required: false, hint: "Paste your GA4 Measurement ID to turn on analytics. Leave empty to disable." }
-          - { label: "Plausible domain (optional)", name: "plausible_domain", widget: "string", required: false, hint: "e.g. yourdomain.com. Only if you use Plausible." }
-          - { label: "Outbound UTM source", name: "utm_source", widget: "string", default: "website" }
-          - { label: "Outbound UTM medium", name: "utm_medium", widget: "string", default: "article" }
-          - { label: "Brand color: deep green", name: "brand_green", widget: "color", required: false, allow_input: true, hint: "Leave empty to use the default #16342a" }
-          - { label: "Brand color: orange", name: "brand_orange", widget: "color", required: false, allow_input: true, hint: "Leave empty to use the default #e8622c" }
-          - { label: "Brand color: cream background", name: "brand_cream", widget: "color", required: false, allow_input: true, hint: "Leave empty to use the default #f8f4ec" }
+# Add site links in Decap CMS (optional)
+site_url: https://vlad-manea.de
