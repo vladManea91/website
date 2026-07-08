@@ -5,8 +5,8 @@ backend:
   branch: main
   auth_type: pkce
   base_url: https://auth.decapbridge.com
-  auth_endpoint: /sites/ea8d2f16-1470-4fb8-ab50-dc1c2174f5c0/pkce
-  auth_token_endpoint: /sites/ea8d2f16-1470-4fb8-ab50-dc1c2174f5c0/token
+  auth_endpoint: /sites/2c896e0e-4a64-4bb8-9fc1-3a22d8e51a7e/pkce
+  auth_token_endpoint: /sites/2c896e0e-4a64-4bb8-9fc1-3a22d8e51a7e/token
   gateway_url: https://gateway.decapbridge.com
 
   # See who did what (optional)
@@ -29,4 +29,4 @@ auth:
 logo_url: https://decapbridge.com/decapcms-with-bridge.svg
 
 # Add site links in Decap CMS (optional)
-site_url: https://vlad-manea.de 
+site_url: https://vlad-manea.de
