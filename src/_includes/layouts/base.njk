@@ -16,7 +16,7 @@
 
   <link rel="alternate" type="application/rss+xml" title="{{ site.name }}" href="{{ site.url }}/feed.xml">
   <meta name="author" content="{{ site.author }}">
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="robots" content="{% if page.url == '/analytics/' %}noindex, nofollow{% else %}index, follow, max-image-preview:large, max-snippet:-1{% endif %}">
 
   {% if site.ga4_id %}
   <!-- Google Analytics 4: tracks traffic sources, UTM campaigns, referrers -->
@@ -92,16 +92,10 @@
   <nav class="nav">
     <div class="nav-inner">
       <a class="brand" href="/">{{ site.name }}<span>.</span></a>
-
-      <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
-      <label for="nav-toggle" class="nav-toggle" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </label>
-
       <div class="nav-links">
         <a href="/articles/">Articles</a>
         {% for p in collections.navPages %}
-        <a href="{{ p.url }}">{{ p.data.nav_label or p.data.title }}</a>
+        <a href="{{ p.url }}" class="hide-mobile">{{ p.data.nav_label or p.data.title }}</a>
         {% endfor %}
         <a href="{{ site.community_url }}" class="btn" rel="noopener">Join the community</a>
       </div>
@@ -126,6 +120,37 @@
       </div>
     </div>
   </footer>
+
+  {% if site.internal_analytics != false %}
+  <script>
+  /* Internal analytics beacon (self-hosted, not Google).
+     Fires once per pageview, sends path/referrer/UTM/device to
+     our own Netlify Function, which stores it in Netlify Blobs. */
+  (function () {
+    if (window.location.pathname.indexOf("/admin") === 0) return;
+    var params = new URLSearchParams(window.location.search);
+    var stored = null;
+    try { stored = JSON.parse(localStorage.getItem("vlad_first_touch") || "null"); } catch (e) {}
+    var payload = {
+      path: window.location.pathname,
+      referrer: document.referrer || "",
+      utm_source: params.get("utm_source") || "",
+      utm_medium: params.get("utm_medium") || "",
+      utm_campaign: params.get("utm_campaign") || "",
+      utm_content: params.get("utm_content") || "",
+      first_source: (stored && stored.utm && stored.utm.utm_source) || ""
+    };
+    try {
+      fetch("/.netlify/functions/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        keepalive: true
+      });
+    } catch (e) { /* fail silently, never block the page */ }
+  })();
+  </script>
+  {% endif %}
 
   <script>
   /* UTM engine:

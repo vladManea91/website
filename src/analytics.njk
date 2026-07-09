@@ -1,0 +1,132 @@
+---
+layout: layouts/base.njk
+title: Analytics
+permalink: /analytics/
+eleventyExcludeFromCollections: true
+---
+<div class="page" style="max-width: 920px;">
+  <h1>Analytics</h1>
+  <p style="color: var(--text-muted);">Self-hosted traffic data. Nothing here goes through Google or any third party.</p>
+
+  <div id="gate">
+    <p style="margin: 20px 0 10px; font-weight: 600;">Enter your analytics token</p>
+    <input id="token-input" type="password" placeholder="Token from Netlify env var ANALYTICS_TOKEN"
+      style="width:100%; max-width:420px; padding:12px 14px; border:1px solid var(--line); border-radius:8px; font-size:1rem; margin-bottom:12px;">
+    <br>
+    <button id="unlock" class="btn">View analytics</button>
+    <p id="gate-error" style="color:#b3441e; margin-top:12px; display:none;"></p>
+  </div>
+
+  <div id="dash" style="display:none;">
+    <div style="display:flex; gap:10px; align-items:center; margin: 24px 0;">
+      <label for="days" style="font-weight:600;">Range:</label>
+      <select id="days" style="padding:8px 12px; border-radius:8px; border:1px solid var(--line);">
+        <option value="7">Last 7 days</option>
+        <option value="30" selected>Last 30 days</option>
+        <option value="90">Last 90 days</option>
+      </select>
+      <span id="total" style="margin-left:auto; font-weight:600; color: var(--green-deep);"></span>
+    </div>
+
+    <div id="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;"></div>
+  </div>
+</div>
+
+<style>
+  .stat-card {
+    background: var(--cream-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+  }
+  .stat-card h3 { font-size: 1.05rem; margin-bottom: 14px; }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.92rem;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .count { color: var(--orange-dark); font-weight: 600; }
+  @media (max-width: 700px) {
+    #grid { grid-template-columns: 1fr !important; }
+  }
+</style>
+
+<script>
+(function () {
+  var gate = document.getElementById("gate");
+  var dash = document.getElementById("dash");
+  var grid = document.getElementById("grid");
+  var totalEl = document.getElementById("total");
+  var daysSelect = document.getElementById("days");
+  var savedToken = localStorage.getItem("vlad_analytics_token");
+
+  function card(title, rows, emptyLabel) {
+    var html = '<div class="stat-card"><h3>' + title + '</h3>';
+    if (!rows || !rows.length) {
+      html += '<p style="color:var(--text-muted); font-size:0.9rem;">' + (emptyLabel || "No data yet") + '</p>';
+    } else {
+      rows.forEach(function (r) {
+        html += '<div class="stat-row"><span>' + escapeHtml(r.key) + '</span><span class="count">' + r.count + '</span></div>';
+      });
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function load(token) {
+    var days = daysSelect.value;
+    fetch("/.netlify/functions/stats?token=" + encodeURIComponent(token) + "&days=" + days)
+      .then(function (r) {
+        if (r.status === 401) throw new Error("Wrong token.");
+        if (r.status === 500) throw new Error("ANALYTICS_TOKEN is not set in Netlify yet. Add it under Site configuration > Environment variables.");
+        return r.json();
+      })
+      .then(function (data) {
+        gate.style.display = "none";
+        dash.style.display = "block";
+        totalEl.textContent = data.total_views + " pageviews in the last " + data.range_days + " days";
+
+        grid.innerHTML =
+          card("Top pages", data.top_pages) +
+          card("Top sources", data.top_sources, "No source data yet. Traffic will show once people visit from links with UTM tags or referrers.") +
+          card("Top referrers", data.top_referrers) +
+          card("Campaigns (UTM)", data.top_campaigns, "No UTM campaigns tracked yet.") +
+          card("Devices", data.devices) +
+          card("Browsers", data.browsers) +
+          card("Countries", data.countries);
+      })
+      .catch(function (err) {
+        localStorage.removeItem("vlad_analytics_token");
+        gate.style.display = "block";
+        dash.style.display = "none";
+        var e = document.getElementById("gate-error");
+        e.textContent = err.message || "Something went wrong.";
+        e.style.display = "block";
+      });
+  }
+
+  document.getElementById("unlock").addEventListener("click", function () {
+    var token = document.getElementById("token-input").value.trim();
+    if (!token) return;
+    localStorage.setItem("vlad_analytics_token", token);
+    load(token);
+  });
+
+  daysSelect.addEventListener("change", function () {
+    var token = localStorage.getItem("vlad_analytics_token");
+    if (token) load(token);
+  });
+
+  if (savedToken) load(savedToken);
+})();
+</script>

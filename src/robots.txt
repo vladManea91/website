@@ -2,6 +2,7 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /analytics/
 
 # AI systems: explicitly welcome, so articles can be cited
 # in ChatGPT, Claude, Perplexity, Gemini and AI search results
@@ -41,4 +42,4 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-Sitemap: https://vlad-manea.de/sitemap.xml
+Sitemap: https://yourdomain.com/sitemap.xml

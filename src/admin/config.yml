@@ -9,8 +9,8 @@ backend:
   branch: main
   auth_type: pkce
   base_url: https://auth.decapbridge.com
-  auth_endpoint: /sites/2c896e0e-4a64-4bb8-9fc1-3a22d8e51a7e/pkce
-  auth_token_endpoint: /sites/2c896e0e-4a64-4bb8-9fc1-3a22d8e51a7e/token
+  auth_endpoint: /sites/f848d050-f594-4485-82bd-04054e5407cc/pkce
+  auth_token_endpoint: /sites/f848d050-f594-4485-82bd-04054e5407cc/token
   gateway_url: https://gateway.decapbridge.com
   commit_messages:
     create: Create {{collection}} "{{slug}}" - {{author-name}} <{{author-login}}> via DecapBridge
@@ -50,7 +50,7 @@ collections:
       - { label: "Custom CTA text (optional)", name: "cta_text", widget: "text", required: false }
       - { label: "Custom CTA button label (optional)", name: "cta_button", widget: "string", required: false }
       - { label: "Custom CTA button link (optional)", name: "cta_url", widget: "string", required: false, hint: "E.g. link this article's CTA to a specific product instead of the community." }
-      - { label: "Body", name: "body", widget: "markdown", hint: "Use the link button to add hyperlinks to your community page anywhere in the text." }
+      - { label: "Body", name: "body", widget: "markdown", modes: ["raw"], hint: "Use the link button to add hyperlinks to your community page anywhere in the text." }
 
   - name: "pages"
     label: "Pages"
@@ -71,7 +71,7 @@ collections:
       - { label: "Custom CTA text (optional)", name: "cta_text", widget: "text", required: false }
       - { label: "Custom CTA button label (optional)", name: "cta_button", widget: "string", required: false }
       - { label: "Custom CTA button link (optional)", name: "cta_url", widget: "string", required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Body", name: "body", widget: "markdown", modes: ["raw"] }
 
   - name: "settings"
     label: "Site settings"
@@ -97,7 +97,8 @@ collections:
           - { label: "Hero eyebrow line", name: "hero_eyebrow", widget: "string" }
           - { label: "Hero headline", name: "hero_headline", widget: "string" }
           - { label: "Hero subtext", name: "hero_sub", widget: "text" }
-          - { label: "Google Analytics 4 ID (e.g. G-XXXXXXXXXX)", name: "ga4_id", widget: "string", required: false, hint: "Paste your GA4 Measurement ID to turn on analytics. Leave empty to disable." }
+          - { label: "Internal analytics (self-hosted, on by default)", name: "internal_analytics", widget: "boolean", default: true, hint: "Tracks pageviews, referrers, and UTM sources in your own Netlify Blobs storage. View it from the Analytics link in the sidebar. Turn off to disable all tracking." }
+          - { label: "Google Analytics 4 ID (optional, off by default)", name: "ga4_id", widget: "string", required: false, hint: "Only fill this in if you also want GA4 running. Leave empty to use internal analytics only." }
           - { label: "Plausible domain (optional)", name: "plausible_domain", widget: "string", required: false, hint: "e.g. yourdomain.com. Only if you use Plausible." }
           - { label: "Outbound UTM source", name: "utm_source", widget: "string", default: "website" }
           - { label: "Outbound UTM medium", name: "utm_medium", widget: "string", default: "article" }

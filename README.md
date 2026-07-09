@@ -81,6 +81,36 @@ Also put your real domain in `src/robots.txt` (the Sitemap line).
 
 The two sample articles are there so you can see the structure. Edit or delete them from `/admin`.
 
+## Internal analytics (not Google)
+
+The site tracks itself. Every pageview sends a small beacon (path, referrer, UTM parameters, device type, browser, coarse country) to a Netlify Function, which stores it in Netlify Blobs, a key-value store built into your Netlify account. No third party, no Google, no cookie banner needed since nothing here uses cookies or fingerprinting.
+
+### One-time setup (2 minutes)
+
+1. In Netlify: **Site configuration > Environment variables > Add a variable**
+2. Name it `ANALYTICS_TOKEN`, set the value to any password you choose (e.g. a long random string)
+3. Save, then trigger a redeploy so the function picks it up
+
+### Viewing your stats
+
+Go to `yourdomain.com/analytics/`, or click **Analytics** in the sidebar of `/admin`. Enter the same token you set in step 2. It stays saved in your browser after that.
+
+You'll see: total pageviews, top pages, top referring sites, top UTM sources and campaigns, device split (mobile/tablet/desktop), browsers, and rough country breakdown. Filter by 7, 30, or 90 days.
+
+This means the CTA UTM tagging described above and this dashboard connect directly: an article's custom CTA link carries `utm_content` = that article, and it shows up here under "Campaigns" and "Sources", so you can see which article is actually driving clicks toward your community or products.
+
+### Turning it off, or adding Google Analytics alongside it
+
+In `/admin` > Site settings: **Internal analytics** is on by default, toggle it off to stop all tracking. **Google Analytics 4 ID** is separate and off unless you paste a Measurement ID in, so you can run either one alone, both together, or neither.
+
+### A note on privacy
+
+No IP addresses are stored. Country is derived from Netlify's edge network, not from the visitor's raw IP. Nothing here uses cookies, localStorage is only used for your own first-touch UTM memory (see below) and to remember your analytics token in your own browser. This is intentionally lighter-weight than GA4, if you need deep behavioral analysis (session recordings, funnels), GA4 remains available as an option.
+
+## Writing articles without editor crashes
+
+The article and page body fields are set to Markdown source mode rather than the visual "Rich Text" editor. This is intentional: Decap's visual editor has a known bug where pasting certain clipboard content (especially from Word, Google Docs, or screenshots) crashes it. Markdown mode avoids that entirely, still has a formatting toolbar and a live preview, just no fragile visual layer underneath. Paste freely.
+
 ## Writing articles that pull SEO traffic
 
 - The **Description** field is your Google meta description. Write it like a hook.
