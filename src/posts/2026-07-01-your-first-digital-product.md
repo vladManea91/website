@@ -1,7 +1,7 @@
 ---
 title: Your first digital product is already sitting on your hard drive
-description: Most photographers think they need to create something new to sell
-  online. You do not. Here is how to find the product you already made.
+description: Photographers think they need to create something new to sell
+  online. That's not the case, your knowledge is your product.
 date: 2026-07-01
 cta_heading: Found your product idea while reading?
 cta_text: Bring it into the community and we will help you package it, price it,
