@@ -5,9 +5,8 @@ description: Most photographers think they need to create something new to sell
 date: 2026-07-01
 cta_heading: Found your product idea while reading?
 cta_text: Bring it into the community and we will help you package it, price it,
-  and launch it. This is a custom CTA for this article only, as an example.
-  Delete these fields in the dashboard to fall back to the global one.
-cta_button: Launch it with us
+  and launch it.
+cta_button: Launch it with Vlad
 ---
 Some days ago, I was crying my soul out.
 
