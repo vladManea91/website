@@ -94,9 +94,16 @@ eleventyExcludeFromCollections: true
       .then(function (data) {
         gate.style.display = "none";
         dash.style.display = "block";
-        totalEl.textContent = data.total_views + " pageviews in the last " + data.range_days + " days";
+        totalEl.textContent = data.total_views + " pageviews · " + data.total_cta_clicks + " CTA clicks" +
+          (data.cta_click_rate !== null ? " (" + data.cta_click_rate + "% click-through)" : "");
+
+        var ctaRows = (data.top_cta_pages || []).map(function (r) {
+          var label = r.key + (r.rate !== null ? " — " + r.rate + "% of its views" : "");
+          return { key: label, count: r.count };
+        });
 
         grid.innerHTML =
+          card("CTA clicks by article", ctaRows, "No CTA clicks tracked yet. This fills in as visitors click the community button on your articles and pages.") +
           card("Top pages", data.top_pages) +
           card("Top sources", data.top_sources, "No source data yet. Traffic will show once people visit from links with UTM tags or referrers.") +
           card("Top referrers", data.top_referrers) +

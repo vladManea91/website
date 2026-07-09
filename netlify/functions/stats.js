@@ -61,8 +61,12 @@ export default async (req) => {
   const byDevice = {};
   const byBrowser = {};
   const byCountry = {};
+  const byCtaPage = {};
 
-  for (const e of allEvents) {
+  const pageviews = allEvents.filter((e) => (e.type || "pageview") !== "cta_click");
+  const ctaClicks = allEvents.filter((e) => e.type === "cta_click");
+
+  for (const e of pageviews) {
     const day = (e.t || "").slice(0, 10);
     byDay[day] = (byDay[day] || 0) + 1;
     byPath[e.path || "(unknown)"] = (byPath[e.path || "(unknown)"] || 0) + 1;
@@ -87,12 +91,27 @@ export default async (req) => {
     byCountry[e.country || "unknown"] = (byCountry[e.country || "unknown"] || 0) + 1;
   }
 
+  for (const e of ctaClicks) {
+    const p = e.path || "(unknown)";
+    byCtaPage[p] = (byCtaPage[p] || 0) + 1;
+  }
+
   const dailySeries = Object.entries(byDay)
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .map(([date, count]) => ({ date, count }));
 
+  const topCtaPages = topN(byCtaPage, 10).map((row) => {
+    const views = byPath[row.key] || 0;
+    const rate = views > 0 ? Math.round((row.count / views) * 1000) / 10 : null;
+    return { key: row.key, count: row.count, views, rate };
+  });
+
+  const overallRate = pageviews.length > 0
+    ? Math.round((ctaClicks.length / pageviews.length) * 1000) / 10
+    : null;
+
   const result = {
-    total_views: allEvents.length,
+    total_views: pageviews.length,
     range_days: days,
     daily: dailySeries,
     top_pages: topN(byPath, 10),
@@ -102,6 +121,9 @@ export default async (req) => {
     devices: topN(byDevice, 5),
     browsers: topN(byBrowser, 6),
     countries: topN(byCountry, 10),
+    total_cta_clicks: ctaClicks.length,
+    cta_click_rate: overallRate,
+    top_cta_pages: topCtaPages,
   };
 
   return new Response(JSON.stringify(result), {

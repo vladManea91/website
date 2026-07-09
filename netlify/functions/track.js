@@ -42,6 +42,8 @@ export default async (req) => {
     utm_campaign = "",
     utm_content = "",
     first_source = "",
+    type = "pageview",
+    cta_destination = "",
   } = body;
 
   const ua = req.headers.get("user-agent") || "";
@@ -61,6 +63,7 @@ export default async (req) => {
   const now = new Date();
   const event = {
     t: now.toISOString(),
+    type: String(type).slice(0, 20) === "cta_click" ? "cta_click" : "pageview",
     path: String(path).slice(0, 300),
     referrer: String(referrer).slice(0, 300),
     utm_source: String(utm_source).slice(0, 100),
@@ -68,6 +71,7 @@ export default async (req) => {
     utm_campaign: String(utm_campaign).slice(0, 100),
     utm_content: String(utm_content).slice(0, 100),
     first_source: String(first_source).slice(0, 100),
+    cta_destination: String(cta_destination).slice(0, 300),
     device,
     browser,
     country,

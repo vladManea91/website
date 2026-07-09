@@ -16,7 +16,7 @@
 
   <link rel="alternate" type="application/rss+xml" title="{{ site.name }}" href="{{ site.url }}/feed.xml">
   <meta name="author" content="{{ site.author }}">
-  <meta name="robots" content="{% if page.url == '/analytics/' %}noindex, nofollow{% else %}index, follow, max-image-preview:large, max-snippet:-1{% endif %}">
+  <meta name="robots" content="{% if page.url == '/analytics/' or page.url == '/seo-tool/' %}noindex, nofollow{% else %}index, follow, max-image-preview:large, max-snippet:-1{% endif %}">
 
   {% if site.ga4_id %}
   <!-- Google Analytics 4: tracks traffic sources, UTM campaigns, referrers -->
@@ -120,6 +120,41 @@
       </div>
     </div>
   </footer>
+
+  {% if site.internal_analytics != false %}
+  <script>
+  /* CTA click tracking: fires whenever someone clicks a community/CTA
+     button, tagged with the page they clicked it from, so the
+     dashboard can show which article's CTA gets clicked most. */
+  (function () {
+    if (window.location.pathname.indexOf("/admin") === 0) return;
+    document.addEventListener("click", function (ev) {
+      var btn = ev.target.closest(".callout .btn, .band .btn");
+      if (!btn) return;
+      var payload = {
+        type: "cta_click",
+        path: window.location.pathname,
+        cta_destination: btn.href || ""
+      };
+      try {
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(
+            "/.netlify/functions/track",
+            new Blob([JSON.stringify(payload)], { type: "application/json" })
+          );
+        } else {
+          fetch("/.netlify/functions/track", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            keepalive: true
+          });
+        }
+      } catch (e) { /* never block navigation */ }
+    }, true);
+  })();
+  </script>
+  {% endif %}
 
   {% if site.internal_analytics != false %}
   <script>
