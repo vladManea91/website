@@ -22,7 +22,7 @@ function parseDevice(ua = "") {
   return { device, browser };
 }
 
-export default async (req) => {
+export default async (req, context) => {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
@@ -49,16 +49,12 @@ export default async (req) => {
   const ua = req.headers.get("user-agent") || "";
   const { device, browser } = parseDevice(ua);
 
-  // Coarse geo from Netlify's edge headers, no IP is stored.
-  const country = req.headers.get("x-nf-geo")
-    ? (() => {
-        try {
-          return JSON.parse(req.headers.get("x-nf-geo")).country?.code || "unknown";
-        } catch {
-          return "unknown";
-        }
-      })()
-    : "unknown";
+  // Netlify provides geolocation on the function's `context` argument,
+  // derived from the visitor's IP by Netlify's own network (no raw IP
+  // is ever stored by us, only the resolved country).
+  const geo = (context && context.geo) || {};
+  const countryCode = geo.country?.code || "unknown";
+  const countryName = geo.country?.name || countryCode;
 
   const now = new Date();
   const event = {
@@ -74,7 +70,8 @@ export default async (req) => {
     cta_destination: String(cta_destination).slice(0, 300),
     device,
     browser,
-    country,
+    country_code: countryCode,
+    country: countryName,
   };
 
   const store = getStore("analytics");
