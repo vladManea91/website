@@ -8,6 +8,7 @@ draft: false
 show_community_cta: true
 cta_heading: Get a custom plan to launching you digital product based on your
   time, your niche and your ideas
+cta_text: It's a 9$ generating gameplans tool
 cta_button: Get it here
 cta_url: https://vladmanea.thrivecart.com/gameplan-launchos/
 ---
