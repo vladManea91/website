@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Offer Gameplan by Vlad Manea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#0E241C; --cream:#F3EDE0; --sage:#9FB6A8; --orange:#E9622B;
+  --bg:var(--cream); --ink:var(--forest); --muted:#4d6157; --line:#d8cfbd; --field:#fbf8f1;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --bg:var(--forest); --ink:var(--cream); --muted:#b9c7bf; --line:#2c4a3e; --field:#14322a; }
+}
+:root[data-theme="dark"]{ --bg:var(--forest); --ink:var(--cream); --muted:#b9c7bf; --line:#2c4a3e; --field:#14322a; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 "DM Sans",system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:640px;margin:0 auto;padding:40px 22px 80px}
+.brand{font-size:14px;color:var(--muted);margin:0 0 48px;display:flex;justify-content:space-between;gap:12px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;margin:0}
+h1{font-size:clamp(40px,10vw,64px);letter-spacing:-.02em;margin-bottom:20px}
+.lede{font-size:19px;color:var(--muted);max-width:34em;margin:0 0 32px}
+.lede p{margin:0 0 12px}
+button,.btn{font:600 16px/1 "DM Sans",system-ui,sans-serif;border:0;border-radius:999px;padding:16px 26px;cursor:pointer;background:var(--orange);color:#fff;text-decoration:none;display:inline-block}
+button:disabled{opacity:.45;cursor:default}
+button.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+button:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:3px solid var(--sage);outline-offset:3px}
+.meta{font-size:14px;color:var(--muted);margin-top:16px}
+.progress{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:36px}
+.progress span{display:block;height:100%;background:var(--orange);transition:width .35s ease}
+.qcount{font-size:14px;color:var(--muted);margin-bottom:10px}
+.question{font-family:Fraunces,Georgia,serif;font-size:clamp(26px,6vw,34px);line-height:1.2;margin:0 0 22px}
+.followup{background:var(--field);border-left:3px solid var(--orange);padding:12px 16px;border-radius:0 10px 10px 0;margin:0 0 16px;font-size:16px}
+.prev{font-size:15px;color:var(--muted);margin:0 0 12px;white-space:pre-wrap}
+textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:16px}
+.row{display:flex;gap:12px;margin-top:16px;align-items:center;flex-wrap:wrap}
+.hint{font-size:13px;color:var(--muted);margin-left:auto}
+.status{font-family:Fraunces,Georgia,serif;font-size:24px;margin:8px 0 24px}
+.plan h2{font-size:30px;margin:44px 0 14px;padding-top:24px;border-top:1.5px solid var(--line)}
+.plan h2:first-child{margin-top:0;border-top:0;padding-top:0}
+.plan h3{font-size:21px;margin:26px 0 8px}
+.plan p{margin:0 0 14px}
+.plan ul{margin:0 0 16px;padding-left:22px}
+.plan li{margin:0 0 8px}
+.plan blockquote{margin:0 0 16px;padding:14px 18px;background:var(--field);border-radius:12px;white-space:pre-wrap}
+.plan a{color:var(--orange)}
+.cta{margin-top:40px;padding:28px;background:var(--forest);color:var(--cream);border-radius:20px}
+:root[data-theme="dark"] .cta{background:#173a2e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cta{background:#173a2e}}
+.cta h3{font-size:26px;margin-bottom:10px}
+.cta p{margin:0 0 20px;color:#d9e2dc}
+.error{background:var(--field);border:1.5px solid var(--orange);border-radius:14px;padding:18px;margin:16px 0}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="brand"><span>Vlad Manea</span><span>Offer Gameplan</span></p>
+
+  <section id="intro">
+    <h1>Bring me the mess.</h1>
+    <div class="lede">
+      <p>Your skills, your ideas, the things people keep asking you for. Eight questions, one at a time, the same ones I'd ask on a call.</p>
+      <p>Then you get your plan: one direction worth testing, your first offer, and what to do in the next 30 days.</p>
+    </div>
+    <button id="start">Start my gameplan</button>
+    <p class="meta">Takes about 15 minutes. Honest answers make a better plan. Your answers stay in this browser and are only sent to write your plan.</p>
+  </section>
+
+  <section id="ask" hidden>
+    <div class="progress"><span id="bar"></span></div>
+    <p class="qcount" id="qcount"></p>
+    <h2 class="question" id="qtext"></h2>
+    <p class="prev" id="prev" hidden></p>
+    <p class="followup" id="followup" hidden></p>
+    <label for="answer" class="qcount" style="position:absolute;left:-9999px">Your answer</label>
+    <textarea id="answer" placeholder="Type your answer here"></textarea>
+    <div class="row">
+      <button id="next">Next question</button>
+      <button id="back" class="ghost">Back</button>
+      <span class="hint">Ctrl/⌘ + Enter to continue</span>
+    </div>
+  </section>
+
+  <section id="result" hidden>
+    <p class="status" id="status">Thanks for being honest with me. Give me a moment, I'm putting your plan together.</p>
+    <div id="err" class="error" hidden></div>
+    <article class="plan" id="plan" aria-live="polite"></article>
+    <div class="row" id="planActions" hidden>
+      <button id="copy" class="ghost">Copy my plan</button>
+      <button id="restart" class="ghost">Start over</button>
+    </div>
+    <div class="cta" id="cta" hidden>
+      <h3>Want to go further than a plan?</h3>
+      <p>Inside LaunchOS we shape the offer with you, get it in front of the right people, and work out what to do with the first yes.</p>
+      <a class="btn" id="ctaLink" href="https://docs.google.com/document/d/1-kZPOzLjudgzTBtkxuwDTKlfb5WaMPEQ3SxFKq11EAI/edit?tab=t.0" target="_blank" rel="noopener">Read about LaunchOS</a>
+    </div>
+  </section>
+</main>
+
+<script>
+const LAUNCHOS_LINK = "https://docs.google.com/document/d/1-kZPOzLjudgzTBtkxuwDTKlfb5WaMPEQ3SxFKq11EAI/edit?tab=t.0";
+const QUESTIONS = [
+  {q:"What do you do for work right now, and what are you good at outside of it?", f:"Tell me a bit more. Is that a job, freelance work, or something else? And what's the skill people would recognise you for?"},
+  {q:"What do people already ask you for help with? Friends, colleagues, people online.", f:"Even small things count. What's one thing someone asked you about recently?"},
+  {q:"Which business directions have you been bouncing between? List them all, even the half-serious ones.", f:"Name at least two, even if one feels a bit silly."},
+  {q:"What have you already tried, even briefly? What happened?", f:"Nothing yet is a fine answer. Then tell me: what have you planned but not started?"},
+  {q:"Who could you reach without ads? Roughly how many people, and where?", f:"A rough guess is fine. How many people, and on which platform or in which community?", digitOk:true},
+  {q:"Honestly, how many hours a week can you give this alongside everything else?", f:"A number helps: 1, 3, 6, more?", digitOk:true},
+  {q:"What would make the next 90 days feel like a win?", f:"What would you need to see to feel it worked?"},
+  {q:"What's actually stopped you so far?", f:"If you're completely honest, what's the real reason?"}
+];
+const KEY = "offer-gameplan-v1";
+let state = {i:0, answers:[], asked:[]};
+let running = null;
+
+const $ = id => document.getElementById(id);
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && Array.isArray(s.answers)) state = s; }catch(e){} }
+function show(id){ ["intro","ask","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo(0,0); }
+
+function renderQ(){
+  const n = state.i, item = QUESTIONS[n];
+  $("bar").style.width = ((n)/QUESTIONS.length*100)+"%";
+  $("qcount").textContent = "Question "+(n+1)+" of "+QUESTIONS.length;
+  $("qtext").textContent = item.q;
+  const inFollow = state.asked[n] === "follow";
+  $("followup").hidden = !inFollow;
+  $("followup").textContent = inFollow ? item.f : "";
+  $("prev").hidden = !inFollow;
+  $("prev").textContent = inFollow ? "You said: "+(state.answers[n]||"") : "";
+  $("answer").value = inFollow ? "" : (state.answers[n]||"");
+  $("back").hidden = n===0 && !inFollow;
+  $("next").textContent = n===QUESTIONS.length-1 ? "Build my plan" : "Next question";
+  $("answer").focus();
+}
+
+function words(t){ return t.trim().split(/\s+/).filter(Boolean).length; }
+
+function next(){
+  const n = state.i, item = QUESTIONS[n], val = $("answer").value.trim();
+  if(!val){ $("answer").focus(); return; }
+  if(state.asked[n] === "follow"){
+    state.answers[n] = state.answers[n] + "\n(Follow-up: " + item.f + ") " + val;
+    state.asked[n] = "done";
+  } else {
+    state.answers[n] = val;
+    const thin = words(val) < 5 && !(item.digitOk && /\d/.test(val));
+    if(thin && state.asked[n] !== "done"){ state.asked[n] = "follow"; save(); renderQ(); return; }
+    state.asked[n] = "done";
+  }
+  state.i++; save();
+  if(state.i >= QUESTIONS.length) buildPlan(); else renderQ();
+}
+
+function back(){
+  const n = state.i;
+  if(state.asked[n] === "follow"){ state.asked[n] = undefined; }
+  else if(n>0){ state.i--; state.asked[state.i] = undefined; }
+  save(); renderQ();
+}
+
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function inline(s){
+  return esc(s)
+    .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+    .replace(/(^|[^*])\*(?!\s)(.+?)\*/g,"$1<em>$2</em>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function md(text){
+  const lines = text.replace(/\r/g,"").split("\n"); let html="", list=false, quote=[], para=[];
+  const flushP=()=>{ if(para.length){ html+="<p>"+inline(para.join(" "))+"</p>"; para=[]; } };
+  const flushL=()=>{ if(list){ html+="</ul>"; list=false; } };
+  const flushQ=()=>{ if(quote.length){ html+="<blockquote>"+inline(quote.join("\n"))+"</blockquote>"; quote=[]; } };
+  for(const raw of lines){
+    const l = raw.trimEnd();
+    if(/^>\s?/.test(l)){ flushP(); flushL(); quote.push(l.replace(/^>\s?/,"")); continue; } else flushQ();
+    if(/^###\s+/.test(l)){ flushP(); flushL(); html+="<h3>"+inline(l.replace(/^###\s+/,""))+"</h3>"; }
+    else if(/^##\s+/.test(l)){ flushP(); flushL(); html+="<h2>"+inline(l.replace(/^##\s+/,""))+"</h2>"; }
+    else if(/^\s*[-*]\s+/.test(l)){ flushP(); if(!list){ html+="<ul>"; list=true; } html+="<li>"+inline(l.replace(/^\s*[-*]\s+/,""))+"</li>"; }
+    else if(!l.trim()){ flushP(); flushL(); }
+    else { flushL(); para.push(l.trim()); }
+  }
+  flushP(); flushL(); flushQ(); return html;
+}
+
+function errCopy(code){
+  switch(code){
+    case "no_access": return "This gameplan is for buyers. Please open it from the link in your purchase email or confirmation page.";
+    case "rate_limited": return "You've built a few plans today already. Come back tomorrow, or reach out and I'll help. Your answers are saved.";
+    case "bad_input": return "Some answers are missing or too long. Press Start over and try again.";
+    case "cancelled": return "Stopped. Press Try again when you're ready.";
+    default: return "The plan couldn't be finished this time. Press Try again. Your answers are saved.";
+  }
+}
+
+async function buildPlan(){
+  show("result");
+  $("plan").innerHTML = ""; $("err").hidden = true; $("cta").hidden = true; $("planActions").hidden = true;
+  $("status").hidden = false;
+  if(state.plan){ finish(state.plan); return; }
+  if(running) return;
+  running = new AbortController();
+  let text = "";
+  try{
+    const res = await fetch("/api/gameplan", {
+      method:"POST", signal: running.signal,
+      headers:{"Content-Type":"application/json","x-access-key": accessKey || ""},
+      body: JSON.stringify({answers: state.answers})
+    });
+    if(!res.ok){
+      let code = "error";
+      try{ code = (await res.json()).code || code; }catch(e){}
+      throw {code};
+    }
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      text += dec.decode(value, {stream:true});
+      if(text.includes("\u0000ERROR")) throw {code:"error", text: text.split("\u0000ERROR")[0]};
+      $("status").hidden = true; $("plan").innerHTML = md(text);
+    }
+    if(!text.trim()) throw {code:"error"};
+    state.plan = text; save(); finish(text);
+  }catch(e){
+    $("status").hidden = true;
+    const partial = (e && e.text) || text;
+    if(partial){ $("plan").innerHTML = md(partial); }
+    $("err").hidden = false;
+    $("err").innerHTML = esc(errCopy(e && (e.code || (e.name==="AbortError" ? "cancelled" : "error")))) + ' <div class="row"><button id="retry">Try again</button></div>';
+    $("retry").onclick = () => buildPlan();
+  }finally{ running = null; }
+}
+
+function finish(text){
+  $("status").hidden = true;
+  $("plan").innerHTML = md(text);
+  $("planActions").hidden = false; $("cta").hidden = false;
+}
+
+$("start").onclick = () => { if(state.i >= QUESTIONS.length){ buildPlan(); return; } show("ask"); renderQ(); };
+$("next").onclick = next;
+$("back").onclick = back;
+$("answer").addEventListener("keydown", e => { if(e.key==="Enter" && (e.metaKey||e.ctrlKey)){ e.preventDefault(); next(); } });
+$("copy").onclick = async () => {
+  try{ await navigator.clipboard.writeText(state.plan||""); $("copy").textContent = "Copied"; }
+  catch(e){ $("copy").textContent = "Select the text to copy"; }
+  setTimeout(()=>{ $("copy").textContent = "Copy my plan"; }, 2000);
+};
+$("restart").onclick = () => {
+  if(!confirm("Start over? Your answers and plan will be cleared.")) return;
+  state = {i:0, answers:[], asked:[]}; save(); show("intro");
+};
+
+load();
+if(state.i >= QUESTIONS.length){ $("start").textContent = "See my plan"; }
+if(state.i > 0 && state.i < QUESTIONS.length){ $("start").textContent = "Continue where you left off"; }
+
+let accessKey = "";
+try{
+  const p = new URLSearchParams(location.search).get("access");
+  if(p){ localStorage.setItem(KEY+"-access", p); history.replaceState(null, "", location.pathname); }
+  accessKey = localStorage.getItem(KEY+"-access") || p || "";
+}catch(e){ accessKey = new URLSearchParams(location.search).get("access") || ""; }
+</script>
+</body>
+</html>
