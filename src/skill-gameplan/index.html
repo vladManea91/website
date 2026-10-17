@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Skill to Offer Gameplan · Vlad Manea</title>
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F3EDE0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E241C" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -62,6 +67,40 @@ textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--in
 .cta p{margin:0 0 20px;color:#d9e2dc}
 .error{background:var(--field);border:1.5px solid var(--orange);border-radius:14px;padding:18px;margin:16px 0}
 [hidden]{display:none!important}
+/* ===== web + mobile app fit ===== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{min-height:100dvh;overflow-x:hidden}
+.wrap{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+button,.btn,.choices button,textarea{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button,.btn{min-height:48px}
+textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55dvh;overflow-y:auto}
+.plan{overflow-wrap:anywhere}
+.plan blockquote{overflow-wrap:anywhere}
+@media (hover:none){.hint{display:none!important}}
+@media (min-width:900px){
+  .wrap{max-width:720px;padding-block:64px 96px}
+  .question{font-size:36px}
+}
+@media (max-width:600px){
+  body{font-size:16.5px}
+  .wrap{padding-block:24px 40px}
+  .brand{margin-bottom:28px}
+  h1{font-size:clamp(34px,10vw,46px)}
+  .lede{font-size:17.5px}
+  #start{width:100%}
+  .question{font-size:clamp(23px,6.4vw,28px);margin-bottom:16px}
+  .progress{margin-bottom:22px}
+  #ask .row{position:sticky;bottom:0;z-index:5;margin:16px calc(-1*max(20px,env(safe-area-inset-left,0px))) 0;padding:12px max(20px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
+  #ask .row #next{flex:1}
+  .choices button{padding:16px 18px}
+  .plan h2{font-size:25px;margin-top:34px}
+  .plan h3{font-size:19px}
+  #planActions button{flex:1}
+  .cta{padding:22px;border-radius:16px}
+  .cta .btn{display:block;text-align:center}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -86,7 +125,7 @@ textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--in
     <p class="prev" id="prev" hidden></p>
     <p class="followup" id="followup" hidden></p>
     <label for="answer" class="qcount" style="position:absolute;left:-9999px">Your answer</label>
-    <textarea id="answer" placeholder="Type your answer here. A few sentences is plenty."></textarea>
+    <textarea id="answer" placeholder="Type your answer here. A few sentences is plenty." rows="5" enterkeyhint="next" autocapitalize="sentences" autocomplete="off" spellcheck="true"></textarea>
     <div class="choices" id="choices" hidden></div>
     <div class="row">
       <button id="next">Next question</button>
@@ -133,12 +172,12 @@ let running = null;
 const $ = id => document.getElementById(id);
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
 function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && Array.isArray(s.answers)) state = s; }catch(e){} }
-function show(id){ ["intro","ask","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo(0,0); }
+function show(id){ ["intro","ask","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo({top:0,behavior:"auto"}); }
 
 function renderQ(){
   const n = state.i, item = QUESTIONS[n];
   $("bar").style.width = ((n)/QUESTIONS.length*100)+"%";
-  $("qcount").textContent = "Stage "+(item.st+1)+" of "+STAGES.length+" · "+STAGES[item.st]+" · Question "+(n+1)+" of "+QUESTIONS.length;
+  $("qcount").textContent = "Question "+(n+1)+" of "+QUESTIONS.length+" · "+STAGES[item.st]+" (stage "+(item.st+1)+" of "+STAGES.length+")";
   $("qtext").textContent = item.q;
   const inFollow = state.asked[n] === "follow";
   $("followup").hidden = !inFollow;
@@ -163,9 +202,12 @@ function renderQ(){
     return;
   }
   $("next").textContent = n===QUESTIONS.length-1 ? "Build my plan" : "Next question";
-  $("answer").focus();
+  grow();
+  const touch = window.matchMedia("(hover: none)").matches;
+  if(!touch) $("answer").focus();
 }
 
+function grow(){ const t=$("answer"); t.style.height="auto"; t.style.height=Math.min(t.scrollHeight+2, window.innerHeight*0.55)+"px"; }
 function words(t){ return t.trim().split(/\s+/).filter(Boolean).length; }
 
 function next(){
@@ -278,6 +320,7 @@ function finish(text){
 $("start").onclick = () => { if(state.i >= QUESTIONS.length){ buildPlan(); return; } show("ask"); renderQ(); };
 $("next").onclick = next;
 $("back").onclick = back;
+$("answer").addEventListener("input", grow);
 $("answer").addEventListener("keydown", e => { if(e.key==="Enter" && (e.metaKey||e.ctrlKey)){ e.preventDefault(); next(); } });
 $("copy").onclick = async () => {
   try{ await navigator.clipboard.writeText(state.plan||""); $("copy").textContent = "Copied"; }
