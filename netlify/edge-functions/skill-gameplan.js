@@ -96,8 +96,17 @@ async function handle(req, context) {
   const accessKey = env("ACCESS_KEY");
   if (accessKey && req.headers.get("x-access-key") !== accessKey) return json("no_access", 403);
 
-  let answers;
-  try { ({ answers } = await req.json()); } catch { return json("bad_input", 400); }
+  let body;
+  try { body = await req.json(); } catch { return json("bad_input", 400); }
+
+  // Finished run: email it to you via Resend (uses the same RESEND_API_KEY / NOTIFY_EMAIL / NOTIFY_FROM as the old tool).
+  if (body && body.action === "done") {
+    if (!env("RESEND_API_KEY") || !env("NOTIFY_EMAIL")) { console.error("Resend not configured"); return json("ok", 200); }
+    try { await sendRunEmail(env, body); return json("ok", 200); }
+    catch (e) { console.error("Resend:", e); return json("email_failed", 502); }
+  }
+
+  const answers = body && body.answers;
   if (!Array.isArray(answers) || answers.length !== QUESTIONS.length ||
       answers.some(a => typeof a !== "string" || !a.trim() || a.length > MAX_ANSWER)) {
     return json("bad_input", 400);
@@ -129,6 +138,7 @@ async function handle(req, context) {
       model,
       max_tokens: 8000,
       stream: true,
+      reasoning: { effort: "low", exclude: true }, // keeps thinking short on reasoning models; ignored by others
       messages: [{ role: "user", content: buildPrompt(answers) }]
     })
   });
@@ -141,6 +151,37 @@ async function handle(req, context) {
   return new Response(upstream.body, {
     headers: { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-store" }
   });
+}
+
+const EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
+const escHtml = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const cut = (t, n) => String(t || "").slice(0, n);
+
+async function sendRunEmail(env, body) {
+  const name = cut(body.name, 60).replace(/\s+/g, " ").trim();
+  const email = EMAIL_RE.test(String(body.email || "").trim()) ? String(body.email).trim() : "";
+  const answers = Array.isArray(body.answers) ? body.answers.slice(0, QUESTIONS.length).map(a => cut(a, MAX_ANSWER)) : [];
+  const plan = cut(body.plan, 40000);
+  const pairs = QUESTIONS.map((q, k) => [q.q, answers[k] || ""]);
+  const html = '<div style="max-width:640px;font:14px/1.55 sans-serif">' +
+    '<h2 style="font:600 16px sans-serif;margin:0 0 8px">Who</h2><p>' + escHtml(name || "No name") + (email ? " &lt;" + escHtml(email) + "&gt;" : "") + "</p>" +
+    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their answers</h2>' +
+    pairs.map(p => "<p><strong>" + escHtml(p[0]) + "</strong><br>" + escHtml(p[1]).replace(/\n/g, "<br>") + "</p>").join("") +
+    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their gameplan</h2><pre style="white-space:pre-wrap;font:13px/1.55 sans-serif">' + escHtml(plan) + "</pre></div>";
+  const text = "Who: " + (name || "No name") + (email ? " <" + email + ">" : "") + "\n\n" +
+    pairs.map(p => p[0] + "\n" + p[1]).join("\n\n") + "\n\n--- Gameplan ---\n\n" + plan;
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + env("RESEND_API_KEY"), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from: env("NOTIFY_FROM") || "Skill to Offer Gameplan <onboarding@resend.dev>",
+      to: String(env("NOTIFY_EMAIL")).split(",").map(e => e.trim()).filter(Boolean),
+      ...(email ? { reply_to: email } : {}),
+      subject: "New Skill to Offer Gameplan" + (name || email ? ": " + [name, email && "<" + email + ">"].filter(Boolean).join(" ") : ""),
+      html, text
+    })
+  });
+  if (!res.ok) throw new Error(res.status + " " + (await res.text()));
 }
 
 export const config = { path: "/api/skill-gameplan" };
