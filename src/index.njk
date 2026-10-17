@@ -8,7 +8,7 @@ layout: layouts/base.njk
     <h1>{{ site.hero_headline }}</h1>
     <p>{{ site.hero_sub }}</p>
     <div class="hero-actions">
-      <a class="btn" href="{{ site.community_url }}" rel="noopener">Join {{ site.community_name }}</a>
+      <a class="btn" href="{{ site.community_url }}" rel="noopener">{{ site.hero_button or "Get the gameplan" }}</a>
       <a class="quiet" href="/articles/">Read the articles &rarr;</a>
     </div>
   </section>

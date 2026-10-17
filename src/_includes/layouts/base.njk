@@ -97,7 +97,7 @@
         {% for p in collections.navPages %}
         <a href="{{ p.url }}" class="hide-mobile">{{ p.data.nav_label or p.data.title }}</a>
         {% endfor %}
-        <a href="{{ site.community_url }}" class="btn" rel="noopener">Join the community</a>
+        <a href="{{ site.community_url }}" class="btn" rel="noopener">{{ site.nav_button or "Get a gameplan" }}</a>
       </div>
     </div>
   </nav>
