@@ -43,4 +43,6 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
+Disallow: /skill-gameplan/
+
 Sitemap: https://yourdomain.com/sitemap.xml

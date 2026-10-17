@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Offer Gameplan by Vlad Manea</title>
+<title>Skill to Offer Gameplan · Vlad Manea</title>
+<meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -38,6 +39,10 @@ button:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:3px solid
 .question{font-family:Fraunces,Georgia,serif;font-size:clamp(26px,6vw,34px);line-height:1.2;margin:0 0 22px}
 .followup{background:var(--field);border-left:3px solid var(--orange);padding:12px 16px;border-radius:0 10px 10px 0;margin:0 0 16px;font-size:16px}
 .prev{font-size:15px;color:var(--muted);margin:0 0 12px;white-space:pre-wrap}
+.choices{display:grid;gap:10px}
+.choices button{background:var(--field);color:var(--ink);text-align:left;border-radius:14px;box-shadow:inset 0 0 0 1.5px var(--line);padding:18px 20px;font-weight:500}
+.choices button:hover{box-shadow:inset 0 0 0 1.5px var(--orange)}
+.choices button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--orange);font-weight:600}
 textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:16px}
 .row{display:flex;gap:12px;margin-top:16px;align-items:center;flex-wrap:wrap}
 .hint{font-size:13px;color:var(--muted);margin-left:auto}
@@ -62,16 +67,16 @@ textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--in
 </head>
 <body>
 <main class="wrap">
-  <p class="brand"><span>Vlad Manea</span><span>Offer Gameplan</span></p>
+  <p class="brand"><span>Vlad Manea</span><span>Skill to Offer Gameplan</span></p>
 
   <section id="intro">
-    <h1>Bring me the mess.</h1>
+    <h1>Turn your skills into an offer, and the content that sells it.</h1>
     <div class="lede">
-      <p>Your skills, your ideas, the things people keep asking you for. Eight questions, one at a time, the same ones I'd ask on a call.</p>
-      <p>Then you get your plan: one direction worth testing, your first offer, and what to do in the next 30 days.</p>
+      <p>I'll interview you the way I would on a strategy call, in six stages: your story, your skills, who'd pay, the offer, the price, and how to talk about it. Ten questions, one at a time.</p>
+      <p>Then you get your gameplan: one offer built on your experience, priced on the result it creates, plus your hook, your story angle and a content plan that attracts the people who want it.</p>
     </div>
     <button id="start">Start my gameplan</button>
-    <p class="meta">Takes about 15 minutes. Honest answers make a better plan. Your answers stay in this browser and are only sent to write your plan.</p>
+    <p class="meta">Takes about 12 minutes. Honest, specific answers make a better offer. Your answers stay in this browser and are only sent to write your gameplan.</p>
   </section>
 
   <section id="ask" hidden>
@@ -81,7 +86,8 @@ textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--in
     <p class="prev" id="prev" hidden></p>
     <p class="followup" id="followup" hidden></p>
     <label for="answer" class="qcount" style="position:absolute;left:-9999px">Your answer</label>
-    <textarea id="answer" placeholder="Type your answer here"></textarea>
+    <textarea id="answer" placeholder="Type your answer here. A few sentences is plenty."></textarea>
+    <div class="choices" id="choices" hidden></div>
     <div class="row">
       <button id="next">Next question</button>
       <button id="back" class="ghost">Back</button>
@@ -90,7 +96,7 @@ textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--in
   </section>
 
   <section id="result" hidden>
-    <p class="status" id="status">Thanks for being honest with me. Give me a moment, I'm putting your plan together.</p>
+    <p class="status" id="status">Thanks, that's everything I need. Give me a moment, I'm building your offer, your price and your content plan.</p>
     <div id="err" class="error" hidden></div>
     <article class="plan" id="plan" aria-live="polite"></article>
     <div class="row" id="planActions" hidden>
@@ -98,8 +104,8 @@ textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--in
       <button id="restart" class="ghost">Start over</button>
     </div>
     <div class="cta" id="cta" hidden>
-      <h3>Want to go further than a plan?</h3>
-      <p>Inside LaunchOS we shape the offer with you, get it in front of the right people, and work out what to do with the first yes.</p>
+      <h3>Want help running this plan?</h3>
+      <p>Inside LaunchOS we sharpen the offer with you, review your content, and work out what to do with the first DMs and the first yes.</p>
       <a class="btn" id="ctaLink" href="https://docs.google.com/document/d/1-kZPOzLjudgzTBtkxuwDTKlfb5WaMPEQ3SxFKq11EAI/edit?tab=t.0" target="_blank" rel="noopener">Read about LaunchOS</a>
     </div>
   </section>
@@ -107,17 +113,20 @@ textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--in
 
 <script>
 const LAUNCHOS_LINK = "https://docs.google.com/document/d/1-kZPOzLjudgzTBtkxuwDTKlfb5WaMPEQ3SxFKq11EAI/edit?tab=t.0";
+const STAGES = ["Background","Skills","Market","Offer","Price","Content"];
 const QUESTIONS = [
-  {q:"What do you do for work right now, and what are you good at outside of it?", f:"Tell me a bit more. Is that a job, freelance work, or something else? And what's the skill people would recognise you for?"},
-  {q:"What do people already ask you for help with? Friends, colleagues, people online.", f:"Even small things count. What's one thing someone asked you about recently?"},
-  {q:"Which business directions have you been bouncing between? List them all, even the half-serious ones.", f:"Name at least two, even if one feels a bit silly."},
-  {q:"What have you already tried, even briefly? What happened?", f:"Nothing yet is a fine answer. Then tell me: what have you planned but not started?"},
-  {q:"Who could you reach without ads? Roughly how many people, and where?", f:"A rough guess is fine. How many people, and on which platform or in which community?", digitOk:true},
-  {q:"Honestly, how many hours a week can you give this alongside everything else?", f:"A number helps: 1, 3, 6, more?", digitOk:true},
-  {q:"What would make the next 90 days feel like a win?", f:"What would you need to see to feel it worked?"},
-  {q:"What's actually stopped you so far?", f:"If you're completely honest, what's the real reason?"}
+  {st:0, q:"Let's begin. Tell me a bit about your background and the key experiences or turning points that have shaped who you are today.", f:"Give me one turning point. What happened, and what changed for you after it?"},
+  {st:0, q:"What's the biggest challenge you've overcome, in your life or your career?", f:"What was hard about it, and what did you do that actually worked?"},
+  {st:1, q:"What do you do for work, and what are you good at outside of it? Skills, side projects, things you taught yourself.", f:"Name two or three things you're genuinely better at than most people around you."},
+  {st:1, q:"What results have you got, for yourself or for someone else? Give me a before and after.", f:"Even a small one counts. What changed, for whom, and how long did it take?"},
+  {st:1, q:"What do people already ask you for advice on?", f:"Think of the last few months. What's one thing someone asked you about?"},
+  {st:2, q:"Who would benefit most from what you know? Describe the person or industry, and what they're struggling with right now.", f:"Be specific: their job or situation, and the exact problem that keeps them stuck."},
+  {st:4, q:"What does it cost that person to not solve this problem? Money, time, missed chances, stress. And what's it worth to them once it's solved?", f:"Put a number on it if you can, even a rough one: lost income, hours wasted, a price they already pay for something worse."},
+  {st:3, q:"Which way of delivering it fits you best?", choices:["1:1 coaching","Done-with-you (we build it together)","Done-for-you service","Small group or community","Digital product or course","Not sure yet"]},
+  {st:5, q:"Where do you post, or where would you post?", choices:["Instagram","LinkedIn","TikTok","YouTube","Not posting yet"]},
+  {st:5, q:"How many hours a week can you give this?", choices:["1–2 hours","3–5 hours","6–10 hours","More than 10"]}
 ];
-const KEY = "offer-gameplan-v1";
+const KEY = "skill-offer-gameplan-v2";
 let state = {i:0, answers:[], asked:[]};
 let running = null;
 
@@ -129,15 +138,30 @@ function show(id){ ["intro","ask","result"].forEach(s => $(s).hidden = s!==id); 
 function renderQ(){
   const n = state.i, item = QUESTIONS[n];
   $("bar").style.width = ((n)/QUESTIONS.length*100)+"%";
-  $("qcount").textContent = "Question "+(n+1)+" of "+QUESTIONS.length;
+  $("qcount").textContent = "Stage "+(item.st+1)+" of "+STAGES.length+" · "+STAGES[item.st]+" · Question "+(n+1)+" of "+QUESTIONS.length;
   $("qtext").textContent = item.q;
   const inFollow = state.asked[n] === "follow";
   $("followup").hidden = !inFollow;
   $("followup").textContent = inFollow ? item.f : "";
   $("prev").hidden = !inFollow;
   $("prev").textContent = inFollow ? "You said: "+(state.answers[n]||"") : "";
-  $("answer").value = inFollow ? "" : (state.answers[n]||"");
   $("back").hidden = n===0 && !inFollow;
+  $("answer").value = inFollow ? "" : (state.answers[n]||"");
+  const isChoice = !!item.choices;
+  $("answer").hidden = isChoice; $("choices").hidden = !isChoice;
+  document.querySelector(".hint").hidden = isChoice;
+  $("next").hidden = isChoice;
+  if(isChoice){
+    $("choices").innerHTML = "";
+    item.choices.forEach(c => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = c;
+      b.setAttribute("aria-pressed", state.answers[n]===c ? "true" : "false");
+      b.onclick = () => { $("answer").value = c; next(); };
+      $("choices").appendChild(b);
+    });
+    $("choices").firstChild.focus();
+    return;
+  }
   $("next").textContent = n===QUESTIONS.length-1 ? "Build my plan" : "Next question";
   $("answer").focus();
 }
@@ -152,7 +176,7 @@ function next(){
     state.asked[n] = "done";
   } else {
     state.answers[n] = val;
-    const thin = words(val) < 5 && !(item.digitOk && /\d/.test(val));
+    const thin = !item.choices && words(val) < 5;
     if(thin && state.asked[n] !== "done"){ state.asked[n] = "follow"; save(); renderQ(); return; }
     state.asked[n] = "done";
   }
@@ -193,11 +217,11 @@ function md(text){
 
 function errCopy(code){
   switch(code){
-    case "no_access": return "This gameplan is for buyers. Please open it from the link in your purchase email or confirmation page.";
-    case "rate_limited": return "You've built a few plans today already. Come back tomorrow, or reach out and I'll help. Your answers are saved.";
+    case "no_access": return "This gameplan is for buyers. Please open it from the link on your purchase confirmation page or in your purchase email.";
+    case "rate_limited": return "You've built a few gameplans today already. Come back tomorrow, or reply to your purchase email and I'll help. Your answers are saved.";
     case "bad_input": return "Some answers are missing or too long. Press Start over and try again.";
     case "cancelled": return "Stopped. Press Try again when you're ready.";
-    default: return "The plan couldn't be finished this time. Press Try again. Your answers are saved.";
+    default: return "Your gameplan couldn't be finished this time. Press Try again. Your answers are saved.";
   }
 }
 
@@ -210,30 +234,35 @@ async function buildPlan(){
   running = new AbortController();
   let text = "";
   try{
-    const res = await fetch("/api/gameplan", {
+    const res = await fetch("/api/skill-gameplan", {
       method:"POST", signal: running.signal,
       headers:{"Content-Type":"application/json","x-access-key": accessKey || ""},
       body: JSON.stringify({answers: state.answers})
     });
-    if(!res.ok){
-      let code = "error";
-      try{ code = (await res.json()).code || code; }catch(e){}
-      throw {code};
-    }
-    const reader = res.body.getReader(), dec = new TextDecoder();
+    if(!res.ok){ let code="error"; try{ code=(await res.json()).code||code; }catch(e){} throw {code}; }
+    const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "";
     while(true){
       const {done, value} = await reader.read();
       if(done) break;
-      text += dec.decode(value, {stream:true});
-      if(text.includes("\u0000ERROR")) throw {code:"error", text: text.split("\u0000ERROR")[0]};
-      $("status").hidden = true; $("plan").innerHTML = md(text);
+      buf += dec.decode(value, {stream:true});
+      const lines = buf.split("\n"); buf = lines.pop();
+      for(const line of lines){
+        if(!line.startsWith("data:")) continue;
+        const data = line.slice(5).trim();
+        if(data === "[DONE]") continue;
+        let ev; try{ ev = JSON.parse(data); }catch(e){ continue; }
+        if(ev.error){ console.error("stream error", ev.error); throw {code:"error", text}; }
+        const piece = ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.content;
+        if(piece) text += piece;
+      }
+      if(text){ $("status").hidden = true; $("plan").innerHTML = md(text); }
     }
     if(!text.trim()) throw {code:"error"};
     state.plan = text; save(); finish(text);
   }catch(e){
     $("status").hidden = true;
     const partial = (e && e.text) || text;
-    if(partial){ $("plan").innerHTML = md(partial); }
+    if(partial) $("plan").innerHTML = md(partial);
     $("err").hidden = false;
     $("err").innerHTML = esc(errCopy(e && (e.code || (e.name==="AbortError" ? "cancelled" : "error")))) + ' <div class="row"><button id="retry">Try again</button></div>';
     $("retry").onclick = () => buildPlan();
