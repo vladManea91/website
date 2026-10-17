@@ -84,6 +84,11 @@ const json = (code, status) => new Response(JSON.stringify({ code }), {
 });
 
 export default async (req, context) => {
+  try { return await handle(req, context); }
+  catch (e) { console.error("skill-gameplan crashed", e); return json("server_crash", 500); }
+};
+
+async function handle(req, context) {
   if (req.method !== "POST") return json("method_not_allowed", 405);
   const env = (k) => Netlify.env.get(k);
 
@@ -110,7 +115,8 @@ export default async (req, context) => {
   } catch (e) { console.error("rate limit store", e); }
 
   const model = env("OPENROUTER_MODEL");
-  if (!model) { console.error("OPENROUTER_MODEL is not set"); return json("error", 500); }
+  if (!model) { console.error("OPENROUTER_MODEL is not set"); return json("missing_model", 500); }
+  if (!env("OPENROUTER_API_KEY")) { console.error("OPENROUTER_API_KEY is not set"); return json("missing_api_key", 500); }
   const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -127,13 +133,14 @@ export default async (req, context) => {
     })
   });
   if (!upstream.ok || !upstream.body) {
-    console.error("openrouter", upstream.status, await upstream.text().catch(() => ""));
-    return json("error", 502);
+    const detail = await upstream.text().catch(() => "");
+    console.error("openrouter", upstream.status, detail);
+    return json("openrouter_" + upstream.status, 502);
   }
   // Pass OpenRouter's event stream straight through; the page reads it.
   return new Response(upstream.body, {
     headers: { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-store" }
   });
-};
+}
 
 export const config = { path: "/api/skill-gameplan" };

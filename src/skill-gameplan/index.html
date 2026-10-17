@@ -263,7 +263,12 @@ function errCopy(code){
     case "rate_limited": return "You've built a few gameplans today already. Come back tomorrow, or reply to your purchase email and I'll help. Your answers are saved.";
     case "bad_input": return "Some answers are missing or too long. Press Start over and try again.";
     case "cancelled": return "Stopped. Press Try again when you're ready.";
-    default: return "Your gameplan couldn't be finished this time. Press Try again. Your answers are saved.";
+    case "missing_model": return "Setup issue: OPENROUTER_MODEL isn't set in Netlify. Add it, redeploy, then press Try again. Your answers are saved.";
+    case "missing_api_key": return "Setup issue: OPENROUTER_API_KEY isn't available to this function in Netlify. Your answers are saved.";
+    case "openrouter_401": return "Setup issue: OpenRouter rejected the API key. Check OPENROUTER_API_KEY in Netlify. Your answers are saved.";
+    case "openrouter_402": return "Setup issue: the OpenRouter account is out of credits. Your answers are saved.";
+    case "openrouter_400": case "openrouter_404": return "Setup issue: OpenRouter doesn't recognise the model ID in OPENROUTER_MODEL. Your answers are saved.";
+    default: return "Your gameplan couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
   }
 }
 
