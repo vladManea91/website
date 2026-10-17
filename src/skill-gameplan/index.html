@@ -336,7 +336,7 @@ async function buildPlan(){
   show("result");
   $("plan").innerHTML = ""; $("err").hidden = true; $("cta").hidden = true; $("planActions").hidden = true;
   $("status").hidden = false;
-  if(state.plan){ finish(state.plan); return; }
+  if(state.plan){ finish(state.plan); notifyDone(state.plan); return; }
   if(running) return;
   running = new AbortController();
   let text = "";
