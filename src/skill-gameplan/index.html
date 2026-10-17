@@ -51,7 +51,17 @@ button:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:3px solid
 textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:16px}
 .row{display:flex;gap:12px;margin-top:16px;align-items:center;flex-wrap:wrap}
 .hint{font-size:13px;color:var(--muted);margin-left:auto}
-.status{font-family:Fraunces,Georgia,serif;font-size:24px;margin:8px 0 24px}
+.status{font-family:Fraunces,Georgia,serif;font-size:24px;margin:8px 0 18px}
+.loadbox{background:var(--field);border:1.5px solid var(--line);border-radius:16px;padding:18px 20px;margin:0 0 28px;display:grid;gap:10px}
+.lbar{height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+.lbar span{display:block;height:100%;width:3%;background:var(--orange);border-radius:8px;transition:width .6s ease-out}
+.lrow{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.lstep{font-weight:600;margin:0}
+.ltime{font-size:14px;color:var(--muted);margin:0;font-variant-numeric:tabular-nums}
+.lnote{font-size:14px;color:var(--muted);margin:0}
+.lbar.pulse span{animation:lpulse 1.6s ease-in-out infinite}
+@keyframes lpulse{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){.lbar span{transition:none}.lbar.pulse span{animation:none}}
 .plan h2{font-size:30px;margin:44px 0 14px;padding-top:24px;border-top:1.5px solid var(--line)}
 .plan h2:first-child{margin-top:0;border-top:0;padding-top:0}
 .plan h3{font-size:21px;margin:26px 0 8px}
@@ -135,7 +145,12 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
   </section>
 
   <section id="result" hidden>
-    <p class="status" id="status">Thanks, that's everything I need. Give me a moment, I'm building your offer, your price and your content plan.</p>
+    <p class="status" id="status">Thanks, that's everything I need. I'm building your offer, your price and your content plan.</p>
+    <div class="loadbox" id="loadbox" role="status" aria-live="polite" hidden>
+      <div class="lbar pulse" id="lbar"><span id="lfill"></span></div>
+      <div class="lrow"><p class="lstep" id="lstep">Reading your answers</p><p class="ltime" id="ltime">0s</p></div>
+      <p class="lnote" id="lnote">This usually takes 1 to 2 minutes. Keep this page open.</p>
+    </div>
     <div id="err" class="error" hidden></div>
     <article class="plan" id="plan" aria-live="polite"></article>
     <div class="row" id="planActions" hidden>
@@ -263,6 +278,7 @@ function errCopy(code){
     case "rate_limited": return "You've built a few gameplans today already. Come back tomorrow, or reply to your purchase email and I'll help. Your answers are saved.";
     case "bad_input": return "Some answers are missing or too long. Press Start over and try again.";
     case "cancelled": return "Stopped. Press Try again when you're ready.";
+    case "empty_response": return "The AI model finished without writing anything. Free models often do this on long answers. Switch OPENROUTER_MODEL in Netlify to a paid model, redeploy, then press Try again. Your answers are saved.";
     case "missing_model": return "Setup issue: OPENROUTER_MODEL isn't set in Netlify. Add it, redeploy, then press Try again. Your answers are saved.";
     case "missing_api_key": return "Setup issue: OPENROUTER_API_KEY isn't available to this function in Netlify. Your answers are saved.";
     case "openrouter_401": return "Setup issue: OpenRouter rejected the API key. Check OPENROUTER_API_KEY in Netlify. Your answers are saved.";
@@ -272,6 +288,35 @@ function errCopy(code){
   }
 }
 
+const SECTIONS = ["Your story and skills","Your market","Your offer","Your price","Your positioning","Your content plan","From comment to client","The gap"];
+let loadTimer = null, loadStart = 0, thinking = false;
+function setFill(pct){ $("lfill").style.width = Math.max(3, Math.min(99, pct)) + "%"; }
+function startLoad(){
+  loadStart = Date.now(); thinking = false;
+  $("loadbox").hidden = false; $("lbar").classList.add("pulse"); setFill(3);
+  $("lstep").textContent = "Reading your answers";
+  $("lnote").textContent = "This usually takes 1 to 2 minutes. Keep this page open.";
+  clearInterval(loadTimer);
+  loadTimer = setInterval(() => {
+    const t = Math.round((Date.now() - loadStart) / 1000);
+    $("ltime").textContent = t < 60 ? t + "s" : Math.floor(t/60) + "m " + (t%60) + "s";
+    if(!$("plan").textContent){
+      setFill(3 + 9 * (1 - Math.exp(-t / 25)));
+      $("lstep").textContent = thinking ? "Thinking it through" : t < 8 ? "Reading your answers" : t < 20 ? "Finding your strongest skill" : "Shaping your offer";
+      if(t > 90) $("lnote").textContent = "Still working. Longer answers take a little longer.";
+    }
+  }, 1000);
+}
+function progressFrom(text){
+  const done = SECTIONS.filter(h => text.includes("## " + h)).length;
+  const current = SECTIONS[Math.max(0, done - 1)];
+  $("lbar").classList.remove("pulse");
+  setFill(12 + (done / SECTIONS.length) * 85);
+  $("lstep").textContent = "Writing: " + current + " (" + Math.max(1, done) + " of " + SECTIONS.length + ")";
+  $("lnote").textContent = "Your gameplan is appearing below as it's written.";
+}
+function stopLoad(){ clearInterval(loadTimer); loadTimer = null; $("loadbox").hidden = true; }
+
 async function buildPlan(){
   show("result");
   $("plan").innerHTML = ""; $("err").hidden = true; $("cta").hidden = true; $("planActions").hidden = true;
@@ -280,6 +325,7 @@ async function buildPlan(){
   if(running) return;
   running = new AbortController();
   let text = "";
+  startLoad();
   try{
     const res = await fetch("/api/skill-gameplan", {
       method:"POST", signal: running.signal,
@@ -301,12 +347,15 @@ async function buildPlan(){
         if(ev.error){ console.error("stream error", ev.error); throw {code:"error", text}; }
         const piece = ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.content;
         if(piece) text += piece;
+        else if(ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.reasoning) thinking = true;
       }
-      if(text){ $("status").hidden = true; $("plan").innerHTML = md(text); }
+      if(text){ $("status").hidden = true; $("plan").innerHTML = md(text); progressFrom(text); }
     }
-    if(!text.trim()) throw {code:"error"};
+    if(!text.trim()) throw {code:"empty_response"};
+    stopLoad();
     state.plan = text; save(); finish(text);
   }catch(e){
+    stopLoad();
     $("status").hidden = true;
     const partial = (e && e.text) || text;
     if(partial) $("plan").innerHTML = md(partial);
