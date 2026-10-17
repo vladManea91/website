@@ -92,8 +92,8 @@ async function handle(req, context) {
   if (req.method !== "POST") return json("method_not_allowed", 405);
   const env = (k) => Netlify.env.get(k);
 
-  // Buyer gate: set ACCESS_KEY in Netlify and add ?access=<key> to the ThriveCart success URL.
-  const accessKey = env("ACCESS_KEY");
+  // Buyer gate: uses ACCESS_KEY, or MEMBER_KEY if that isn't set. Buyers arrive with ?access=<key> on the delivery link.
+  const accessKey = env("ACCESS_KEY") || env("MEMBER_KEY"); // falls back to the old tool's key
   if (accessKey && req.headers.get("x-access-key") !== accessKey) return json("no_access", 403);
 
   let body;
