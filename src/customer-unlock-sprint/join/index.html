@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Join the Customer Unlock Sprint · Vlad Manea</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#f6f5f2">
+<style>
+:root{
+  --bg:#f6f5f2; --page:#ffffff; --ink:#1d1d1f; --soft:#5f6368; --line:#e4e2dd; --accent:#e9622b; --accent-ink:#ffffff; --chip:#fdf0ea;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141414; --page:#1d1d1d; --ink:#ececec; --soft:#a3a3a3; --line:#333; --chip:#3a2418; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141414; --page:#1d1d1d; --ink:#ececec; --soft:#a3a3a3; --line:#333; --chip:#3a2418; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--font);-webkit-font-smoothing:antialiased}
+.bar{text-align:center;font-size:14px;color:var(--soft);padding:18px 16px 0}
+.doc{max-width:860px;margin:18px auto 48px;background:var(--page);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 30px rgba(0,0,0,.04);padding:52px 56px 56px}
+.head{text-align:center;padding-bottom:28px;margin-bottom:32px;border-bottom:1px solid var(--line)}
+h1{font-size:clamp(28px,5vw,38px);line-height:1.15;font-weight:700;letter-spacing:-.01em;margin:0 0 12px}
+.head p{margin:0;color:var(--soft)}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.plan{border:1px solid var(--line);border-radius:10px;padding:24px;display:grid;gap:14px;align-content:start}
+.plan.vip{border:2px solid var(--accent)}
+.plan h2{font-size:22px;margin:0;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:12px;font-weight:600;background:var(--chip);color:var(--accent);border-radius:999px;padding:2px 10px}
+.plan p{margin:0;color:var(--soft);font-size:15.5px}
+.plan ul{margin:0;padding-left:1.2em;font-size:15.5px}
+.plan li{margin:0 0 .35em}
+.pay{display:grid;gap:10px;margin-top:4px}
+.btn{display:block;text-align:center;text-decoration:none;border-radius:8px;padding:14px 16px;font-weight:700;font-size:16px;min-height:48px;border:1.5px solid var(--accent);color:var(--accent);background:transparent}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn small{display:block;font-weight:500;font-size:13px;opacity:.85;margin-top:2px}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.fine{margin:28px auto 0;max-width:620px;text-align:center;font-size:14.5px;color:var(--soft)}
+.fine a{color:inherit}
+@media (max-width:720px){
+  .doc{margin:12px 0 32px;border-radius:0;border-left:0;border-right:0;padding:32px 16px 40px}
+  .plans{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<p class="bar">Vlad Manea</p>
+<main class="doc">
+  <header class="head">
+    <h1>Join the Customer Unlock Sprint</h1>
+    <p>We start Monday, November 30. Enrolment closes Friday, November 27.</p>
+  </header>
+
+  <div class="plans">
+    <section class="plan">
+      <h2>Group coaching</h2>
+      <p>Group gives you the path, the community, and feedback inside the cohort.</p>
+      <ul>
+        <li>Private community</li>
+        <li>Full lesson calendar and templates</li>
+        <li>First Client Offer Builder</li>
+        <li>Fast-track GPTs</li>
+        <li>First Buyer DM Swipe File</li>
+      </ul>
+      <div class="pay">
+        <a class="btn primary" href="https://vlad-manea.swipefast.io/customer-unlock-sprint-group">$1,999 paid in full</a>
+        <a class="btn" href="https://vlad-manea.swipefast.io/customer-unlock-sprint-group">12 weekly payments of $200</a>
+      </div>
+    </section>
+
+    <section class="plan vip">
+      <h2>VIP <span class="tag">Closer support</span></h2>
+      <p>VIP gives you 1:1 sessions and WhatsApp access for the moments where you want me closer to the work.</p>
+      <ul>
+        <li>Everything in Group</li>
+        <li>1:1 sessions for the first 12 weeks</li>
+        <li>WhatsApp access for the first 12 weeks</li>
+      </ul>
+      <div class="pay">
+        <a class="btn primary" href="https://vlad-manea.swipefast.io/customer-unlock-sprint-vip">$3,000 paid in full</a>
+        <a class="btn" href="https://vlad-manea.swipefast.io/customer-unlock-sprint-vip">12 weekly payments of $300</a>
+      </div>
+    </section>
+  </div>
+
+  <p class="fine">You choose paid in full or weekly payments on the next screen. The first 5 people who join also get a private Offer Tear-Down before we start. <a href="/customer-unlock-sprint/">Back to the details</a></p>
+</main>
+</body>
+</html>

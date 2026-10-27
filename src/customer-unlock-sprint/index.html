@@ -140,11 +140,11 @@ hr{border:0;border-top:1px solid var(--line);margin:2em 0}
 </article>
 <p class="foot">© Vlad Manea</p>
 <script>
-// Paste the Sprint checkout URL here. Until then, the link opens a DM to Vlad on Instagram.
-const CHECKOUT_URL = "";
+// Where "checkout link" goes: the Group / VIP choice page. Empty = DM to Vlad on Instagram.
+const CHECKOUT_URL = "/customer-unlock-sprint/join/";
 document.querySelectorAll("a.checkout").forEach(a => {
   a.href = CHECKOUT_URL || "https://ig.me/m/c.vladmanea";
-  a.target = "_blank"; a.rel = "noopener";
+  if(!CHECKOUT_URL){ a.target = "_blank"; a.rel = "noopener"; }
 });
 </script>
 </body>
