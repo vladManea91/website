@@ -83,6 +83,23 @@ async function handle(req, context) {
   let body;
   try { body = await req.json(); } catch { return json("bad_input", 400); }
 
+  // Name + email entered: add them to Kit (form + tag). Capped per visitor so nobody can flood your list.
+  if (body && body.action === "lead") {
+    if (!env("KIT_API_KEY")) { console.error("KIT_API_KEY is not set"); return json("kit_not_configured", 500); }
+    const name = cut(body.name, 60).replace(/\s+/g, " ").trim();
+    const email = String(body.email || "").trim().slice(0, 120);
+    if (!name || !EMAIL_RE.test(email)) return json("bad_input", 400);
+    try {
+      const store = getStore("offer-fix-limits");
+      const k = `lead/${new Date().toISOString().slice(0, 10)}/${context.ip || "unknown"}`;
+      const used = parseInt((await store.get(k)) || "0", 10);
+      if (used >= 5) return json("rate_limited", 429);
+      await store.set(k, String(used + 1));
+    } catch (e) { console.error("lead limit store", e); }
+    try { await addToKit(env, name, email); return json("ok", 200); }
+    catch (e) { console.error("Kit:", e); return json("kit_failed", 502); }
+  }
+
   // Finished run: email the lead + their Offer Fix to you via Resend.
   if (body && body.action === "done") {
     if (!env("RESEND_API_KEY") || !env("NOTIFY_EMAIL")) { console.error("Resend not configured"); return json("ok", 200); }
@@ -140,6 +157,28 @@ async function handle(req, context) {
 const EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 const escHtml = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const cut = (t, n) => String(t || "").slice(0, n);
+
+// Kit (ConvertKit) API v4: create or update the subscriber, add them to the form, then tag them.
+const KIT_FORM_ID = "10106351";
+const KIT_TAG_NAME = "Buyers";
+async function kit(env, path, payload) {
+  const res = await fetch("https://api.kit.com/v4" + path, {
+    method: "POST",
+    headers: { "X-Kit-Api-Key": env("KIT_API_KEY"), "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error(path + " " + res.status + " " + (await res.text()));
+  return res.json().catch(() => ({}));
+}
+async function addToKit(env, name, email) {
+  await kit(env, "/subscribers", { email_address: email, first_name: name });
+  await kit(env, "/forms/" + (env("KIT_FORM_ID") || KIT_FORM_ID) + "/subscribers", { email_address: email });
+  // Creating a tag that already exists returns the existing one, so this finds "Buyers" by name.
+  let tagId = env("KIT_TAG_ID");
+  if (!tagId) { const t = await kit(env, "/tags", { name: KIT_TAG_NAME }); tagId = t.tag && t.tag.id; }
+  if (!tagId) throw new Error("no tag id returned for " + KIT_TAG_NAME);
+  await kit(env, "/tags/" + tagId + "/subscribers", { email_address: email });
+}
 
 async function sendRunEmail(env, body) {
   const name = cut(body.name, 60).replace(/\s+/g, " ").trim();

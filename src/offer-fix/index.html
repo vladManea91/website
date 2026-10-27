@@ -389,10 +389,19 @@ $("cgo").onclick = () => {
   const n = $("cname").value.trim(), e = $("cemail").value.trim();
   if(!n || !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(e)){ $("cerr").hidden = false; return; }
   $("cerr").hidden = true; state.name = n.slice(0,60); state.email = e.slice(0,120); save();
+  sendLead();
   if(state.i >= QUESTIONS.length){ buildPlan(); return; }
   show("ask"); renderQ();
 };
 ["cname","cemail"].forEach(id => $(id).addEventListener("keydown", ev => { if(ev.key==="Enter"){ ev.preventDefault(); id==="cname" ? $("cemail").focus() : $("cgo").click(); } }));
+// Adds them to Kit the moment they give their name and email, whether or not they finish.
+function sendLead(){
+  if(state.kitSent === state.email) return;
+  fetch("/api/offer-fix", {method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({action:"lead", name: state.name, email: state.email})})
+  .then(r => { if(r.ok){ state.kitSent = state.email; save(); } else console.error("lead failed", r.status); })
+  .catch(e => console.error("lead failed", e));
+}
 function notifyDone(text){
   if(state.notified) return;
   fetch("/api/offer-fix", {method:"POST", headers:{"Content-Type":"application/json"},
