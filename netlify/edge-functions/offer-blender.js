@@ -1,6 +1,6 @@
-// Netlify Edge Function: writes the free "What Do I Sell?" Offer Fix through OpenRouter.
+// Netlify Edge Function: writes the free "What Do I Sell?" Offer Blender through OpenRouter.
 // Built from the Skill to Offer Gameplan function: same streaming, same Resend email, no buyer key (it's free).
-// The prompt lives here, so the page can only ever ask for an Offer Fix.
+// The prompt lives here, so the page can only ever ask for an Offer Blender.
 import { getStore } from "@netlify/blobs";
 
 const MAX_ANSWER = 1500;
@@ -17,15 +17,15 @@ const QUESTIONS = [
 
 function buildPrompt(answers){
   const qa = QUESTIONS.map((x,k)=>"Q"+(k+1)+" ("+STAGES[x.st]+"): "+x.q+"\nA: "+answers[k]).join("\n\n");
-  return `You are the "What Do I Sell?" Offer Fix by Vlad Manea. Someone with skills, experience, taste or results but no clear offer just answered six short questions. Your job is to fill in their Offer Fix Formula: one simple first paid offer they can test with real people this week. This is a front door, not a mansion: small, clear and sellable now. You speak like Vlad: direct, warm, plain language, short sentences, a little cheeky, no hype.
+  return `You are the "What Do I Sell?" Offer Blender by Vlad Manea. Someone with skills, experience, taste or results but no clear offer just answered six short questions. Your job is to fill in their Offer Blender Formula: one simple first paid offer they can test with real people this week. This is a front door, not a mansion: small, clear and sellable now. You speak like Vlad: direct, warm, plain language, short sentences, a little cheeky, no hype.
 
 Their answers:
 
 ${qa}
 
-Write their Offer Fix in Markdown, with exactly these sections as "## " headings, in this order. Use "- " bullets, never numbered lists.
+Write their Offer Blend in Markdown, with exactly these sections as "## " headings, in this order. Use "- " bullets, never numbered lists.
 
-## Your Offer Fix
+## Your Offer Blend
 One sentence in exactly this shape, filled in with their details: "I help [specific person] who is struggling with [specific painful problem] get [clear result] without [thing they hate, fear or don't want to do]."
 Then one line on why this is the offer to start with, using something they told you (a result, a skill, who already asks them).
 
@@ -64,7 +64,7 @@ If one of their answers was too vague to pass a rule, say so plainly and show ho
 
 ONE DIRECTION RULE (most important): this is about focus. Everything serves ONE person and ONE offer. Never give the reader a choice: no "or", "either", "alternatively", "and/or", no two people, no two offers, no two prices, no two messages. Wrong: "Help photographers or videographers." Right: "Help wedding photographers who want brand clients." Before you output, reread everything and rewrite any sentence that offers two options.
 
-Rules: every line uses something they told you, no generic advice. Don't sell their life story; the buyer cares about the problem solved. Don't suggest a course as the first offer. Never promise income, client numbers or timelines for their business, and never suggest they quit a job. Never invent results, statistics or testimonials. Never promise medical, psychological or clinical outcomes. Output only the Offer Fix, starting with "## Your Offer Fix".`;
+Rules: every line uses something they told you, no generic advice. Don't sell their life story; the buyer cares about the problem solved. Don't suggest a course as the first offer. Never promise income, client numbers or timelines for their business, and never suggest they quit a job. Never invent results, statistics or testimonials. Never promise medical, psychological or clinical outcomes. Output only the Offer Blend, starting with "## Your Offer Blend".`;
 }
 
 const json = (code, status) => new Response(JSON.stringify({ code }), {
@@ -73,7 +73,7 @@ const json = (code, status) => new Response(JSON.stringify({ code }), {
 
 export default async (req, context) => {
   try { return await handle(req, context); }
-  catch (e) { console.error("offer-fix crashed", e); return json("server_crash", 500); }
+  catch (e) { console.error("offer-blender crashed", e); return json("server_crash", 500); }
 };
 
 async function handle(req, context) {
@@ -90,7 +90,7 @@ async function handle(req, context) {
     const email = String(body.email || "").trim().slice(0, 120);
     if (!name || !EMAIL_RE.test(email)) return json("bad_input", 400);
     try {
-      const store = getStore("offer-fix-limits");
+      const store = getStore("offer-blender-limits");
       const k = `lead/${new Date().toISOString().slice(0, 10)}/${context.ip || "unknown"}`;
       const used = parseInt((await store.get(k)) || "0", 10);
       if (used >= 5) return json("rate_limited", 429);
@@ -100,7 +100,7 @@ async function handle(req, context) {
     catch (e) { console.error("Kit:", e); return json("kit_failed", 502); }
   }
 
-  // Finished run: email the lead + their Offer Fix to you via Resend.
+  // Finished run: email the lead + their Offer Blender to you via Resend.
   if (body && body.action === "done") {
     if (!env("RESEND_API_KEY") || !env("NOTIFY_EMAIL")) { console.error("Resend not configured"); return json("ok", 200); }
     try { await sendRunEmail(env, body); return json("ok", 200); }
@@ -114,18 +114,18 @@ async function handle(req, context) {
   }
 
   // It's free and public, so cap runs per visitor per day to protect the API bill.
-  const limit = parseInt(env("OFFER_FIX_DAILY_LIMIT") || "2", 10);
+  const limit = parseInt((env("OFFER_BLENDER_DAILY_LIMIT") || env("OFFER_FIX_DAILY_LIMIT")) || "2", 10);
   const day = new Date().toISOString().slice(0, 10);
   const key = `${day}/${context.ip || "unknown"}`;
   try {
-    const store = getStore("offer-fix-limits");
+    const store = getStore("offer-blender-limits");
     const used = parseInt((await store.get(key)) || "0", 10);
     if (used >= limit) return json("rate_limited", 429);
     await store.set(key, String(used + 1));
   } catch (e) { console.error("rate limit store", e); }
 
-  // Uses OFFER_FIX_MODEL if you want a cheaper model for the free tool, otherwise the gameplan's model.
-  const model = env("OFFER_FIX_MODEL") || env("OPENROUTER_MODEL");
+  // Uses OFFER_BLENDER_MODEL (or the old OFFER_FIX_MODEL) if you want a cheaper model for the free tool, otherwise the gameplan's model.
+  const model = env("OFFER_BLENDER_MODEL") || env("OFFER_FIX_MODEL") || env("OPENROUTER_MODEL");
   if (!model) { console.error("OPENROUTER_MODEL is not set"); return json("missing_model", 500); }
   if (!env("OPENROUTER_API_KEY")) { console.error("OPENROUTER_API_KEY is not set"); return json("missing_api_key", 500); }
   const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -134,7 +134,7 @@ async function handle(req, context) {
       "Authorization": `Bearer ${env("OPENROUTER_API_KEY")}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://vlad-manea.de",
-      "X-Title": "What Do I Sell Offer Fix"
+      "X-Title": "What Do I Sell Offer Blender"
     },
     body: JSON.stringify({
       model,
@@ -190,21 +190,21 @@ async function sendRunEmail(env, body) {
     '<h2 style="font:600 16px sans-serif;margin:0 0 8px">New lead</h2><p>' + escHtml(name || "No name") + (email ? " &lt;" + escHtml(email) + "&gt;" : "") + "</p>" +
     '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their answers</h2>' +
     pairs.map(p => "<p><strong>" + escHtml(p[0]) + "</strong><br>" + escHtml(p[1]).replace(/\n/g, "<br>") + "</p>").join("") +
-    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their Offer Fix</h2><pre style="white-space:pre-wrap;font:13px/1.55 sans-serif">' + escHtml(plan) + "</pre></div>";
+    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their Offer Blend</h2><pre style="white-space:pre-wrap;font:13px/1.55 sans-serif">' + escHtml(plan) + "</pre></div>";
   const text = "New lead: " + (name || "No name") + (email ? " <" + email + ">" : "") + "\n\n" +
-    pairs.map(p => p[0] + "\n" + p[1]).join("\n\n") + "\n\n--- Offer Fix ---\n\n" + plan;
+    pairs.map(p => p[0] + "\n" + p[1]).join("\n\n") + "\n\n--- Offer Blend ---\n\n" + plan;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: "Bearer " + env("RESEND_API_KEY"), "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: env("NOTIFY_FROM") || "Offer Fix <onboarding@resend.dev>",
+      from: env("NOTIFY_FROM") || "Offer Blender <onboarding@resend.dev>",
       to: String(env("NOTIFY_EMAIL")).split(",").map(e => e.trim()).filter(Boolean),
       ...(email ? { reply_to: email } : {}),
-      subject: "New Offer Fix lead" + (name || email ? ": " + [name, email && "<" + email + ">"].filter(Boolean).join(" ") : ""),
+      subject: "New Offer Blender lead" + (name || email ? ": " + [name, email && "<" + email + ">"].filter(Boolean).join(" ") : ""),
       html, text
     })
   });
   if (!res.ok) throw new Error(res.status + " " + (await res.text()));
 }
 
-export const config = { path: "/api/offer-fix" };
+export const config = { path: "/api/offer-blender" };

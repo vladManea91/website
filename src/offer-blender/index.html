@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>What Do I Sell? Offer Fix · Vlad Manea</title>
+<title>What Do I Sell? Offer Blender · Vlad Manea</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#F3EDE0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0E241C" media="(prefers-color-scheme: dark)">
@@ -121,15 +121,15 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
 </head>
 <body>
 <main class="wrap">
-  <p class="brand"><span>Vlad Manea</span><span>The Offer Fix</span></p>
+  <p class="brand"><span>Vlad Manea</span><span>The Offer Blender</span></p>
 
   <section id="intro">
     <h1>What do I sell?</h1>
     <div class="lede">
       <p>You've got skills, experience, taste or results. But your bio says what you do, and nobody knows what to buy.</p>
-      <p>Answer six short questions and I'll fill in your Offer Fix: one first paid offer, the sentence that sells it, a price to test, and the message to send to 10 real people this week.</p>
+      <p>Answer six short questions and I'll blend your skills into one first paid offer, plus the sentence that sells it, a price to test, and the message to send to 10 real people this week.</p>
     </div>
-    <button id="start">Fix my offer</button>
+    <button id="start">Blend my offer</button>
     <p class="meta">Takes under 10 minutes. Don't overthink it. We're building a front door, not a mansion.</p>
   </section>
 
@@ -163,7 +163,7 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
   </section>
 
   <section id="result" hidden>
-    <p class="status" id="status">That's everything I need. I'm writing your Offer Fix.</p>
+    <p class="status" id="status">That's everything I need. I'm blending your offer.</p>
     <div class="loadbox" id="loadbox" role="status" aria-live="polite" hidden>
       <div class="lbar pulse" id="lbar"><span id="lfill"></span></div>
       <div class="lrow"><p class="lstep" id="lstep">Reading your answers</p><p class="ltime" id="ltime">0s</p></div>
@@ -195,7 +195,7 @@ const QUESTIONS = [
   {st:1, q:"What do they hate, fear, or refuse to do to fix it?", f:"Think of what they've tried, or what they avoid: too expensive, too slow, too complicated, feels fake?"},
   {st:2, q:"Which simple version could you sell this week?", choices:["1:1 session","2-week sprint","4-week coaching package","Audit + action plan","Done-with-you setup","Template + feedback","Small group workshop","Not sure, pick for me"]}
 ];
-const KEY = "offer-fix-v1";
+const KEY = "offer-blender-v1";
 let state = {i:0, answers:[], asked:[]};
 let running = null;
 
@@ -231,7 +231,7 @@ function renderQ(){
     $("choices").firstChild.focus();
     return;
   }
-  $("next").textContent = n===QUESTIONS.length-1 ? "Write my Offer Fix" : "Next question";
+  $("next").textContent = n===QUESTIONS.length-1 ? "Blend my offer" : "Next question";
   grow();
   const touch = window.matchMedia("(hover: none)").matches;
   if(!touch) $("answer").focus();
@@ -289,7 +289,7 @@ function md(text){
 
 function errCopy(code){
   switch(code){
-    case "rate_limited": return "You've already written your Offer Fix today. Come back tomorrow for another one. Your answers are saved.";
+    case "rate_limited": return "You've already blended your offer today. Come back tomorrow for another one. Your answers are saved.";
     case "bad_input": return "Some answers are missing or too long. Press Start over and try again.";
     case "cancelled": return "Stopped. Press Try again when you're ready.";
     case "empty_response": return "The AI model finished without writing anything. Free models often do this on long answers. Switch OPENROUTER_MODEL in Netlify to a paid model, redeploy, then press Try again. Your answers are saved.";
@@ -298,11 +298,11 @@ function errCopy(code){
     case "openrouter_401": return "Setup issue: OpenRouter rejected the API key. Check OPENROUTER_API_KEY in Netlify. Your answers are saved.";
     case "openrouter_402": return "Setup issue: the OpenRouter account is out of credits. Your answers are saved.";
     case "openrouter_400": case "openrouter_404": return "Setup issue: OpenRouter doesn't recognise the model ID in OPENROUTER_MODEL. Your answers are saved.";
-    default: return "Your Offer Fix couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
+    default: return "Your Offer Blend couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
   }
 }
 
-const SECTIONS = ["Your Offer Fix","Your first paid offer","Your offer sentence","Your first price to test","Your first sales message","The beige check","Do this today"];
+const SECTIONS = ["Your Offer Blend","Your first paid offer","Your offer sentence","Your first price to test","Your first sales message","The beige check","Do this today"];
 let loadTimer = null, loadStart = 0, thinking = false;
 function setFill(pct){ $("lfill").style.width = Math.max(3, Math.min(99, pct)) + "%"; }
 function startLoad(){
@@ -327,7 +327,7 @@ function progressFrom(text){
   $("lbar").classList.remove("pulse");
   setFill(12 + (done / SECTIONS.length) * 85);
   $("lstep").textContent = "Writing: " + current + " (" + Math.max(1, done) + " of " + SECTIONS.length + ")";
-  $("lnote").textContent = "Your Offer Fix is appearing below as it's written.";
+  $("lnote").textContent = "Your Offer Blend is appearing below as it's written.";
 }
 function stopLoad(){ clearInterval(loadTimer); loadTimer = null; $("loadbox").hidden = true; }
 
@@ -341,7 +341,7 @@ async function buildPlan(){
   let text = "";
   startLoad();
   try{
-    const res = await fetch("/api/offer-fix", {
+    const res = await fetch("/api/offer-blender", {
       method:"POST", signal: running.signal,
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify({answers: state.answers})
@@ -402,14 +402,14 @@ $("cgo").onclick = () => {
 // Adds them to Kit the moment they give their name and email, whether or not they finish.
 function sendLead(){
   if(state.kitSent === state.email) return;
-  fetch("/api/offer-fix", {method:"POST", headers:{"Content-Type":"application/json"},
+  fetch("/api/offer-blender", {method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({action:"lead", name: state.name, email: state.email})})
   .then(r => { if(r.ok){ state.kitSent = state.email; save(); } else console.error("lead failed", r.status); })
   .catch(e => console.error("lead failed", e));
 }
 function notifyDone(text){
   if(state.notified) return;
-  fetch("/api/offer-fix", {method:"POST", headers:{"Content-Type":"application/json"},
+  fetch("/api/offer-blender", {method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({action:"done", name: state.name || "", email: state.email || "", answers: state.answers, plan: text})})
   .then(r => { if(r.ok){ state.notified = true; save(); } else console.error("notify failed", r.status); })
   .catch(e => console.error("notify failed", e));
@@ -424,12 +424,12 @@ $("copy").onclick = async () => {
   setTimeout(()=>{ $("copy").textContent = "Copy my offer"; }, 2000);
 };
 $("restart").onclick = () => {
-  if(!confirm("Start over? Your answers and Offer Fix will be cleared.")) return;
+  if(!confirm("Start over? Your answers and Offer Blend will be cleared.")) return;
   state = {i:0, answers:[], asked:[], name: state.name, email: state.email}; save(); show("intro");
 };
 
 load();
-if(state.i >= QUESTIONS.length){ $("start").textContent = "See my Offer Fix"; }
+if(state.i >= QUESTIONS.length){ $("start").textContent = "See my Offer Blend"; }
 if(state.i > 0 && state.i < QUESTIONS.length){ $("start").textContent = "Continue where you left off"; }
 
 </script>

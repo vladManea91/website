@@ -11,3 +11,10 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# The Offer Fix was renamed to the Offer Blender
+[[redirects]]
+  from = "/offer-fix/*"
+  to = "/offer-blender/"
+  status = 301
+  force = true
