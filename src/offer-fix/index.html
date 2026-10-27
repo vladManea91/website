@@ -74,7 +74,10 @@ textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--in
 :root[data-theme="dark"] .cta{background:#173a2e}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cta{background:#173a2e}}
 .cta h3{font-size:26px;margin-bottom:10px}
-.cta p{margin:0 0 20px;color:#d9e2dc}
+.cta p{margin:0 0 16px;color:#d9e2dc}
+.cta p + .btn{margin-top:4px}
+.cta .ctasub{margin:18px 0 0;font-size:14px;color:#b9c7bf}
+.cta .ctasub a{color:#fff}
 .error{background:var(--field);border:1.5px solid var(--orange);border-radius:14px;padding:18px;margin:16px 0}
 [hidden]{display:none!important}
 .cin{width:100%;font:inherit;font-size:max(16px,1em);color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px}
@@ -173,9 +176,11 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
       <button id="restart" class="ghost">Start over</button>
     </div>
     <div class="cta" id="cta" hidden>
-      <h3>You've named the offer. Now test it.</h3>
-      <p>The next step is testing it with real people, so you're not guessing in your notes app like a little goblin. DM me "OFFER" and I'll send you the simple message to test it without feeling salesy.</p>
-      <a class="btn" id="ctaLink" href="https://ig.me/m/c.vladmanea" target="_blank" rel="noopener">DM me "OFFER" on Instagram</a>
+      <h3>You've named the offer. Now get someone to pay for it.</h3>
+      <p>Send your message to 10 people this week. That part's on you, and it's the part most people skip.</p>
+      <p>If you'd rather not figure out the rest alone after work, this is exactly what I do in the Customer Unlock Sprint: we sharpen this offer, find warm buyers in the audience you already have, set up a clean checkout, and work toward your first online client together. 10 spots, starting Monday, November 30.</p>
+      <a class="btn" id="ctaLink" href="/customer-unlock-sprint/" target="_blank" rel="noopener">See how the Sprint works</a>
+      <p class="ctasub">Not ready yet? DM me "OFFER" on <a href="https://ig.me/m/c.vladmanea" target="_blank" rel="noopener">Instagram</a> and I'll send you the simple message to test it without feeling salesy.</p>
     </div>
   </section>
 </main>
