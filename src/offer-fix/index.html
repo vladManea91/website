@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What Do I Sell? Offer Fix · Vlad Manea</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F3EDE0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E241C" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#0E241C; --cream:#F3EDE0; --sage:#9FB6A8; --orange:#E9622B;
+  --bg:var(--cream); --ink:var(--forest); --muted:#4d6157; --line:#d8cfbd; --field:#fbf8f1;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --bg:var(--forest); --ink:var(--cream); --muted:#b9c7bf; --line:#2c4a3e; --field:#14322a; }
+}
+:root[data-theme="dark"]{ --bg:var(--forest); --ink:var(--cream); --muted:#b9c7bf; --line:#2c4a3e; --field:#14322a; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 "DM Sans",system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:640px;margin:0 auto;padding:40px 22px 80px}
+.brand{font-size:14px;color:var(--muted);margin:0 0 48px;display:flex;justify-content:space-between;gap:12px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;margin:0}
+h1{font-size:clamp(40px,10vw,64px);letter-spacing:-.02em;margin-bottom:20px}
+.lede{font-size:19px;color:var(--muted);max-width:34em;margin:0 0 32px}
+.lede p{margin:0 0 12px}
+button,.btn{font:600 16px/1 "DM Sans",system-ui,sans-serif;border:0;border-radius:999px;padding:16px 26px;cursor:pointer;background:var(--orange);color:#fff;text-decoration:none;display:inline-block}
+button:disabled{opacity:.45;cursor:default}
+button.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+button:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:3px solid var(--sage);outline-offset:3px}
+.meta{font-size:14px;color:var(--muted);margin-top:16px}
+.progress{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:36px}
+.progress span{display:block;height:100%;background:var(--orange);transition:width .35s ease}
+.qcount{font-size:14px;color:var(--muted);margin-bottom:10px}
+.question{font-family:Fraunces,Georgia,serif;font-size:clamp(26px,6vw,34px);line-height:1.2;margin:0 0 22px}
+.followup{background:var(--field);border-left:3px solid var(--orange);padding:12px 16px;border-radius:0 10px 10px 0;margin:0 0 16px;font-size:16px}
+.prev{font-size:15px;color:var(--muted);margin:0 0 12px;white-space:pre-wrap}
+.choices{display:grid;gap:10px}
+.choices button{background:var(--field);color:var(--ink);text-align:left;border-radius:14px;box-shadow:inset 0 0 0 1.5px var(--line);padding:18px 20px;font-weight:500}
+.choices button:hover{box-shadow:inset 0 0 0 1.5px var(--orange)}
+.choices button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--orange);font-weight:600}
+textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:16px}
+.row{display:flex;gap:12px;margin-top:16px;align-items:center;flex-wrap:wrap}
+.hint{font-size:13px;color:var(--muted);margin-left:auto}
+.status{font-family:Fraunces,Georgia,serif;font-size:24px;margin:8px 0 18px}
+.loadbox{background:var(--field);border:1.5px solid var(--line);border-radius:16px;padding:18px 20px;margin:0 0 28px;display:grid;gap:10px}
+.lbar{height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+.lbar span{display:block;height:100%;width:3%;background:var(--orange);border-radius:8px;transition:width .6s ease-out}
+.lrow{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.lstep{font-weight:600;margin:0}
+.ltime{font-size:14px;color:var(--muted);margin:0;font-variant-numeric:tabular-nums}
+.lnote{font-size:14px;color:var(--muted);margin:0}
+.lbar.pulse span{animation:lpulse 1.6s ease-in-out infinite}
+@keyframes lpulse{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){.lbar span{transition:none}.lbar.pulse span{animation:none}}
+.plan h2{font-size:30px;margin:44px 0 14px;padding-top:24px;border-top:1.5px solid var(--line)}
+.plan h2:first-child{margin-top:0;border-top:0;padding-top:0}
+.plan h3{font-size:21px;margin:26px 0 8px}
+.plan p{margin:0 0 14px}
+.plan ul{margin:0 0 16px;padding-left:22px}
+.plan li{margin:0 0 8px}
+.plan blockquote{margin:0 0 16px;padding:14px 18px;background:var(--field);border-radius:12px;white-space:pre-wrap}
+.plan a{color:var(--orange)}
+.cta{margin-top:40px;padding:28px;background:var(--forest);color:var(--cream);border-radius:20px}
+:root[data-theme="dark"] .cta{background:#173a2e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cta{background:#173a2e}}
+.cta h3{font-size:26px;margin-bottom:10px}
+.cta p{margin:0 0 20px;color:#d9e2dc}
+.error{background:var(--field);border:1.5px solid var(--orange);border-radius:14px;padding:18px;margin:16px 0}
+[hidden]{display:none!important}
+.cin{width:100%;font:inherit;font-size:max(16px,1em);color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px}
+.cin:focus-visible{outline:3px solid var(--sage);outline-offset:3px}
+/* ===== web + mobile app fit ===== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{min-height:100dvh;overflow-x:hidden}
+.wrap{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+button,.btn,.choices button,textarea{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button,.btn{min-height:48px}
+textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55dvh;overflow-y:auto}
+.plan{overflow-wrap:anywhere}
+.plan blockquote{overflow-wrap:anywhere}
+@media (hover:none){.hint{display:none!important}}
+@media (min-width:900px){
+  .wrap{max-width:720px;padding-block:64px 96px}
+  .question{font-size:36px}
+}
+@media (max-width:600px){
+  body{font-size:16.5px}
+  .wrap{padding-block:24px 40px}
+  .brand{margin-bottom:28px}
+  h1{font-size:clamp(34px,10vw,46px)}
+  .lede{font-size:17.5px}
+  #start{width:100%}
+  .question{font-size:clamp(23px,6.4vw,28px);margin-bottom:16px}
+  .progress{margin-bottom:22px}
+  #ask .row{position:sticky;bottom:0;z-index:5;margin:16px calc(-1*max(20px,env(safe-area-inset-left,0px))) 0;padding:12px max(20px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
+  #ask .row #next{flex:1}
+  .choices button{padding:16px 18px}
+  .plan h2{font-size:25px;margin-top:34px}
+  .plan h3{font-size:19px}
+  #planActions button{flex:1}
+  .cta{padding:22px;border-radius:16px}
+  .cta .btn{display:block;text-align:center}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="brand"><span>Vlad Manea</span><span>The Offer Fix</span></p>
+
+  <section id="intro">
+    <h1>What do I sell?</h1>
+    <div class="lede">
+      <p>You've got skills, experience, taste or results. But your bio says what you do, and nobody knows what to buy.</p>
+      <p>Answer six short questions and I'll fill in your Offer Fix: one first paid offer, the sentence that sells it, a price to test, and the message to send to 10 real people this week.</p>
+    </div>
+    <button id="start">Fix my offer</button>
+    <p class="meta">Takes under 10 minutes. Don't overthink it. We're building a front door, not a mansion.</p>
+  </section>
+
+  <section id="contact" hidden>
+    <h2 class="question">First, who am I talking to?</h2>
+    <p class="lede" style="margin-bottom:20px">So I know whose offer this is, and can send you the next step.</p>
+    <div style="display:grid;gap:12px">
+      <label for="cname" class="qcount" style="margin:0">Your first name</label>
+      <input id="cname" class="cin" type="text" autocomplete="given-name" autocapitalize="words" enterkeyhint="next">
+      <label for="cemail" class="qcount" style="margin:0">Your email</label>
+      <input id="cemail" class="cin" type="email" inputmode="email" autocomplete="email" autocapitalize="off" enterkeyhint="go">
+      <p class="qcount" id="cerr" style="color:var(--orange);margin:0" hidden>Please add your name and a valid email.</p>
+    </div>
+    <div class="row"><button id="cgo">Start the questions</button></div>
+  </section>
+
+  <section id="ask" hidden>
+    <div class="progress"><span id="bar"></span></div>
+    <p class="qcount" id="qcount"></p>
+    <h2 class="question" id="qtext"></h2>
+    <p class="prev" id="prev" hidden></p>
+    <p class="followup" id="followup" hidden></p>
+    <label for="answer" class="qcount" style="position:absolute;left:-9999px">Your answer</label>
+    <textarea id="answer" placeholder="Type your answer here. A few sentences is plenty." rows="5" enterkeyhint="next" autocapitalize="sentences" autocomplete="off" spellcheck="true"></textarea>
+    <div class="choices" id="choices" hidden></div>
+    <div class="row">
+      <button id="next">Next question</button>
+      <button id="back" class="ghost">Back</button>
+      <span class="hint">Ctrl/⌘ + Enter to continue</span>
+    </div>
+  </section>
+
+  <section id="result" hidden>
+    <p class="status" id="status">That's everything I need. I'm writing your Offer Fix.</p>
+    <div class="loadbox" id="loadbox" role="status" aria-live="polite" hidden>
+      <div class="lbar pulse" id="lbar"><span id="lfill"></span></div>
+      <div class="lrow"><p class="lstep" id="lstep">Reading your answers</p><p class="ltime" id="ltime">0s</p></div>
+      <p class="lnote" id="lnote">This usually takes under a minute. Keep this page open.</p>
+    </div>
+    <div id="err" class="error" hidden></div>
+    <article class="plan" id="plan" aria-live="polite"></article>
+    <div class="row" id="planActions" hidden>
+      <button id="copy" class="ghost">Copy my offer</button>
+      <button id="restart" class="ghost">Start over</button>
+    </div>
+    <div class="cta" id="cta" hidden>
+      <h3>You've named the offer. Now test it.</h3>
+      <p>The next step is testing it with real people, so you're not guessing in your notes app like a little goblin. DM me "OFFER" and I'll send you the simple message to test it without feeling salesy.</p>
+      <a class="btn" id="ctaLink" href="https://ig.me/m/c.vladmanea" target="_blank" rel="noopener">DM me "OFFER" on Instagram</a>
+    </div>
+  </section>
+</main>
+
+<script>
+const STAGES = ["Skill","Person","Offer"];
+const QUESTIONS = [
+  {st:0, q:"What are you good at? Your skills, your experience, the things people say you have taste in.", f:"Name the one or two things you're better at than most people around you."},
+  {st:0, q:"What's one result you've got with it, for yourself or someone else? Give me the before and after.", f:"Even a small one counts. What changed, for whom, and how fast?"},
+  {st:1, q:"Who do you most want to help with it? Describe one specific person, not a whole market.", f:"Be specific: their job or situation, and where they are right now."},
+  {st:1, q:"What's the messy moment they're stuck in right now? Say it the way they'd say it.", f:"What's the annoying thing that happens to them this week? Something they'd actually complain about."},
+  {st:1, q:"What do they hate, fear, or refuse to do to fix it?", f:"Think of what they've tried, or what they avoid: too expensive, too slow, too complicated, feels fake?"},
+  {st:2, q:"Which simple version could you sell this week?", choices:["1:1 session","2-week sprint","4-week coaching package","Audit + action plan","Done-with-you setup","Template + feedback","Small group workshop","Not sure, pick for me"]}
+];
+const KEY = "offer-fix-v1";
+let state = {i:0, answers:[], asked:[]};
+let running = null;
+
+const $ = id => document.getElementById(id);
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && Array.isArray(s.answers)) state = s; }catch(e){} }
+function show(id){ ["intro","contact","ask","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo({top:0,behavior:"auto"}); }
+
+function renderQ(){
+  const n = state.i, item = QUESTIONS[n];
+  $("bar").style.width = ((n)/QUESTIONS.length*100)+"%";
+  $("qcount").textContent = "Question "+(n+1)+" of "+QUESTIONS.length+" · "+STAGES[item.st]+" (stage "+(item.st+1)+" of "+STAGES.length+")";
+  $("qtext").textContent = item.q;
+  const inFollow = state.asked[n] === "follow";
+  $("followup").hidden = !inFollow;
+  $("followup").textContent = inFollow ? item.f : "";
+  $("prev").hidden = !inFollow;
+  $("prev").textContent = inFollow ? "You said: "+(state.answers[n]||"") : "";
+  $("back").hidden = n===0 && !inFollow;
+  $("answer").value = inFollow ? "" : (state.answers[n]||"");
+  const isChoice = !!item.choices;
+  $("answer").hidden = isChoice; $("choices").hidden = !isChoice;
+  document.querySelector(".hint").hidden = isChoice;
+  $("next").hidden = isChoice;
+  if(isChoice){
+    $("choices").innerHTML = "";
+    item.choices.forEach(c => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = c;
+      b.setAttribute("aria-pressed", state.answers[n]===c ? "true" : "false");
+      b.onclick = () => { $("answer").value = c; next(); };
+      $("choices").appendChild(b);
+    });
+    $("choices").firstChild.focus();
+    return;
+  }
+  $("next").textContent = n===QUESTIONS.length-1 ? "Write my Offer Fix" : "Next question";
+  grow();
+  const touch = window.matchMedia("(hover: none)").matches;
+  if(!touch) $("answer").focus();
+}
+
+function grow(){ const t=$("answer"); t.style.height="auto"; t.style.height=Math.min(t.scrollHeight+2, window.innerHeight*0.55)+"px"; }
+function words(t){ return t.trim().split(/\s+/).filter(Boolean).length; }
+
+function next(){
+  const n = state.i, item = QUESTIONS[n], val = $("answer").value.trim();
+  if(!val){ $("answer").focus(); return; }
+  if(state.asked[n] === "follow"){
+    state.answers[n] = state.answers[n] + "\n(Follow-up: " + item.f + ") " + val;
+    state.asked[n] = "done";
+  } else {
+    state.answers[n] = val;
+    const thin = !item.choices && words(val) < 5;
+    if(thin && state.asked[n] !== "done"){ state.asked[n] = "follow"; save(); renderQ(); return; }
+    state.asked[n] = "done";
+  }
+  state.i++; save();
+  if(state.i >= QUESTIONS.length) buildPlan(); else renderQ();
+}
+
+function back(){
+  const n = state.i;
+  if(state.asked[n] === "follow"){ state.asked[n] = undefined; }
+  else if(n>0){ state.i--; state.asked[state.i] = undefined; }
+  save(); renderQ();
+}
+
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function inline(s){
+  return esc(s)
+    .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+    .replace(/(^|[^*])\*(?!\s)(.+?)\*/g,"$1<em>$2</em>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function md(text){
+  const lines = text.replace(/\r/g,"").split("\n"); let html="", list=false, quote=[], para=[];
+  const flushP=()=>{ if(para.length){ html+="<p>"+inline(para.join(" "))+"</p>"; para=[]; } };
+  const flushL=()=>{ if(list){ html+="</ul>"; list=false; } };
+  const flushQ=()=>{ if(quote.length){ html+="<blockquote>"+inline(quote.join("\n"))+"</blockquote>"; quote=[]; } };
+  for(const raw of lines){
+    const l = raw.trimEnd();
+    if(/^>\s?/.test(l)){ flushP(); flushL(); quote.push(l.replace(/^>\s?/,"")); continue; } else flushQ();
+    if(/^###\s+/.test(l)){ flushP(); flushL(); html+="<h3>"+inline(l.replace(/^###\s+/,""))+"</h3>"; }
+    else if(/^##\s+/.test(l)){ flushP(); flushL(); html+="<h2>"+inline(l.replace(/^##\s+/,""))+"</h2>"; }
+    else if(/^\s*[-*]\s+/.test(l)){ flushP(); if(!list){ html+="<ul>"; list=true; } html+="<li>"+inline(l.replace(/^\s*[-*]\s+/,""))+"</li>"; }
+    else if(!l.trim()){ flushP(); flushL(); }
+    else { flushL(); para.push(l.trim()); }
+  }
+  flushP(); flushL(); flushQ(); return html;
+}
+
+function errCopy(code){
+  switch(code){
+    case "rate_limited": return "You've already written your Offer Fix today. Come back tomorrow for another one. Your answers are saved.";
+    case "bad_input": return "Some answers are missing or too long. Press Start over and try again.";
+    case "cancelled": return "Stopped. Press Try again when you're ready.";
+    case "empty_response": return "The AI model finished without writing anything. Free models often do this on long answers. Switch OPENROUTER_MODEL in Netlify to a paid model, redeploy, then press Try again. Your answers are saved.";
+    case "missing_model": return "Setup issue: OPENROUTER_MODEL isn't set in Netlify. Add it, redeploy, then press Try again. Your answers are saved.";
+    case "missing_api_key": return "Setup issue: OPENROUTER_API_KEY isn't available to this function in Netlify. Your answers are saved.";
+    case "openrouter_401": return "Setup issue: OpenRouter rejected the API key. Check OPENROUTER_API_KEY in Netlify. Your answers are saved.";
+    case "openrouter_402": return "Setup issue: the OpenRouter account is out of credits. Your answers are saved.";
+    case "openrouter_400": case "openrouter_404": return "Setup issue: OpenRouter doesn't recognise the model ID in OPENROUTER_MODEL. Your answers are saved.";
+    default: return "Your Offer Fix couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
+  }
+}
+
+const SECTIONS = ["Your Offer Fix","Your first paid offer","Your offer sentence","Your first price to test","Your first sales message","The beige check","Do this today"];
+let loadTimer = null, loadStart = 0, thinking = false;
+function setFill(pct){ $("lfill").style.width = Math.max(3, Math.min(99, pct)) + "%"; }
+function startLoad(){
+  loadStart = Date.now(); thinking = false;
+  $("loadbox").hidden = false; $("lbar").classList.add("pulse"); setFill(3);
+  $("lstep").textContent = "Reading your answers";
+  $("lnote").textContent = "This usually takes under a minute. Keep this page open.";
+  clearInterval(loadTimer);
+  loadTimer = setInterval(() => {
+    const t = Math.round((Date.now() - loadStart) / 1000);
+    $("ltime").textContent = t < 60 ? t + "s" : Math.floor(t/60) + "m " + (t%60) + "s";
+    if(!$("plan").textContent){
+      setFill(3 + 9 * (1 - Math.exp(-t / 25)));
+      $("lstep").textContent = thinking ? "Thinking it through" : t < 8 ? "Reading your answers" : t < 20 ? "Finding your person" : "Naming your offer";
+      if(t > 60) $("lnote").textContent = "Still working. Longer answers take a little longer.";
+    }
+  }, 1000);
+}
+function progressFrom(text){
+  const done = SECTIONS.filter(h => text.includes("## " + h)).length;
+  const current = SECTIONS[Math.max(0, done - 1)];
+  $("lbar").classList.remove("pulse");
+  setFill(12 + (done / SECTIONS.length) * 85);
+  $("lstep").textContent = "Writing: " + current + " (" + Math.max(1, done) + " of " + SECTIONS.length + ")";
+  $("lnote").textContent = "Your Offer Fix is appearing below as it's written.";
+}
+function stopLoad(){ clearInterval(loadTimer); loadTimer = null; $("loadbox").hidden = true; }
+
+async function buildPlan(){
+  show("result");
+  $("plan").innerHTML = ""; $("err").hidden = true; $("cta").hidden = true; $("planActions").hidden = true;
+  $("status").hidden = false;
+  if(state.plan){ finish(state.plan); notifyDone(state.plan); return; }
+  if(running) return;
+  running = new AbortController();
+  let text = "";
+  startLoad();
+  try{
+    const res = await fetch("/api/offer-fix", {
+      method:"POST", signal: running.signal,
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({answers: state.answers})
+    });
+    if(!res.ok){ let code="error"; try{ code=(await res.json()).code||code; }catch(e){} throw {code}; }
+    const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "";
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buf += dec.decode(value, {stream:true});
+      const lines = buf.split("\n"); buf = lines.pop();
+      for(const line of lines){
+        if(!line.startsWith("data:")) continue;
+        const data = line.slice(5).trim();
+        if(data === "[DONE]") continue;
+        let ev; try{ ev = JSON.parse(data); }catch(e){ continue; }
+        if(ev.error){ console.error("stream error", ev.error); throw {code:"error", text}; }
+        const piece = ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.content;
+        if(piece) text += piece;
+        else if(ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.reasoning) thinking = true;
+      }
+      if(text){ $("status").hidden = true; $("plan").innerHTML = md(text); progressFrom(text); }
+    }
+    if(!text.trim()) throw {code:"empty_response"};
+    stopLoad();
+    state.plan = text; save(); finish(text); notifyDone(text);
+  }catch(e){
+    stopLoad();
+    $("status").hidden = true;
+    const partial = (e && e.text) || text;
+    if(partial) $("plan").innerHTML = md(partial);
+    $("err").hidden = false;
+    $("err").innerHTML = esc(errCopy(e && (e.code || (e.name==="AbortError" ? "cancelled" : "error")))) + ' <div class="row"><button id="retry">Try again</button></div>';
+    $("retry").onclick = () => buildPlan();
+  }finally{ running = null; }
+}
+
+function finish(text){
+  $("status").hidden = true;
+  $("plan").innerHTML = md(text);
+  $("planActions").hidden = false; $("cta").hidden = false;
+}
+
+$("start").onclick = () => {
+  if(!state.email){ show("contact"); $("cname").value = state.name || ""; if(!window.matchMedia("(hover: none)").matches) $("cname").focus(); return; }
+  if(state.i >= QUESTIONS.length){ buildPlan(); return; }
+  show("ask"); renderQ();
+};
+$("cgo").onclick = () => {
+  const n = $("cname").value.trim(), e = $("cemail").value.trim();
+  if(!n || !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(e)){ $("cerr").hidden = false; return; }
+  $("cerr").hidden = true; state.name = n.slice(0,60); state.email = e.slice(0,120); save();
+  if(state.i >= QUESTIONS.length){ buildPlan(); return; }
+  show("ask"); renderQ();
+};
+["cname","cemail"].forEach(id => $(id).addEventListener("keydown", ev => { if(ev.key==="Enter"){ ev.preventDefault(); id==="cname" ? $("cemail").focus() : $("cgo").click(); } }));
+function notifyDone(text){
+  if(state.notified) return;
+  fetch("/api/offer-fix", {method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({action:"done", name: state.name || "", email: state.email || "", answers: state.answers, plan: text})})
+  .then(r => { if(r.ok){ state.notified = true; save(); } else console.error("notify failed", r.status); })
+  .catch(e => console.error("notify failed", e));
+}
+$("next").onclick = next;
+$("back").onclick = back;
+$("answer").addEventListener("input", grow);
+$("answer").addEventListener("keydown", e => { if(e.key==="Enter" && (e.metaKey||e.ctrlKey)){ e.preventDefault(); next(); } });
+$("copy").onclick = async () => {
+  try{ await navigator.clipboard.writeText(state.plan||""); $("copy").textContent = "Copied"; }
+  catch(e){ $("copy").textContent = "Select the text to copy"; }
+  setTimeout(()=>{ $("copy").textContent = "Copy my offer"; }, 2000);
+};
+$("restart").onclick = () => {
+  if(!confirm("Start over? Your answers and Offer Fix will be cleared.")) return;
+  state = {i:0, answers:[], asked:[], name: state.name, email: state.email}; save(); show("intro");
+};
+
+load();
+if(state.i >= QUESTIONS.length){ $("start").textContent = "See my Offer Fix"; }
+if(state.i > 0 && state.i < QUESTIONS.length){ $("start").textContent = "Continue where you left off"; }
+
+</script>
+</body>
+</html>

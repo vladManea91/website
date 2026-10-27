@@ -44,3 +44,4 @@ Allow: /
 
 Sitemap: https://yourdomain.com/sitemap.xml
 Disallow: /skill-gameplan/
+Disallow: /offer-fix/

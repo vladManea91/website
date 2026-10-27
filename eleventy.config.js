@@ -6,6 +6,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "src/img": "img" });
   eleventyConfig.addPassthroughCopy({ "src/robots.txt": "robots.txt" });
   eleventyConfig.addPassthroughCopy({ "src/skill-gameplan": "skill-gameplan" });
+  eleventyConfig.addPassthroughCopy({ "src/offer-fix": "offer-fix" });
 
   eleventyConfig.addCollection("posts", (collection) => {
     return collection
