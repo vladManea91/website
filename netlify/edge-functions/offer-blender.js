@@ -7,7 +7,7 @@ const MAX_ANSWER = 1500;
 
 const STAGES = ["Skill","Person","Offer"];
 const QUESTIONS = [
-  {st:0, q:"What are you good at? Your skills, your experience, the things people say you have taste in.", f:"Name the one or two things you're better at than most people around you."},
+  {st:0, q:"What do people come to you for help with? At work, with friends, online. Think of the last few times someone asked.", f:"Pick one recent moment: who asked you, and what did they want help with?", p:"e.g. Friends send me their photos to edit. At work I'm the one who fixes the messy spreadsheets."},
   {st:0, q:"What's one result you've got with it, for yourself or someone else? Give me the before and after.", f:"Even a small one counts. What changed, for whom, and how fast?"},
   {st:1, q:"Who do you most want to help with it? Describe one specific person, not a whole market.", f:"Be specific: their job or situation, and where they are right now."},
   {st:1, q:"What's the messy moment they're stuck in right now? Say it the way they'd say it.", f:"What's the annoying thing that happens to them this week? Something they'd actually complain about."},
