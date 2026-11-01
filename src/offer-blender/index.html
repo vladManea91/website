@@ -42,6 +42,7 @@ button:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:3px solid
 .progress span{display:block;height:100%;background:var(--orange);transition:width .35s ease}
 .qcount{font-size:14px;color:var(--muted);margin-bottom:10px}
 .question{font-family:Fraunces,Georgia,serif;font-size:clamp(26px,6vw,34px);line-height:1.2;margin:0 0 22px}
+.helper{font-size:15.5px;line-height:1.5;color:var(--muted);margin:-8px 0 20px;padding-left:12px;border-left:2px solid var(--sage)}
 .followup{background:var(--field);border-left:3px solid var(--orange);padding:12px 16px;border-radius:0 10px 10px 0;margin:0 0 16px;font-size:16px}
 .prev{font-size:15px;color:var(--muted);margin:0 0 12px;white-space:pre-wrap}
 .choices{display:grid;gap:10px}
@@ -150,6 +151,7 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
     <div class="progress"><span id="bar"></span></div>
     <p class="qcount" id="qcount"></p>
     <h2 class="question" id="qtext"></h2>
+    <p class="helper" id="helper"></p>
     <p class="prev" id="prev" hidden></p>
     <p class="followup" id="followup" hidden></p>
     <label for="answer" class="qcount" style="position:absolute;left:-9999px">Your answer</label>
@@ -188,12 +190,12 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
 <script>
 const STAGES = ["Skill","Person","Offer"];
 const QUESTIONS = [
-  {st:0, q:"What do people come to you for help with? At work, with friends, online. Think of the last few times someone asked.", f:"Pick one recent moment: who asked you, and what did they want help with?", p:"e.g. Friends send me their photos to edit. At work I'm the one who fixes the messy spreadsheets."},
-  {st:0, q:"What's one result you've got with it, for yourself or someone else? Give me the before and after.", f:"Even a small one counts. What changed, for whom, and how fast?"},
-  {st:1, q:"Who do you most want to help with it? Describe one specific person, not a whole market.", f:"Be specific: their job or situation, and where they are right now."},
-  {st:1, q:"What's the messy moment they're stuck in right now? Say it the way they'd say it.", f:"What's the annoying thing that happens to them this week? Something they'd actually complain about."},
-  {st:1, q:"What do they hate, fear, or refuse to do to fix it?", f:"Think of what they've tried, or what they avoid: too expensive, too slow, too complicated, feels fake?"},
-  {st:2, q:"Which simple version could you sell this week?", choices:["1:1 session","2-week sprint","4-week coaching package","Audit + action plan","Done-with-you setup","Template + feedback","Small group workshop","Not sure, pick for me"]}
+  {h:"This finds your skill. What people already ask you for is the strongest sign of what they'd pay for.", st:0, q:"What do people come to you for help with? At work, with friends, online. Think of the last few times someone asked.", f:"Pick one recent moment: who asked you, and what did they want help with?", p:"e.g. Friends send me their photos to edit. At work I'm the one who fixes the messy spreadsheets."},
+  {h:"This is your proof. Even a small win makes the offer believable, to buyers and to you.", st:0, q:"What's one result you've got with it, for yourself or someone else? Give me the before and after.", f:"Even a small one counts. What changed, for whom, and how fast?"},
+  {h:"This picks your buyer. The more specific the person, the easier the offer is to sell.", st:1, q:"Who do you most want to help with it? Describe one specific person, not a whole market.", f:"Be specific: their job or situation, and where they are right now."},
+  {h:"This becomes your sales message. People buy to fix something that annoys them right now.", st:1, q:"What's the messy moment they're stuck in right now? Say it the way they'd say it.", f:"What's the annoying thing that happens to them this week? Something they'd actually complain about."},
+  {h:"This shapes your offer. You'll promise the result without the thing they hate.", st:1, q:"What do they hate, fear, or refuse to do to fix it?", f:"Think of what they've tried, or what they avoid: too expensive, too slow, too complicated, feels fake?"},
+  {h:"This sets the format. Start with the smallest version someone can say yes to this week.", st:2, q:"Which simple version could you sell this week?", choices:["1:1 session","2-week sprint","4-week coaching package","Audit + action plan","Done-with-you setup","Template + feedback","Small group workshop","Not sure, pick for me"]}
 ];
 const KEY = "offer-blender-v1";
 let state = {i:0, answers:[], asked:[]};
@@ -209,6 +211,7 @@ function renderQ(){
   $("bar").style.width = ((n)/QUESTIONS.length*100)+"%";
   $("qcount").textContent = "Question "+(n+1)+" of "+QUESTIONS.length+" · "+STAGES[item.st]+" (stage "+(item.st+1)+" of "+STAGES.length+")";
   $("qtext").textContent = item.q;
+  $("helper").textContent = item.h || ""; $("helper").hidden = !item.h;
   const inFollow = state.asked[n] === "follow";
   $("followup").hidden = !inFollow;
   $("followup").textContent = inFollow ? item.f : "";
