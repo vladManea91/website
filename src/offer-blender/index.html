@@ -369,6 +369,7 @@ async function buildPlan(){
   $("status").hidden = false;
   if(state.plan){ finish(state.plan); notifyDone(state.plan); return; }
   if(running) return;
+  sendLead(); // retries Kit if the first try didn't go through
   running = new AbortController();
   let text = "";
   startLoad();
@@ -376,9 +377,10 @@ async function buildPlan(){
     const res = await fetch("/api/offer-blender", {
       method:"POST", signal: running.signal,
       headers:{"Content-Type":"application/json"},
-      body: JSON.stringify(isCheck() ? {mode:"check", offer: state.offer || "", url: state.url || ""} : {answers: state.answers})
+      body: JSON.stringify(Object.assign({name: state.name || "", email: state.email || ""}, isCheck() ? {mode:"check", offer: state.offer || "", url: state.url || ""} : {answers: state.answers}))
     });
     if(!res.ok){ let code="error"; try{ code=(await res.json()).code||code; }catch(e){} throw {code}; }
+    state.runId = res.headers.get("X-Run-Id") || null; state.notified = false; save();
     const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "";
     while(true){
       const {done, value} = await reader.read();
@@ -469,11 +471,18 @@ function sendLead(){
   .then(r => { if(r.ok){ state.kitSent = state.email; save(); } else console.error("lead failed", r.status); })
   .catch(e => console.error("lead failed", e));
 }
-function notifyDone(text){
-  if(state.notified) return;
+// Asks the server to send the two emails. Only the run id goes up: the server uses the copy it saved.
+// The server may need a moment to save it after the stream ends, so retry a few times.
+function notifyDone(_text, tries){
+  if(state.notified || !state.runId) return;
+  tries = tries || 0;
   fetch("/api/offer-blender", {method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({action:"done", mode: state.mode || "blend", name: state.name || "", email: state.email || "", answers: state.answers, offer: state.offer || "", url: state.url || "", plan: text})})
-  .then(r => { if(r.ok){ state.notified = true; save(); } else console.error("notify failed", r.status); })
+    body: JSON.stringify({action:"done", runId: state.runId})})
+  .then(r => {
+    if(r.ok){ state.notified = true; save(); return; }
+    if(r.status === 409 && tries < 8) return setTimeout(() => notifyDone(_text, tries + 1), 2000);
+    console.error("notify failed", r.status);
+  })
   .catch(e => console.error("notify failed", e));
 }
 $("next").onclick = next;

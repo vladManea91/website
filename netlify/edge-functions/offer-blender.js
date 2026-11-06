@@ -208,20 +208,35 @@ async function handle(req, context) {
       if (used >= 5) return json("rate_limited", 429);
       await store.set(k, String(used + 1));
     } catch (e) { console.error("lead limit store", e); }
-    try { await addToKit(env, name, email); return json("ok", 200); }
-    catch (e) { console.error("Kit:", e); return json("kit_failed", 502); }
+    const kitStatus = await addToKit(env, name, email);
+    if (!kitStatus.ok) { console.error("Kit:", kitStatus.detail); return json("kit_failed", 502); }
+    return json("ok", 200);
   }
 
-  // Finished run: email the lead + their Offer Blender to you via Resend.
+  // Finished run: two separate emails, one to you and one to them, built from the run this server saved.
+  // Only the run id comes from the browser, so nobody can use this to email made-up text to anyone.
   if (body && body.action === "done") {
+    const runId = String(body.runId || "");
+    if (!/^[0-9a-f-]{36}$/.test(runId)) return json("bad_input", 400);
+    const runs = getStore("offer-blender-runs");
+    let run = null;
+    try { const raw = await runs.get(runId); run = raw ? JSON.parse(raw) : null; } catch (e) { console.error("run read", e); }
+    if (!run || !run.text) return json("not_ready", 409);
+    if (run.sent) return json("ok", 200);
+    run.sent = true; // claim it first so a double click can't send twice
+    try { await runs.set(runId, JSON.stringify(run)); } catch (e) { console.error("run write", e); }
+    // Second chance for Kit, and its result goes in your email so you can see it.
+    const kitStatus = run.email ? await addToKit(env, run.name, run.email) : { ok: false, detail: "no email given" };
     if (!env("RESEND_API_KEY") || !env("NOTIFY_EMAIL")) { console.error("Resend not configured"); return json("ok", 200); }
-    try { await sendRunEmail(env, body); return json("ok", 200); }
-    catch (e) { console.error("Resend:", e); return json("email_failed", 502); }
+    const result = await sendRunEmails(env, run, kitStatus);
+    return json(result.owner ? "ok" : "email_failed", result.owner ? 200 : 502);
   }
 
   // Two modes: "blend" (6 answers → a new offer) and "check" (an existing offer or page → where it fails).
   const isCheck = body && body.mode === "check";
   const answers = body && body.answers;
+  const leadName = cut(body && body.name, 60).replace(/\s+/g, " ").trim();
+  const leadEmail = EMAIL_RE.test(String((body && body.email) || "").trim()) ? String(body.email).trim().slice(0, 120) : "";
   let offerText = "", pageUrl = "";
   if (isCheck) {
     offerText = String(body.offer || "").trim();
@@ -281,66 +296,239 @@ async function handle(req, context) {
     console.error("openrouter", upstream.status, detail);
     return json("openrouter_" + upstream.status, 502);
   }
-  return new Response(upstream.body, {
-    headers: { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-store" }
+  // One copy streams to the browser, the other is read here and saved, so the emails use exactly what was written.
+  const runId = crypto.randomUUID();
+  const [toBrowser, toSave] = upstream.body.tee();
+  const saving = saveRun(runId, toSave, {
+    mode: isCheck ? "check" : "blend", name: leadName, email: leadEmail,
+    answers: isCheck ? [] : answers, offer: offerText, url: pageUrl, at: new Date().toISOString()
   });
+  if (context && typeof context.waitUntil === "function") context.waitUntil(saving);
+  return new Response(toBrowser, {
+    headers: { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-store", "X-Run-Id": runId }
+  });
+}
+
+async function saveRun(runId, stream, run) {
+  try {
+    const reader = stream.getReader(), dec = new TextDecoder();
+    let buf = "", text = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split("\n"); buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith("data:")) continue;
+        const data = line.slice(5).trim();
+        if (!data || data === "[DONE]") continue;
+        try { const ev = JSON.parse(data); const p = ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.content; if (p) text += p; } catch {}
+      }
+    }
+    if (!text.trim()) return;
+    await getStore("offer-blender-runs").set(runId, JSON.stringify({ ...run, text: text.slice(0, 30000) }));
+  } catch (e) { console.error("saveRun", e); }
 }
 
 const EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 const escHtml = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const cut = (t, n) => String(t || "").slice(0, n);
 
-// Kit (ConvertKit) API v4: create or update the subscriber, add them to the form, then tag them.
+// Kit (ConvertKit). Works with a v4 API key (Settings → Developer) and falls back to the
+// classic v3 API key (Settings → Advanced) if that's what's in KIT_API_KEY. Never throws:
+// returns { ok, detail } so the reason ends up in your email.
 const KIT_FORM_ID = "10106351";
 const KIT_TAG_NAME = "Buyers";
-async function kit(env, path, payload) {
+
+async function kitV4(env, method, path, payload) {
   const res = await fetch("https://api.kit.com/v4" + path, {
-    method: "POST",
+    method,
     headers: { "X-Kit-Api-Key": env("KIT_API_KEY"), "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify(payload)
+    ...(payload ? { body: JSON.stringify(payload) } : {})
   });
-  if (!res.ok) throw new Error(path + " " + res.status + " " + (await res.text()));
-  return res.json().catch(() => ({}));
+  const out = await res.json().catch(() => ({}));
+  if (!res.ok) { const e = new Error("v4 " + path + " " + res.status + " " + JSON.stringify(out).slice(0, 200)); e.status = res.status; throw e; }
+  return out;
 }
-async function addToKit(env, name, email) {
-  await kit(env, "/subscribers", { email_address: email, first_name: name });
-  await kit(env, "/forms/" + (env("KIT_FORM_ID") || KIT_FORM_ID) + "/subscribers", { email_address: email });
-  // Creating a tag that already exists returns the existing one, so this finds "Buyers" by name.
-  let tagId = env("KIT_TAG_ID");
-  if (!tagId) { const t = await kit(env, "/tags", { name: KIT_TAG_NAME }); tagId = t.tag && t.tag.id; }
-  if (!tagId) throw new Error("no tag id returned for " + KIT_TAG_NAME);
-  await kit(env, "/tags/" + tagId + "/subscribers", { email_address: email });
+async function kitV3(env, method, path, payload) {
+  const url = "https://api.convertkit.com/v3" + path + (method === "GET" ? (path.includes("?") ? "&" : "?") + "api_key=" + encodeURIComponent(env("KIT_API_KEY")) : "");
+  const res = await fetch(url, {
+    method,
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    ...(payload ? { body: JSON.stringify(payload) } : {})
+  });
+  const out = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error("v3 " + path + " " + res.status + " " + JSON.stringify(out).slice(0, 200));
+  return out;
 }
 
-async function sendRunEmail(env, body) {
-  const name = cut(body.name, 60).replace(/\s+/g, " ").trim();
-  const email = EMAIL_RE.test(String(body.email || "").trim()) ? String(body.email).trim() : "";
-  const answers = Array.isArray(body.answers) ? body.answers.slice(0, QUESTIONS.length).map(a => cut(a, MAX_ANSWER)) : [];
-  const plan = cut(body.plan, 20000);
-  const isCheck = body.mode === "check";
-  const pairs = isCheck
-    ? [["Mode", "Offer check (they already have an offer)"], ["Their page", cut(body.url, 500) || "none"], ["What they pasted", cut(body.offer, MAX_OFFER) || "nothing"]]
-    : QUESTIONS.map((q, k) => [q.q, answers[k] || ""]);
+async function addToKit(env, name, email) {
+  if (!env("KIT_API_KEY")) return { ok: false, detail: "KIT_API_KEY is not set in Netlify" };
+  const formId = env("KIT_FORM_ID") || KIT_FORM_ID;
+  try {
+    await kitV4(env, "POST", "/subscribers", { email_address: email, first_name: name, state: "active" });
+    await kitV4(env, "POST", "/forms/" + formId + "/subscribers", { email_address: email });
+    let tagId = env("KIT_TAG_ID");
+    if (!tagId) {
+      try { const t = await kitV4(env, "POST", "/tags", { name: KIT_TAG_NAME }); tagId = t.tag && t.tag.id; }
+      catch (e) {
+        const list = await kitV4(env, "GET", "/tags?per_page=1000");
+        const hit = (list.tags || []).find(t => String(t.name).toLowerCase() === KIT_TAG_NAME.toLowerCase());
+        tagId = hit && hit.id;
+      }
+    }
+    if (!tagId) return { ok: false, detail: "added to form " + formId + ", but couldn't find or create the tag " + KIT_TAG_NAME };
+    await kitV4(env, "POST", "/tags/" + tagId + "/subscribers", { email_address: email });
+    return { ok: true, detail: "added to form " + formId + " and tagged " + KIT_TAG_NAME };
+  } catch (e) {
+    if (e.status !== 401 && e.status !== 403) { console.error("Kit v4", e); return { ok: false, detail: String(e.message) }; }
+  }
+  // The key isn't a v4 key: try it as a classic v3 key.
+  try {
+    let tagId = env("KIT_TAG_ID");
+    if (!tagId) {
+      const list = await kitV3(env, "GET", "/tags");
+      const hit = (list.tags || []).find(t => String(t.name).toLowerCase() === KIT_TAG_NAME.toLowerCase());
+      tagId = hit && hit.id;
+      if (!tagId && env("KIT_API_SECRET")) {
+        const t = await kitV3(env, "POST", "/tags", { api_secret: env("KIT_API_SECRET"), tag: { name: KIT_TAG_NAME } });
+        tagId = t.id || (t.tag && t.tag.id);
+      }
+    }
+    await kitV3(env, "POST", "/forms/" + formId + "/subscribe", { api_key: env("KIT_API_KEY"), email, first_name: name, ...(tagId ? { tags: [Number(tagId)] } : {}) });
+    return { ok: true, detail: "added to form " + formId + (tagId ? " and tagged " + KIT_TAG_NAME : ", but the tag " + KIT_TAG_NAME + " doesn't exist yet in Kit, so create it once") + " (classic v3 key)" };
+  } catch (e) {
+    console.error("Kit v3", e);
+    return { ok: false, detail: "Kit rejected the key with both APIs. Check KIT_API_KEY in Netlify. " + String(e.message) };
+  }
+}
+
+// ===== Emails: one design, sent twice, separately =====
+const C = { cream: "#F3EDE0", card: "#FFFFFF", forest: "#0E241C", orange: "#E9622B", muted: "#4d6157", line: "#E4DCCB", soft: "#FBF8F1" };
+const SPRINT_URL = "https://vlad-manea.de/customer-unlock-sprint/";
+
+function inlineMd(t) {
+  return escHtml(t).replace(/\*\*(.+?)\*\*/g, '<strong style="color:' + C.forest + '">$1</strong>');
+}
+// Turns the Offer Blend / Offer Check markdown into email-safe HTML with inline styles.
+function mdToEmail(text) {
+  const out = []; let list = [], para = [], quote = [];
+  const P = 'style="margin:0 0 14px;font-size:16px;line-height:1.6;color:' + C.forest + '"';
+  const flushPara = () => { if (para.length) { out.push("<p " + P + ">" + inlineMd(para.join(" ")) + "</p>"); para = []; } };
+  const flushList = () => { if (list.length) { out.push('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px">' + list.map(li => '<tr><td valign="top" style="width:18px;padding:3px 0;color:' + C.orange + ';font-size:16px;line-height:1.6">&#8226;</td><td style="padding:3px 0;font-size:16px;line-height:1.6;color:' + C.forest + '">' + inlineMd(li) + "</td></tr>").join("") + "</table>"); list = []; } };
+  const flushQuote = () => { if (quote.length) { out.push('<div style="margin:0 0 16px;padding:14px 18px;background:' + C.soft + ";border-left:3px solid " + C.orange + ";border-radius:0 10px 10px 0;font-size:16px;line-height:1.6;color:" + C.forest + '">' + inlineMd(quote.join(" ")) + "</div>"); quote = []; } };
+  const flush = () => { flushPara(); flushList(); flushQuote(); };
+  for (const raw of String(text).split("\n")) {
+    const l = raw.trim();
+    if (!l) { flush(); continue; }
+    if (l.startsWith("### ")) { flush(); out.push('<h3 style="margin:22px 0 8px;font-family:Georgia,serif;font-size:19px;line-height:1.3;color:' + C.forest + '">' + inlineMd(l.slice(4)) + "</h3>"); continue; }
+    if (l.startsWith("## ")) { flush(); out.push('<h2 style="margin:30px 0 12px;padding-top:22px;border-top:1px solid ' + C.line + ';font-family:Georgia,serif;font-size:23px;line-height:1.25;color:' + C.forest + '">' + inlineMd(l.slice(3)) + "</h2>"); continue; }
+    if (/^[-*] /.test(l)) { flushPara(); flushQuote(); list.push(l.slice(2)); continue; }
+    if (l.startsWith(">")) { flushPara(); flushList(); quote.push(l.replace(/^>\s?/, "")); continue; }
+    flushList(); flushQuote(); para.push(l);
+  }
+  flush();
+  return out.join("").replace('style="margin:30px 0 12px;padding-top:22px;border-top:1px solid ' + C.line + ';', 'style="margin:0 0 12px;');
+}
+
+function offerTitle(run) {
+  const m = String(run.text).match(/^###\s+(.+)$/m);
+  return m ? m[1].replace(/\*\*/g, "").trim() : "";
+}
+function checkScore(run) {
+  const m = String(run.text).match(/(\d+)\s+of\s+8\s+checks\s+pass/i);
+  return m ? m[1] + " of 8 checks pass" : "";
+}
+
+// forOwner: true = your copy (lead details on top), false = their copy (no sign you get one too).
+function buildEmail(run, forOwner, kitStatus) {
+  const isCheck = run.mode === "check";
   const label = isCheck ? "Offer Check" : "Offer Blend";
-  const html = '<div style="max-width:640px;font:14px/1.55 sans-serif">' +
-    '<h2 style="font:600 16px sans-serif;margin:0 0 8px">New lead</h2><p>' + escHtml(name || "No name") + (email ? " &lt;" + escHtml(email) + "&gt;" : "") + "</p>" +
-    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their answers</h2>' +
-    pairs.map(p => "<p><strong>" + escHtml(p[0]) + "</strong><br>" + escHtml(p[1]).replace(/\n/g, "<br>") + "</p>").join("") +
-    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their ' + label + '</h2><pre style="white-space:pre-wrap;font:13px/1.55 sans-serif">' + escHtml(plan) + "</pre></div>";
-  const text = "New lead: " + (name || "No name") + (email ? " <" + email + ">" : "") + "\n\n" +
-    pairs.map(p => p[0] + "\n" + p[1]).join("\n\n") + "\n\n--- " + label + " ---\n\n" + plan;
+  const first = (run.name || "").split(" ")[0];
+  const inputs = isCheck
+    ? [["Their page", run.url || "None"], ["What they pasted", run.offer || "Nothing"]].map(([k, v]) => [forOwner ? k : k.replace("Their", "Your").replace("they", "you"), v])
+    : QUESTIONS.map((q, k) => [q.q, (run.answers || [])[k] || ""]);
+  const title = offerTitle(run), score = checkScore(run);
+
+  const subject = forOwner
+    ? "New " + (isCheck ? "Offer Check" : "Offer Blender") + " lead: " + (run.name || "No name") + (run.email ? " <" + run.email + ">" : "")
+    : isCheck ? "Your Offer Check" + (score ? ": " + score : " is ready") : "Your Offer Blend" + (title ? ": " + title : " is ready");
+
+  const ownerBox = forOwner ?
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;background:' + C.soft + ';border:1px solid ' + C.line + ';border-radius:12px"><tr><td style="padding:16px 20px;font-size:15px;line-height:1.7;color:' + C.forest + '">' +
+      "<strong>Name:</strong> " + escHtml(run.name || "Not given") + "<br>" +
+      "<strong>Email:</strong> " + (run.email ? '<a href="mailto:' + escHtml(run.email) + '" style="color:' + C.orange + '">' + escHtml(run.email) + "</a>" : "Not given") + "<br>" +
+      "<strong>Path:</strong> " + (isCheck ? "Offer Check (already has an offer)" : "Offer Blend (6 questions)") + "<br>" +
+      "<strong>Kit:</strong> " + (kitStatus && kitStatus.ok ? "&#10003; " : "&#9888; ") + escHtml((kitStatus && kitStatus.detail) || "not tried") + "<br>" +
+      '<span style="color:' + C.muted + ';font-size:13px">Reply to this email to answer them directly. They received the same email without this box.</span>' +
+    "</td></tr></table>" : "";
+
+  const hello = forOwner
+    ? '<h1 style="margin:0 0 8px;font-family:Georgia,serif;font-size:28px;line-height:1.2;color:' + C.forest + '">New lead: ' + escHtml(first || "someone") + "</h1>" +
+      '<p style="margin:0 0 22px;font-size:16px;line-height:1.6;color:' + C.muted + '">' + (title ? "Their offer: <strong style=\"color:" + C.forest + "\">" + escHtml(title) + "</strong>" : score ? escHtml(score) : "Their " + label + " is below.") + "</p>"
+    : '<h1 style="margin:0 0 8px;font-family:Georgia,serif;font-size:28px;line-height:1.2;color:' + C.forest + '">' + (first ? "Hi " + escHtml(first) + ", here's your " + label + "." : "Here's your " + label + ".") + "</h1>" +
+      '<p style="margin:0 0 22px;font-size:16px;line-height:1.6;color:' + C.muted + '">Your ' + (isCheck ? "offer" : "answers") + " and your result, saved in one place. Reply to this email if anything's unclear. It comes straight to me.</p>";
+
+  const inputsHtml =
+    '<h2 style="margin:0 0 12px;font-family:Georgia,serif;font-size:21px;color:' + C.forest + '">' + (forOwner ? "Their " : "Your ") + (isCheck ? "offer" : "answers") + "</h2>" +
+    inputs.map(([q, a]) =>
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 10px;background:' + C.soft + ';border-radius:10px"><tr><td style="padding:12px 16px">' +
+      '<div style="font-size:13px;line-height:1.5;color:' + C.muted + ';margin:0 0 4px">' + escHtml(q) + "</div>" +
+      '<div style="font-size:15px;line-height:1.55;color:' + C.forest + '">' + escHtml(a).replace(/\n/g, "<br>") + "</div></td></tr></table>").join("");
+
+  const cta =
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 0;background:' + C.forest + ';border-radius:14px"><tr><td style="padding:24px 24px 26px">' +
+    '<div style="font-family:Georgia,serif;font-size:21px;line-height:1.3;color:' + C.cream + ';margin:0 0 10px">' + (isCheck ? "Now you know where it leaks. Let's get someone to pay for it." : "You've named the offer. Now get someone to pay for it.") + "</div>" +
+    '<div style="font-size:15px;line-height:1.6;color:#d9e2dc;margin:0 0 18px">Send your message to 10 people this week. If you\'d rather not figure out the rest alone after work, that\'s what we do in the Customer Unlock Sprint: we sharpen this offer, find warm buyers in the audience you already have, set up a clean checkout, and work toward your first online client together.</div>' +
+    '<a href="' + SPRINT_URL + '" style="display:inline-block;background:' + C.orange + ';color:#ffffff;text-decoration:none;font-weight:bold;font-size:15px;padding:13px 22px;border-radius:999px">See how the Sprint works</a>' +
+    "</td></tr></table>";
+
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escHtml(subject) + "</title></head>" +
+    '<body style="margin:0;padding:0;background:' + C.cream + '">' +
+    '<div style="display:none;max-height:0;overflow:hidden;opacity:0">' + escHtml(forOwner ? (run.email || "") + " just finished the " + label : (title || score || "Your result") + ", plus what to do today") + "</div>" +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:' + C.cream + '"><tr><td align="center" style="padding:28px 12px">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;font-family:Helvetica,Arial,sans-serif">' +
+    '<tr><td style="padding:0 6px 14px;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:' + C.orange + '">The Offer Blender</td></tr>' +
+    '<tr><td style="background:' + C.card + ';border-radius:16px;padding:30px 26px">' +
+      hello + ownerBox + inputsHtml +
+      '<div style="height:1px;background:' + C.line + ';margin:26px 0"></div>' +
+      (/^\s*## Your Offer Blend/.test(run.text) ? "" : '<div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:' + C.orange + ';margin:0 0 6px">' + (forOwner ? "Their " : "Your ") + label + "</div>") +
+      mdToEmail(run.text) + cta +
+    "</td></tr>" +
+    '<tr><td style="padding:18px 6px 0;font-size:13px;line-height:1.6;color:' + C.muted + '">Vlad Manea · <a href="https://vlad-manea.de" style="color:' + C.muted + '">vlad-manea.de</a></td></tr>' +
+    "</table></td></tr></table></body></html>";
+
+  const text = (forOwner
+      ? "New lead: " + (run.name || "No name") + (run.email ? " <" + run.email + ">" : "") + "\nPath: " + label + "\nKit: " + ((kitStatus && kitStatus.detail) || "not tried") + "\n\n"
+      : (first ? "Hi " + first + ", here's your " + label + "." : "Here's your " + label + ".") + "\n\n") +
+    inputs.map(([q, a]) => q + "\n" + a).join("\n\n") + "\n\n--- " + (forOwner ? "Their " : "Your ") + label + " ---\n\n" + run.text +
+    "\n\nCustomer Unlock Sprint: " + SPRINT_URL + "\n\nVlad Manea · vlad-manea.de";
+  return { subject, html, text };
+}
+
+async function resend(env, payload) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: "Bearer " + env("RESEND_API_KEY"), "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: env("NOTIFY_FROM") || "Offer Blender <onboarding@resend.dev>",
-      to: String(env("NOTIFY_EMAIL")).split(",").map(e => e.trim()).filter(Boolean),
-      ...(email ? { reply_to: email } : {}),
-      subject: (isCheck ? "New Offer Check lead" : "New Offer Blender lead") + (name || email ? ": " + [name, email && "<" + email + ">"].filter(Boolean).join(" ") : ""),
-      html, text
-    })
+    body: JSON.stringify(payload)
   });
-  if (!res.ok) throw new Error(res.status + " " + (await res.text()));
+  if (!res.ok) throw new Error(res.status + " " + (await res.text()).slice(0, 300));
+}
+
+// Two separate sends. Your copy replies to them; their copy replies to you. Neither shows the other address.
+async function sendRunEmails(env, run, kitStatus) {
+  const from = env("NOTIFY_FROM") || "Offer Blender <onboarding@resend.dev>";
+  const owners = String(env("NOTIFY_EMAIL")).split(",").map(e => e.trim()).filter(Boolean);
+  const out = { owner: false, lead: false };
+  const mine = buildEmail(run, true, kitStatus);
+  try { await resend(env, { from, to: owners, ...(run.email ? { reply_to: run.email } : {}), subject: mine.subject, html: mine.html, text: mine.text }); out.owner = true; }
+  catch (e) { console.error("Resend (owner):", e); }
+  if (run.email) {
+    const theirs = buildEmail(run, false, null);
+    try { await resend(env, { from: env("LEAD_FROM") || from, to: [run.email], reply_to: env("REPLY_TO") || owners[0], subject: theirs.subject, html: theirs.html, text: theirs.text }); out.lead = true; }
+    catch (e) { console.error("Resend (lead):", e); }
+  }
+  return out;
 }
 
 export const config = { path: "/api/offer-blender" };
