@@ -81,6 +81,12 @@ textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--in
 .cta .ctasub a{color:#fff}
 .error{background:var(--field);border:1.5px solid var(--orange);border-radius:14px;padding:18px;margin:16px 0}
 [hidden]{display:none!important}
+.doors{margin-top:0}
+.flabel{display:block;font-size:14px;font-weight:600;color:var(--ink);margin:18px 0 8px}
+.flabel span{font-weight:400;color:var(--muted)}
+#check .helper{margin-top:0}
+#offerText{min-height:190px}
+.ferr{color:var(--orange);font-size:14px;margin:10px 0 0}
 .cin{width:100%;font:inherit;font-size:max(16px,1em);color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px}
 .cin:focus-visible{outline:3px solid var(--sage);outline-offset:3px}
 /* ===== web + mobile app fit ===== */
@@ -103,7 +109,7 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
   .brand{margin-bottom:28px}
   h1{font-size:clamp(34px,10vw,46px)}
   .lede{font-size:17.5px}
-  #start{width:100%}
+  #start,#startCheck{width:100%}
   .question{font-size:clamp(23px,6.4vw,28px);margin-bottom:16px}
   .progress{margin-bottom:22px}
   #ask .row{position:sticky;bottom:0;z-index:5;margin:16px calc(-1*max(20px,env(safe-area-inset-left,0px))) 0;padding:12px max(20px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
@@ -130,8 +136,8 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
       <p>You've got skills, experience, taste or results. But your bio says what you do, and nobody knows what to buy.</p>
       <p>Answer six short questions and I'll blend your skills into one first paid offer, plus the sentence that sells it, a price to test, and the message to send to 10 real people this week.</p>
     </div>
-    <button id="start">Blend my offer</button>
-    <p class="meta">Takes under 10 minutes. Don't overthink it. We're building a front door, not a mansion.</p>
+    <div class="row doors"><button id="start">Blend my offer</button><button id="startCheck" class="ghost">I already have an offer</button></div>
+    <p class="meta">New offer: six questions, under 10 minutes. We're building a front door, not a mansion.<br>Already selling something? Paste it and I'll show you where it fails.</p>
   </section>
 
   <section id="contact" hidden>
@@ -164,6 +170,21 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
     </div>
   </section>
 
+  <section id="check" hidden>
+    <p class="qcount">Offer check</p>
+    <h2 class="question">Show me what you're selling.</h2>
+    <p class="helper">Paste your offer the way buyers see it: your sales page text, your bio, the DM you send, or all three. I'll check it against the Offer Blend format, show you where it fails, and reshape it.</p>
+    <label for="offerText" class="flabel">Your offer</label>
+    <textarea id="offerText" maxlength="8000" placeholder="e.g. 1:1 photography mentoring for beginners. 4 sessions over a month, €300. DM me to book." autocapitalize="sentences" spellcheck="true"></textarea>
+    <label for="offerUrl" class="flabel">Your landing page link <span>(optional)</span></label>
+    <input id="offerUrl" class="cin" type="url" inputmode="url" autocapitalize="off" autocomplete="url" spellcheck="false" placeholder="https://">
+    <p class="ferr" id="checkErr" hidden></p>
+    <div class="row">
+      <button id="checkGo">Check my offer</button>
+      <button id="checkBack" class="ghost">Back</button>
+    </div>
+  </section>
+
   <section id="result" hidden>
     <p class="status" id="status">That's everything I need. I'm blending your offer.</p>
     <div class="loadbox" id="loadbox" role="status" aria-live="polite" hidden>
@@ -178,7 +199,7 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
       <button id="restart" class="ghost">Start over</button>
     </div>
     <div class="cta" id="cta" hidden>
-      <h3>You've named the offer. Now get someone to pay for it.</h3>
+      <h3 id="ctaH">You've named the offer. Now get someone to pay for it.</h3>
       <p>Send your message to 10 people this week. That part's on you, and it's the part most people skip.</p>
       <p>If you'd rather not figure out the rest alone after work, this is exactly what I do in the Customer Unlock Sprint: we sharpen this offer, find warm buyers in the audience you already have, set up a clean checkout, and work toward your first online client together. 10 spots, starting Monday, November 30.</p>
       <a class="btn" id="ctaLink" href="/customer-unlock-sprint/" target="_blank" rel="noopener">See how the Sprint works</a>
@@ -204,7 +225,7 @@ let running = null;
 const $ = id => document.getElementById(id);
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
 function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && Array.isArray(s.answers)) state = s; }catch(e){} }
-function show(id){ ["intro","contact","ask","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo({top:0,behavior:"auto"}); }
+function show(id){ ["intro","contact","ask","check","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo({top:0,behavior:"auto"}); }
 
 function renderQ(){
   const n = state.i, item = QUESTIONS[n];
@@ -293,7 +314,9 @@ function md(text){
 
 function errCopy(code){
   switch(code){
-    case "rate_limited": return "You've already blended your offer today. Come back tomorrow for another one. Your answers are saved.";
+    case "rate_limited": return "You've used the Offer Blender twice today already. Come back tomorrow for another run. Your answers are saved.";
+    case "url_failed": return "I couldn't read that page. Some sites block tools like this one. Paste the text from your page instead, then press Check my offer.";
+    case "bad_url": return "That link doesn't look like a public web page. Check it, or paste your page text instead.";
     case "bad_input": return "Some answers are missing or too long. Press Start over and try again.";
     case "cancelled": return "Stopped. Press Try again when you're ready.";
     case "empty_response": return "The AI model finished without writing anything. Free models often do this on long answers. Switch OPENROUTER_MODEL in Netlify to a paid model, redeploy, then press Try again. Your answers are saved.";
@@ -302,17 +325,20 @@ function errCopy(code){
     case "openrouter_401": return "Setup issue: OpenRouter rejected the API key. Check OPENROUTER_API_KEY in Netlify. Your answers are saved.";
     case "openrouter_402": return "Setup issue: the OpenRouter account is out of credits. Your answers are saved.";
     case "openrouter_400": case "openrouter_404": return "Setup issue: OpenRouter doesn't recognise the model ID in OPENROUTER_MODEL. Your answers are saved.";
-    default: return "Your Offer Blend couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
+    default: return "Your " + (isCheck() ? "Offer Check" : "Offer Blend") + " couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
   }
 }
 
-const SECTIONS = ["Your Offer Blend","Your first paid offer","Your offer sentence","Your first price to test","Your first sales message","The beige check","Do this today"];
+const isCheck = () => state.mode === "check";
+const BLEND_SECTIONS = ["Your Offer Blend","Your first paid offer","Your offer sentence","Your first price to test","Your first sales message","The beige check","Do this today"];
+const CHECK_SECTIONS = ["Your verdict","Where it fails","Your reshaped offer","Your price","Fix these first","Your new sales message","Do this today"];
+const sections = () => isCheck() ? CHECK_SECTIONS : BLEND_SECTIONS;
 let loadTimer = null, loadStart = 0, thinking = false;
 function setFill(pct){ $("lfill").style.width = Math.max(3, Math.min(99, pct)) + "%"; }
 function startLoad(){
   loadStart = Date.now(); thinking = false;
   $("loadbox").hidden = false; $("lbar").classList.add("pulse"); setFill(3);
-  $("lstep").textContent = "Reading your answers";
+  $("lstep").textContent = isCheck() ? "Reading your offer" : "Reading your answers";
   $("lnote").textContent = "This usually takes under a minute. Keep this page open.";
   clearInterval(loadTimer);
   loadTimer = setInterval(() => {
@@ -320,24 +346,26 @@ function startLoad(){
     $("ltime").textContent = t < 60 ? t + "s" : Math.floor(t/60) + "m " + (t%60) + "s";
     if(!$("plan").textContent){
       setFill(3 + 9 * (1 - Math.exp(-t / 25)));
-      $("lstep").textContent = thinking ? "Thinking it through" : t < 8 ? "Reading your answers" : t < 20 ? "Finding your person" : "Naming your offer";
+      $("lstep").textContent = thinking ? "Thinking it through" : isCheck() ? (t < 8 ? "Reading your offer" : t < 20 ? "Checking it against the format" : "Reshaping your offer") : (t < 8 ? "Reading your answers" : t < 20 ? "Finding your person" : "Naming your offer");
       if(t > 60) $("lnote").textContent = "Still working. Longer answers take a little longer.";
     }
   }, 1000);
 }
 function progressFrom(text){
-  const done = SECTIONS.filter(h => text.includes("## " + h)).length;
-  const current = SECTIONS[Math.max(0, done - 1)];
+  const S = sections();
+  const done = S.filter(h => text.includes("## " + h)).length;
+  const current = S[Math.max(0, done - 1)];
   $("lbar").classList.remove("pulse");
-  setFill(12 + (done / SECTIONS.length) * 85);
-  $("lstep").textContent = "Writing: " + current + " (" + Math.max(1, done) + " of " + SECTIONS.length + ")";
-  $("lnote").textContent = "Your Offer Blend is appearing below as it's written.";
+  setFill(12 + (done / S.length) * 85);
+  $("lstep").textContent = "Writing: " + current + " (" + Math.max(1, done) + " of " + S.length + ")";
+  $("lnote").textContent = "Your " + (isCheck() ? "Offer Check" : "Offer Blend") + " is appearing below as it's written.";
 }
 function stopLoad(){ clearInterval(loadTimer); loadTimer = null; $("loadbox").hidden = true; }
 
 async function buildPlan(){
   show("result");
   $("plan").innerHTML = ""; $("err").hidden = true; $("cta").hidden = true; $("planActions").hidden = true;
+  $("status").textContent = isCheck() ? "Got it. I'm checking your offer against the format." : "That's everything I need. I'm blending your offer.";
   $("status").hidden = false;
   if(state.plan){ finish(state.plan); notifyDone(state.plan); return; }
   if(running) return;
@@ -348,7 +376,7 @@ async function buildPlan(){
     const res = await fetch("/api/offer-blender", {
       method:"POST", signal: running.signal,
       headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({answers: state.answers})
+      body: JSON.stringify(isCheck() ? {mode:"check", offer: state.offer || "", url: state.url || ""} : {answers: state.answers})
     });
     if(!res.ok){ let code="error"; try{ code=(await res.json()).code||code; }catch(e){} throw {code}; }
     const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "";
@@ -378,29 +406,59 @@ async function buildPlan(){
     const partial = (e && e.text) || text;
     if(partial) $("plan").innerHTML = md(partial);
     $("err").hidden = false;
-    $("err").innerHTML = esc(errCopy(e && (e.code || (e.name==="AbortError" ? "cancelled" : "error")))) + ' <div class="row"><button id="retry">Try again</button></div>';
-    $("retry").onclick = () => buildPlan();
+    const code = e && (e.code || (e.name==="AbortError" ? "cancelled" : "error"));
+    const fixInput = code === "url_failed" || code === "bad_url";
+    $("err").innerHTML = esc(errCopy(code)) + ' <div class="row"><button id="retry">' + (fixInput ? "Edit my offer" : "Try again") + '</button></div>';
+    $("retry").onclick = () => fixInput ? openCheck() : buildPlan();
   }finally{ running = null; }
 }
 
 function finish(text){
   $("status").hidden = true;
   $("plan").innerHTML = md(text);
+  $("ctaH").textContent = isCheck() ? "Now you know where it leaks. Let's get someone to pay for it." : "You've named the offer. Now get someone to pay for it.";
   $("planActions").hidden = false; $("cta").hidden = false;
 }
 
-$("start").onclick = () => {
+// Two doors: "blend" builds a new offer from 6 answers, "check" judges an offer they already have.
+function go(mode){
+  if(state.plan && (state.mode || "blend") !== mode){
+    state = {i:0, answers:[], asked:[], name: state.name, email: state.email, kitSent: state.kitSent};
+  }
+  state.mode = mode; save();
   if(!state.email){ show("contact"); $("cname").value = state.name || ""; if(!window.matchMedia("(hover: none)").matches) $("cname").focus(); return; }
+  route();
+}
+function route(){
+  if(isCheck()){ if(state.plan){ buildPlan(); return; } openCheck(); return; }
   if(state.i >= QUESTIONS.length){ buildPlan(); return; }
   show("ask"); renderQ();
+}
+function openCheck(){
+  show("check"); $("checkErr").hidden = true;
+  $("offerText").value = state.offer || ""; $("offerUrl").value = state.url || "";
+  state.plan = null; save();
+  if(!window.matchMedia("(hover: none)").matches) $("offerText").focus();
+}
+$("start").onclick = () => go("blend");
+$("startCheck").onclick = () => go("check");
+$("checkBack").onclick = () => show("intro");
+$("checkGo").onclick = () => {
+  const t = $("offerText").value.trim();
+  let u = $("offerUrl").value.trim();
+  if(u && !/^https?:\/\//i.test(u)) u = "https://" + u;
+  if(!t && !u){ $("checkErr").textContent = "Paste your offer, add your page link, or both."; $("checkErr").hidden = false; return; }
+  if(u){ try{ new URL(u); }catch(e){ $("checkErr").textContent = "That link doesn't look right. Check it, or paste your page text instead."; $("checkErr").hidden = false; return; } }
+  if(t && t.split(/\s+/).length < 8 && !u){ $("checkErr").textContent = "Give me a bit more to work with: a few sentences on what you sell, who it's for and what it costs."; $("checkErr").hidden = false; return; }
+  state.offer = t.slice(0, 8000); state.url = u.slice(0, 500); state.plan = null; state.notified = false; save();
+  buildPlan();
 };
 $("cgo").onclick = () => {
   const n = $("cname").value.trim(), e = $("cemail").value.trim();
   if(!n || !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(e)){ $("cerr").hidden = false; return; }
   $("cerr").hidden = true; state.name = n.slice(0,60); state.email = e.slice(0,120); save();
   sendLead();
-  if(state.i >= QUESTIONS.length){ buildPlan(); return; }
-  show("ask"); renderQ();
+  route();
 };
 ["cname","cemail"].forEach(id => $(id).addEventListener("keydown", ev => { if(ev.key==="Enter"){ ev.preventDefault(); id==="cname" ? $("cemail").focus() : $("cgo").click(); } }));
 // Adds them to Kit the moment they give their name and email, whether or not they finish.
@@ -414,7 +472,7 @@ function sendLead(){
 function notifyDone(text){
   if(state.notified) return;
   fetch("/api/offer-blender", {method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({action:"done", name: state.name || "", email: state.email || "", answers: state.answers, plan: text})})
+    body: JSON.stringify({action:"done", mode: state.mode || "blend", name: state.name || "", email: state.email || "", answers: state.answers, offer: state.offer || "", url: state.url || "", plan: text})})
   .then(r => { if(r.ok){ state.notified = true; save(); } else console.error("notify failed", r.status); })
   .catch(e => console.error("notify failed", e));
 }
@@ -428,13 +486,16 @@ $("copy").onclick = async () => {
   setTimeout(()=>{ $("copy").textContent = "Copy my offer"; }, 2000);
 };
 $("restart").onclick = () => {
-  if(!confirm("Start over? Your answers and Offer Blend will be cleared.")) return;
-  state = {i:0, answers:[], asked:[], name: state.name, email: state.email}; save(); show("intro");
+  if(!confirm("Start over? Your answers and result will be cleared.")) return;
+  state = {i:0, answers:[], asked:[], name: state.name, email: state.email, kitSent: state.kitSent}; save(); show("intro");
 };
 
 load();
-if(state.i >= QUESTIONS.length){ $("start").textContent = "See my Offer Blend"; }
-if(state.i > 0 && state.i < QUESTIONS.length){ $("start").textContent = "Continue where you left off"; }
+if(isCheck()){ if(state.plan) $("startCheck").textContent = "See my Offer Check"; }
+else {
+  if(state.i >= QUESTIONS.length){ $("start").textContent = "See my Offer Blend"; }
+  if(state.i > 0 && state.i < QUESTIONS.length){ $("start").textContent = "Continue where you left off"; }
+}
 
 </script>
 </body>
