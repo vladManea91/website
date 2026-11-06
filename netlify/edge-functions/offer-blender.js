@@ -525,7 +525,12 @@ async function sendRunEmails(env, run, kitStatus) {
   catch (e) { console.error("Resend (owner):", e); }
   if (run.email) {
     const theirs = buildEmail(run, false, null);
-    try { await resend(env, { from: env("LEAD_FROM") || from, to: [run.email], reply_to: env("REPLY_TO") || owners[0], subject: theirs.subject, html: theirs.html, text: theirs.text }); out.lead = true; }
+    // The email leads receive has its own sender settings:
+    //   OFFER_BLENDER_FROM      who it's from, e.g. "Vlad Manea <hello@vlad-manea.de>" (domain verified in Resend)
+    //   OFFER_BLENDER_REPLY_TO  where their replies go (defaults to the first NOTIFY_EMAIL)
+    const leadFrom = env("OFFER_BLENDER_FROM") || from;
+    const replyTo = env("OFFER_BLENDER_REPLY_TO") || owners[0];
+    try { await resend(env, { from: leadFrom, to: [run.email], reply_to: replyTo, subject: theirs.subject, html: theirs.html, text: theirs.text }); out.lead = true; }
     catch (e) { console.error("Resend (lead):", e); }
   }
   return out;
