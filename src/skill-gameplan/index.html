@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Skill to Offer Gameplan · Vlad Manea</title>
+<title>First Client Roadmap · Vlad Manea</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#F3EDE0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0E241C" media="(prefers-color-scheme: dark)">
@@ -118,21 +118,21 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
 </head>
 <body>
 <main class="wrap">
-  <p class="brand"><span>Vlad Manea</span><span>Skill to Offer Gameplan</span></p>
+  <p class="brand"><span>Vlad Manea</span><span>First Client Roadmap</span></p>
 
   <section id="intro">
-    <h1>Turn your skills into an offer, and the content that sells it.</h1>
+    <h1>Your roadmap from audience to first paying client.</h1>
     <div class="lede">
       <p>I'll interview you the way I would on a strategy call, in six stages: your story, your skills, who'd pay, the offer, the price, and how to talk about it. Ten questions, one at a time.</p>
-      <p>Then you get your gameplan: one offer built on your experience, priced on the result it creates, plus your hook, your story angle and a content plan that attracts the people who want it.</p>
+      <p>Then you get your roadmap: one offer built on your experience, priced on the result it creates, plus your hook, your story angle and a content plan that attracts the people who want it.</p>
     </div>
-    <button id="start">Start my gameplan</button>
-    <p class="meta">Takes about 12 minutes. Honest, specific answers make a better offer. Your answers stay in this browser and are only sent to write your gameplan.</p>
+    <button id="start">Start my roadmap</button>
+    <p class="meta">Takes about 12 minutes. Honest, specific answers make a better offer. Your answers stay in this browser and are only sent to write your roadmap.</p>
   </section>
 
   <section id="contact" hidden>
     <h2 class="question">First, who am I talking to?</h2>
-    <p class="lede" style="margin-bottom:20px">So I know whose gameplan this is, and can reply if you have questions.</p>
+    <p class="lede" style="margin-bottom:20px">So I know whose roadmap this is, and can reply if you have questions.</p>
     <div style="display:grid;gap:12px">
       <label for="cname" class="qcount" style="margin:0">Your first name</label>
       <input id="cname" class="cin" type="text" autocomplete="given-name" autocapitalize="words" enterkeyhint="next">
@@ -289,8 +289,8 @@ function md(text){
 
 function errCopy(code){
   switch(code){
-    case "no_access": return "This gameplan is for buyers. Please open it from the link on your purchase confirmation page or in your purchase email.";
-    case "rate_limited": return "You've built a few gameplans today already. Come back tomorrow, or reply to your purchase email and I'll help. Your answers are saved.";
+    case "no_access": return "This roadmap is for buyers. Please open it from the link on your purchase confirmation page or in your purchase email.";
+    case "rate_limited": return "You've built a few roadmaps today already. Come back tomorrow, or reply to your purchase email and I'll help. Your answers are saved.";
     case "bad_input": return "Some answers are missing or too long. Press Start over and try again.";
     case "cancelled": return "Stopped. Press Try again when you're ready.";
     case "empty_response": return "The AI model finished without writing anything. Free models often do this on long answers. Switch OPENROUTER_MODEL in Netlify to a paid model, redeploy, then press Try again. Your answers are saved.";
@@ -299,7 +299,7 @@ function errCopy(code){
     case "openrouter_401": return "Setup issue: OpenRouter rejected the API key. Check OPENROUTER_API_KEY in Netlify. Your answers are saved.";
     case "openrouter_402": return "Setup issue: the OpenRouter account is out of credits. Your answers are saved.";
     case "openrouter_400": case "openrouter_404": return "Setup issue: OpenRouter doesn't recognise the model ID in OPENROUTER_MODEL. Your answers are saved.";
-    default: return "Your gameplan couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
+    default: return "Your roadmap couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
   }
 }
 
@@ -328,7 +328,7 @@ function progressFrom(text){
   $("lbar").classList.remove("pulse");
   setFill(12 + (done / SECTIONS.length) * 85);
   $("lstep").textContent = "Writing: " + current + " (" + Math.max(1, done) + " of " + SECTIONS.length + ")";
-  $("lnote").textContent = "Your gameplan is appearing below as it's written.";
+  $("lnote").textContent = "Your roadmap is appearing below as it's written.";
 }
 function stopLoad(){ clearInterval(loadTimer); loadTimer = null; $("loadbox").hidden = true; }
 

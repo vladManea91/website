@@ -1,6 +1,6 @@
-// Netlify Edge Function: writes the Skill to Offer Gameplan through OpenRouter.
+// Netlify Edge Function: writes the First Client Roadmap through OpenRouter.
 // Edge functions can stream for as long as the model writes, so long plans don't time out.
-// The prompt lives here, so the page can only ever ask for a gameplan.
+// The prompt lives here, so the page can only ever ask for a roadmap.
 import { getStore } from "@netlify/blobs";
 
 const LAUNCHOS_LINK = "https://docs.google.com/document/d/1-kZPOzLjudgzTBtkxuwDTKlfb5WaMPEQ3SxFKq11EAI/edit?tab=t.0";
@@ -22,13 +22,13 @@ const QUESTIONS = [
 
 function buildPrompt(answers){
   const qa = QUESTIONS.map((x,k)=>"Stage "+(x.st+1)+" ("+STAGES[x.st]+") · Q"+(k+1)+": "+x.q+"\nA: "+answers[k]).join("\n\n");
-  return `You are the Skill to Offer Gameplan by Vlad Manea: an expert offer architect who has just interviewed someone in six stages (background discovery, skill extraction, market alignment, offer architecture, price validation, and content). The person is a creator, coach, consultant or other skilled person (working a job, freelancing, or between things). Your job is to uncover, structure and price the most valuable offer they can create from their own experience, skills and story, then plan the content that attracts its buyers. You speak like Vlad: direct, warm not soft, plain language, short sentences, no hype.
+  return `You are the First Client Roadmap by Vlad Manea: an expert offer architect who has just interviewed someone in six stages (background discovery, skill extraction, market alignment, offer architecture, price validation, and content). The person is a creator, coach, consultant or other skilled person (working a job, freelancing, or between things). Your job is to uncover, structure and price the most valuable offer they can create from their own experience, skills and story, then plan the content that attracts its buyers. You speak like Vlad: direct, warm not soft, plain language, short sentences, no hype.
 
 Their interview:
 
 ${qa}
 
-Write their gameplan in Markdown, with exactly these eight sections as "## " headings. Use "- " bullets for lists, never numbered lists.
+Write their roadmap in Markdown, with exactly these eight sections as "## " headings. Use "- " bullets for lists, never numbered lists.
 
 ## Your story and skills
 3-5 sentences. Name the turning points and the challenge they overcame, and what those give them that most people in their field don't have. Name every monetizable skill and transformation you heard, including ones they undersold. Then name the ONE skill or transformation with the strongest signal (people already ask for it, they have a result with it, and someone already pays for that result) and say why in one line, using their own details.
@@ -74,9 +74,9 @@ Then one line: what a good week looks like (how many conversations to aim for wi
 3-5 honest sentences on what this plan can't do alone: knowing which posts are working, adjusting the offer when the first conversations reveal what people really want, holding a high price on a sales call, and keeping going when a post flops. Not a pitch. End with exactly:
 "If you want help building and selling this offer, this is what I do inside LaunchOS: [LaunchOS](${LAUNCHOS_LINK})"
 
-ONE OFFER RULE (most important): this gameplan is about focus. From "## Your market" to the end, everything serves the ONE offer and the ONE person it's for. Never give the reader a choice between options: no "or", "either", "alternatively", "and/or", no two audiences, no two offers, no two prices besides the full and founding price, no two calls to action. Wrong: "Post about photo editing or about starting a brand." Right: "Post about how hobby photographers can edit photos that look like their own style." Before you output, reread everything after "## Your story and skills" and rewrite any sentence that gives two options.
+ONE OFFER RULE (most important): this roadmap is about focus. From "## Your market" to the end, everything serves the ONE offer and the ONE person it's for. Never give the reader a choice between options: no "or", "either", "alternatively", "and/or", no two audiences, no two offers, no two prices besides the full and founding price, no two calls to action. Wrong: "Post about photo editing or about starting a brand." Right: "Post about how hobby photographers can edit photos that look like their own style." Before you output, reread everything after "## Your story and skills" and rewrite any sentence that gives two options.
 
-Rules: every line must reference something they told you, no generic advice. Never promise income, follower counts or timelines, and never suggest they can or should quit a job. Never invent client results, statistics or testimonials; proof posts and ROI lines use only results and numbers they told you, and any estimate is labelled as one. Never promise medical, psychological or clinical outcomes. Output only the gameplan, starting with "## Your story and skills".`;
+Rules: every line must reference something they told you, no generic advice. Never promise income, follower counts or timelines, and never suggest they can or should quit a job. Never invent client results, statistics or testimonials; proof posts and ROI lines use only results and numbers they told you, and any estimate is labelled as one. Never promise medical, psychological or clinical outcomes. Output only the roadmap, starting with "## Your story and skills".`;
 }
 
 const json = (code, status) => new Response(JSON.stringify({ code }), {
@@ -132,7 +132,7 @@ async function handle(req, context) {
       "Authorization": `Bearer ${env("OPENROUTER_API_KEY")}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://vlad-manea.de",
-      "X-Title": "Skill to Offer Gameplan"
+      "X-Title": "First Client Roadmap"
     },
     body: JSON.stringify({
       model,
@@ -167,17 +167,17 @@ async function sendRunEmail(env, body) {
     '<h2 style="font:600 16px sans-serif;margin:0 0 8px">Who</h2><p>' + escHtml(name || "No name") + (email ? " &lt;" + escHtml(email) + "&gt;" : "") + "</p>" +
     '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their answers</h2>' +
     pairs.map(p => "<p><strong>" + escHtml(p[0]) + "</strong><br>" + escHtml(p[1]).replace(/\n/g, "<br>") + "</p>").join("") +
-    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their gameplan</h2><pre style="white-space:pre-wrap;font:13px/1.55 sans-serif">' + escHtml(plan) + "</pre></div>";
+    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their roadmap</h2><pre style="white-space:pre-wrap;font:13px/1.55 sans-serif">' + escHtml(plan) + "</pre></div>";
   const text = "Who: " + (name || "No name") + (email ? " <" + email + ">" : "") + "\n\n" +
-    pairs.map(p => p[0] + "\n" + p[1]).join("\n\n") + "\n\n--- Gameplan ---\n\n" + plan;
+    pairs.map(p => p[0] + "\n" + p[1]).join("\n\n") + "\n\n--- Roadmap ---\n\n" + plan;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: "Bearer " + env("RESEND_API_KEY"), "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: env("NOTIFY_FROM") || "Skill to Offer Gameplan <onboarding@resend.dev>",
+      from: env("NOTIFY_FROM") || "First Client Roadmap <onboarding@resend.dev>",
       to: String(env("NOTIFY_EMAIL")).split(",").map(e => e.trim()).filter(Boolean),
       ...(email ? { reply_to: email } : {}),
-      subject: "New Skill to Offer Gameplan" + (name || email ? ": " + [name, email && "<" + email + ">"].filter(Boolean).join(" ") : ""),
+      subject: "New First Client Roadmap" + (name || email ? ": " + [name, email && "<" + email + ">"].filter(Boolean).join(" ") : ""),
       html, text
     })
   });
