@@ -18,3 +18,10 @@
   to = "/offer-blender/"
   status = 301
   force = true
+
+# Edit Audit instructions live in the Swipefast hub now
+[[redirects]]
+  from = "/edit-audit/*"
+  to = "https://vlad-manea.swipefast.io/hub/edit-audit"
+  status = 302
+  force = true
