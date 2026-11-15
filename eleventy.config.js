@@ -8,6 +8,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "src/skill-gameplan": "skill-gameplan" });
   eleventyConfig.addPassthroughCopy({ "src/offer-blender": "offer-blender" });
   eleventyConfig.addPassthroughCopy({ "src/customer-unlock-sprint": "customer-unlock-sprint" });
+  eleventyConfig.addPassthroughCopy({ "src/edit-audit": "edit-audit" });
 
   eleventyConfig.addCollection("posts", (collection) => {
     return collection

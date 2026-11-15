@@ -46,3 +46,4 @@ Sitemap: https://yourdomain.com/sitemap.xml
 Disallow: /skill-gameplan/
 Disallow: /offer-blender/
 Disallow: /offer-fix/
+Disallow: /edit-audit/
