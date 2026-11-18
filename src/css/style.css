@@ -425,3 +425,8 @@ footer {
   * { transition: none !important; }
   html { scroll-behavior: auto; }
 }
+
+/* Tables inside articles (comparison tables) */
+.article-body table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 0.95rem; display: block; overflow-x: auto; }
+.article-body th, .article-body td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.article-body th { font-weight: 700; }
