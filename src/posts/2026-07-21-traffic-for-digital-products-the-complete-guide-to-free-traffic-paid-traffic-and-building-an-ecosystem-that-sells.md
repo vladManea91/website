@@ -1,4 +1,5 @@
 ---
+permalink: /articles/traffic-for-digital-products/
 title: "Traffic for Digital Products: The Complete Guide to Free Traffic, Paid
   Traffic, and Building an Ecosystem That Sells"
 description: "Traffic for Digital Products: A Complete Guide to Free Traffic,

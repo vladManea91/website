@@ -1,4 +1,5 @@
 ---
+permalink: /articles/a-lambo-or-a-rolex-isnt-a-flex/
 title: A lambo or a Rolex isn’t a flex
 description: Fancy objects are not stuff to flex, show me your calendar first.
 date: 2026-07-09

@@ -1,8 +1,8 @@
 ---
+permalink: /articles/ai-digital-products-personalized-game-plans/
 title: "AI Is Changing Digital Products: Why Generic Courses Are Dying and
   Personalized Game Plans Are the Future"
-description: "AI Is Changing Digital Products: Why Generic Courses Are Dying and
-  Personalized Game Plans Are the Future"
+description: "Generic courses are losing to AI-personalized game plans. Here is why, and how creators can use AI to build and launch a digital product that fits their time and niche."
 date: 2026-07-22
 draft: false
 show_community_cta: true

@@ -85,6 +85,11 @@ collections:
           - { label: "Site URL", name: "url", widget: "string" }
           - { label: "Site description (SEO)", name: "description", widget: "text" }
           - { label: "Author name", name: "author", widget: "string" }
+          - { label: "Full name (used in titles + schema)", name: "full_name", widget: "string", required: false, hint: "e.g. Vlad Manea. Shown in page titles and structured data so Google and AI tools learn your name." }
+          - { label: "Threads URL", name: "threads", widget: "string", required: false }
+          - { label: "Social share image URL (1200x630)", name: "og_image", widget: "string", required: false, hint: "Default image for link previews and AI cards. Use a full URL or /img/yourfile.png" }
+          - { label: "Google Search Console verification code", name: "google_site_verification", widget: "string", required: false }
+          - { label: "Bing Webmaster verification code", name: "bing_site_verification", widget: "string", required: false }
           - { label: "Community URL (Skool / Circle)", name: "community_url", widget: "string" }
           - { label: "Community name", name: "community_name", widget: "string" }
           - { label: "Community pitch (fallback CTA text)", name: "community_pitch", widget: "text" }

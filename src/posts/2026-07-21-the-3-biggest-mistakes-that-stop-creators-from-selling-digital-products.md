@@ -1,6 +1,7 @@
 ---
+permalink: /articles/mistakes-selling-digital-products/
 title: The 3 Biggest Mistakes That Stop Creators From Selling Digital Products
-description: The 3 Biggest Mistakes That Stop Creators From Selling Digital Products
+description: "The 3 biggest mistakes that stop creators from selling digital products, and how to fix each one before you launch."
 date: 2026-07-22
 draft: false
 show_community_cta: true

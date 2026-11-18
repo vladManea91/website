@@ -1,8 +1,8 @@
 ---
+permalink: /articles/where-to-sell-digital-products/
 title: Where to Sell Digital Products Without Bleeding Money (Stan Store vs
   Gumroad vs SamCart vs Shopify vs ThriveCart)
-description: Where to Sell Digital Products Without Bleeding Money (Stan Store
-  vs Gumroad vs SamCart vs Shopify vs ThriveCart)
+description: "Stan Store vs Gumroad vs SamCart vs Shopify vs ThriveCart: fees, limits and which platform to pick for your first digital product without bleeding money."
 date: 2026-07-22
 draft: false
 show_community_cta: true
