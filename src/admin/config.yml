@@ -99,6 +99,8 @@ collections:
           - { label: "Global CTA button link (optional)", name: "cta_url", widget: "string", required: false, hint: "Leave empty to use your Community URL." }
           - { label: "Instagram URL", name: "instagram", widget: "string" }
           - { label: "YouTube URL", name: "youtube", widget: "string" }
+          - { label: "Nav button label", name: "nav_button", widget: "string", required: false }
+          - { label: "Hero button label", name: "hero_button", widget: "string", required: false }
           - { label: "Hero eyebrow line", name: "hero_eyebrow", widget: "string" }
           - { label: "Hero headline", name: "hero_headline", widget: "string" }
           - { label: "Hero subtext", name: "hero_sub", widget: "text" }

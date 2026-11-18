@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang or 'en' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -49,9 +49,8 @@
   {% endif %}
 
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/dm-sans-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fraunces-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/css/style.css">
   {% if site.brand_green or site.brand_orange or site.brand_cream %}
   <style>
@@ -132,7 +131,7 @@
         {% for p in collections.navPages %}
         <a href="{{ p.url }}" class="hide-mobile">{{ p.data.nav_label or p.data.title }}</a>
         {% endfor %}
-        <a href="{{ site.community_url }}" class="btn" rel="noopener">{{ site.nav_button or "Get a gameplan" }}</a>
+        <a href="{{ site.community_url }}" class="btn" rel="noopener">{{ site.nav_button or "Get the roadmap" }}</a>
       </div>
     </div>
   </nav>
@@ -152,6 +151,8 @@
         <a href="{{ site.instagram }}" rel="noopener">Instagram</a>
         <a href="{{ site.youtube }}" rel="noopener">YouTube</a>
         <a href="/feed.xml">RSS</a>
+        <a href="/impressum/">Impressum</a>
+        <a href="/datenschutz/">Datenschutz</a>
       </div>
     </div>
   </footer>

@@ -6,11 +6,6 @@ description: "How to get traffic for digital products: free traffic (SEO, AI sea
 date: 2026-07-22
 draft: false
 show_community_cta: true
-cta_heading: Get a custom plan to launching you digital product based on your
-  time, your niche and your ideas
-cta_text: It's a 9$ generating gameplans tool
-cta_button: Get it here
-cta_url: https://vladmanea.thrivecart.com/gameplan-launchos/
 modified: 2026-11-18
 ---
 **Short answer:** To get traffic for digital products, combine free sources (Google search, AI search like ChatGPT and Claude, organic social content and your email list) with profitable paid ads, then keep customers inside your ecosystem with email sequences and related products so each buyer is worth more over time.

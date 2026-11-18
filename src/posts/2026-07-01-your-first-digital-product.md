@@ -1,99 +1,60 @@
 ---
-title: Your first digital product is already sitting on your hard drive
-description: Photographers think they need to create something new to sell
-  online. That's not the case, your knowledge is your product.
+permalink: /articles/first-client-already-in-your-audience/
+title: "Your first client is already in your audience"
+description: "You don't need a new product to earn online. Why your first client is probably already watching you, and how to turn attention into an offer."
 date: 2026-07-01
-cta_heading: Found your product idea while reading?
-cta_text: Bring it into the community and we will help you package it, price it,
-  and launch it.
-cta_button: Launch it with Vlad
+modified: 2026-11-18
+draft: false
+show_community_cta: true
 ---
-Some days ago, I was crying my soul out.
+**Short answer:** You don't need to build a new product to start earning online. If you already create content and people pay attention, your first client is probably already in your audience. What's missing is a clear offer built on a skill you already have, and a simple way for someone to pay you.
 
-Aaron (my son) is having a cold, Tara is sick, April had some issues with her back(she could barely move without crying) and she is on some strong meds, Aaron can barely breath through the nose and during the night it sounds like we have a pump in the room.
+Some days ago I was crying my soul out.
 
-He woke up and started crying, 2 am in the morning, we tried all our "weapons", nothing worked, so instead of being both me and Tara awake, we tagged, I got my ways she has her ways of calming him.
+My son Aaron had a cold and could barely breathe through his nose. At night it sounded like we had a pump in the room. He woke up crying at 2 am, we tried all our weapons and nothing worked. My wife and I took turns, each with our own way of calming him. Two hours later he finally fell asleep, and I was standing there holding him and thinking.
 
-2 hours later, it worked, he fell asleep.
+## The doubt at 2 am
 
-But I was there holding him in my arms and thinking...
+I don't have a job as a backup. I only run my business. I had tried changing who I talk to and my sales went down, except my community. I need to be able to support my family. If I'm not sleeping I'm not growing, and I had cut my workouts to work more, which came with its own anxiety.
 
-I am not having a job as a backup, I only run my business, I tried changing the avatar I talk to and all my sales went down except my community, I need to be able to help my family financially.
+Almost every coach I had told me to change my niche, stop targeting beginners, only do organic YouTube and be salesy in every piece of content, and not to run ads because they'd just eat my money. I felt ashamed even thinking about ads. So I did the sensible thing and cried together with my son. It was the best cry in ages.
 
-Doubt was settling in, I can barely do this fatherhood thing, it takes me 2 hours to make him sleep.
+## What I saw once I calmed down
 
-If i'm not sleeping I'm not able to grow and push my business forwards...
+Once he was asleep I could think clearly. Everything I did before that pivot had worked. People had paid $3,000 to work with me 1 to 1. Digital product sales were going well, and one December brought in more than $6,000 from digital products.
 
-I reduced my workouts specifically to do more on the business side to grow it, but that also comes with anxiety.
+So last week I turned to ads. I'm not an ads person, I just ran them the way I understood them after doing some trainings. Four days at $20 a day brought in $1,725. One campaign returned $6.77 for every $1 spent, and the same campaign had days with an $11.30 return.
 
-2 months of doing this avatar change and it feels like things that I built so far are collapsing.
+I started as an artist, I have a psychology degree and not a business one, and I had to learn funnels, systems and scaling. I now enjoy it. The lesson: what already worked was still working. I just had to stop listening to everyone else and go back to it.
 
-Almost every single coach I had advised me to change my niche because of different reasons, don't target beginners anymore.
+## Your first client is probably already watching you
 
-Do YouTube, only focus on organic, promote and be salesy in every piece of content so you get more money in.
+Here's what I want you to take from this. You probably have a skill that someone would pay for, and you probably already have people watching you. You don't need to invent something new. You need to turn what you can already do into a clear offer.
 
-Don't do ads because it will just eat your money.
+Inside my community I see this all the time:
 
-I was starting to fell ashamed just for the idea of thinking to run ads because I fatigued my audience by taking advices from gurus.
+- **Jendrik** wanted to monetize his skills by working with clients first. We crafted an offer, came up with ideas to get a small portfolio, and he went to work.
+- **Another member** launched a first digital product and got 3 sales in the first days, then opened a print shop and made sales there in the first week as well.
 
-All these thoughts at 2 am, kid crying, doubt, so I decided to join the kid and cry together.
+There's no one size that fits all. If you come to me wanting to monetize but with no clue through what, I won't push you into something you don't want to do.
 
-Have't done this since ages and it was the best cry ever.
+## Turn your audience into your first client
 
-Once he fell asleep I managed to take a step back and think more clearly.
+If you're posting, people reply and save your content, and nobody has bought yet, you're probably visible to viewers and invisible to buyers. That changes when you have:
 
-The things I did up until I started talking to another avatar worked
+1. A clear offer built on a skill you can actually sell
+2. Warm leads from content that attracts buyers
+3. A simple place to send someone who says "I'm interested"
 
-Had people that paid 3000$ for my coaching program to work together 1 to 1.
+That's the exact path of the [Customer Unlock Sprint](/customer-unlock-sprint/), a 12-week cohort to sign your first online client from the audience you've already built.
 
-Digital product sales were going good.
+## Frequently asked questions
 
-December was a month with 6000$+ from digital products.
+### Do I need a product to get my first online client?
+No. You can sell a service or coaching offer built on a skill you already have. A clear offer matters more than a finished product.
 
-So last week, I turned to ads.
+### Do I need a big audience?
+No. You need proof of attention: people who reply, save and trust you a bit already. You just haven't given them a clear reason to become buyers.
 
-I'm not an ads person, i just decided to do ads the way I understand them and did some trainings.
-
-4 days and 20$ per day ads and 1725$ kicked in.
-
-This is one of the campaigns for every 1$ spent I made 6.77$.
-
-Same campaign had days with 11.30$ Return.
-
-I don't care what others say, what worked for them, I shouldn't be ashamed to do everything I can in order to win right?
-
-And in the end, I started by being a photographer, and artist, damn it.
-
-So I need to learn all these stuff, and funnels, systems, scaling and all the nasty odd terminology that I might not even get.
-
-I finished a univeristy of psychology not business or something related.
-
-But I started to learn it and I now like to play with all these.
-
-​
-
-Where am I going with this you might ask?
-
-You are an artist just like me, you just want to create art, to take the photos, and be able to make a living from it, I wanted the same shit.
-
-But I needed to pay coaches and gurus big amounts of money to learn that, moreover none of them artists at soul that could understand another artist.
-
-​
-
-Because there was nothing like this when I started.
-
-I have been running a community since last year.
-
-We artists, join there 2 times per week, and I help the people inside the community to monetise their skills.
-
-Jendrik is one of my buddies in the community(yes buddies, we're all the same, I don't do guru shit, and if you come to me and want to monetise but you have no clue through what, I won't push you into doing stuff you don't want)
-
-![](/img/email.png)
-
-This guy said he wants firstly to try and monetise the skills he has by working with clients, said and done, we crafted an offer, came up with some ideas how to get a small portfolio and then went to work.
-
-​
-
-There's another mate in the community that I helped with launching his first digital product, first days, 3 sales, also opened a print shop and did sales in the first week as well there.
-
-You see, there's not a one size fits all, but from one artist to another, I know what you're going through.
+### Should creators run ads?
+In my case, simple ads worked. Four days at $20 a day brought in $1,725. Run them the way you understand them, and don't let other people's opinions decide for you.

@@ -1,7 +1,6 @@
 ---
 title: Corporate rewards hustlers. Life rewards surfers
-description: Be a great photographer and you become a surfer sliding through
-  life and sitting on the board rather than hustling everyday
+description: "Corporate rewards the busy hero. Why I stopped hustling, and what building something of your own looks like when you work like a surfer."
 date: 2026-07-09
 draft: false
 show_community_cta: true

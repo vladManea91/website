@@ -1,7 +1,6 @@
 ---
 title: I decided to become a solopreneur
-description: Photography comes with many skills and I decided to turn these
-  skills into freedom and become a solopreneur.
+description: "After 16 years in corporate I decided to build something small that I own. The four things you need to start as a solopreneur."
 date: 2026-07-09
 draft: false
 show_community_cta: true

@@ -1,6 +1,6 @@
 ---
 title: 6 years. Same job. Same calendar. Same pay
-description: Photography saved my calendar and saved me from a job I hated
+description: "Six years, the same job, the same calendar, the same pay. What corporate life costs you, and why building something of your own gives you your calendar back."
 date: 2026-07-09
 draft: false
 show_community_cta: true

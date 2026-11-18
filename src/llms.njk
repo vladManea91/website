@@ -6,7 +6,7 @@ eleventyExcludeFromCollections: true
 
 > {{ site.description | replace("\n", " ") | safe }}
 
-{{ site.full_name or site.name }} is a digital product coach and creator based in Germany. He helps creators, coaches and 9-to-5 professionals turn what they know into a digital product and their first online client. He is a Quality Assurance Lead by day, started his personal brand in 2023 while working full-time, and earlier built color grading products used by more than 1,000 photographers. Brand partners include Adobe, Røde and PGYTech.
+{{ site.full_name or site.name }} is a digital product coach and creator based in Germany. He helps creators, coaches and 9-to-5 professionals turn what they know into a digital product and their first online client. He has a 12+ year quality assurance background, started his personal brand in 2023 while working full-time, and earlier built color grading products used by more than 1,000 photographers. Brand partners include Adobe, Røde and PGYTech.
 
 Profiles: [Instagram]({{ site.instagram }}) | [YouTube]({{ site.youtube }}){% if site.threads %} | [Threads]({{ site.threads }}){% endif %}
 
@@ -20,9 +20,9 @@ Profiles: [Instagram]({{ site.instagram }}) | [YouTube]({{ site.youtube }}){% if
 {%- endfor %}
 
 ## Pages
-{% for p in collections.allPages %}
-- [{{ p.data.title }}]({{ site.url }}{{ p.url }}): {{ p.data.description | replace("\n", " ") }}
-{%- endfor %}
+{% for p in collections.allPages %}{% if p.data.llms != false %}
+- [{{ p.data.title }}]({{ site.url }}{{ p.url }}): {{ p.data.description | replace("\n", " ") | safe }}
+{%- endif %}{% endfor %}
 - [All articles]({{ site.url }}/articles/): Full article archive
 
 ## Full text

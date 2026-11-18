@@ -67,3 +67,28 @@
   for = "/analytics/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# Photographer-era articles rewritten for the first-client audience
+[[redirects]]
+  from = "/articles/why-i-stopped-shooting-weddings/*"
+  to = "/articles/aim-for-groceries-first/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/why-content-is-important-as-a-photographer/*"
+  to = "/articles/content-gets-you-clients/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/your-first-digital-product/*"
+  to = "/articles/first-client-already-in-your-audience/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/traffic-to-your-product-is-king/*"
+  to = "/articles/traffic-to-your-offer/"
+  status = 301
+  force = true

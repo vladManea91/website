@@ -1,66 +1,44 @@
 ---
-title: "I failed at changing who I talk to "
-description: I failed changing the avatar that I talked to in my content, here's why.
+title: "I failed at changing who I talk to"
+description: "I tried to switch my content to corporate professionals and my sales dropped. What happened, what I learned, and what I focus on now."
 date: 2026-07-09
+modified: 2026-11-18
 draft: false
 show_community_cta: true
 ---
-A couple of weeks ago, actually months I started trying to switch to whom I talk in my content.
+**Short answer:** I tried to switch my content from creative people to corporate professionals, stopped creating for my main audience, and my sales dropped to about $1k a month. What I learned: a pivot takes months, and while you pivot you still need something to promote. Today I focus on one clear offer for creators with a 9-to-5.
 
-From photographers and creative people to corporate people.
+A couple of months ago I started changing who I talk to in my content, from photographers and creative people to people in corporate jobs.
 
-​
+## What happened when I switched
 
-Every single pivot usually takes around 2-4 months, so I started posting videos like hell and nothing happened.
+A pivot usually takes two to four months, so I posted videos like crazy. Two videos a day, nothing. A lead magnet, nothing. I tried everything I could, and two months in nothing had changed.
 
-2 videos per day, nothing, tried a lead magnet, nothing, tried everything I could and nothing worked.
+Meanwhile my sales dropped to close to $1k a month because I'd stopped creating for my main audience. About 1,500 followers disappeared because they weren't interested anymore, which usually happens in a pivot. It's like a cleanup.
 
-I kept doing it, 2 months in nothing happened.
+I wanted the change because I thought that's how I'd get to the next level. It was the wrong move for that moment, and the low sales put me into panic. I no longer have a 9-to-5, this is my only income, and I have a kid and a wife. I don't want to be forced to look for a job.
 
-But my sales went close to 1k only per month because I stopped creating to my main audience.
+## What I did next
 
-1.5k followers disappeared because I they were not interested anymore, usually it happens like that, it's like a cleanup.
+I took a step back and looked at what I like talking about and which products bring recurring money. All my other sales had gone down because I had nothing to promote through content anymore.
 
-I wanted to do the change because I though that's how it needs to evolve, that's how i'd get to next level.
+That's how I'd have judged this a few years ago: I failed. Now I see it as something I tried and learned from. Most gurus, coaches and consultants online "never failed", because they don't talk about what didn't work. I'm not afraid to say it.
 
-And it was wrong.
+## What I focus on now
 
-Sales went very low and that put me into a panic mode.
+I'm focused on one clear offer for people who already post content, have attention and haven't signed their first online client yet, especially if they work a 9-to-5. That's the [Customer Unlock Sprint](/customer-unlock-sprint/).
 
-I'm not having a job / 9to5 anymore, this is my only income, I got a kid, I'm having a wife, and I need to make this business work well so I'm not putting myself in a position where I have to find a job.
+The people I work with come from different backgrounds. Some worked for big companies, some are marketers, some work in healthcare, some teach a language. None of them come from a rich background. What they have in common is a skill they turn into an offer, and content that attracts the people who want it.
 
-I don't want that.
+I don't want to sell you anything in this article. I'd rather send you to a free video that shows how to do it without a massive audience: [watch it here](https://www.youtube.com/watch?v=o69Xi6r7bTw).
 
-So I took a step back and looked at what I like talking about, what products in my business are bringing recurring money.
+## Frequently asked questions
 
-That's my community for launching digital products.
+### Is it a mistake to change your niche or audience?
+Not always, but it takes months and you need something to promote while you do it. I stopped creating for my main audience and my sales fell.
 
-All the other sales went low because there was nothing to promote there anymore through content.
+### How long does a pivot take?
+Usually two to four months. Two months in I still had no results.
 
-​
-
-In the end, I failed... that's how Vlad from a few years ago would see this.
-
-While now, I'm actually seeing it as something that I did, tried and learned from.
-
-And I'm not afraid to say it, I'm not afraid I'd be judged because most of the gurus and coaches, consultants online "never failed".
-
-They never say about the things that did not work, because it'll hurt their image and how others might see them.
-
-This is it, that was my experience with trying to switch the audience or to whom I'm talking about.
-
-And I'll focus more on one product, the community and to help as many people as possible.
-
-The community is also fun, I get to help and build stuff with people that are highly motivate and can make an impact.
-
-We meet 2 times per week, they have 24/5 offline support.
-
-There are people there that worked for Netflix and are building their own digital offers / products, photographers, marketers, people working in the medical industry, people that teach how to speak a new language.
-
-All of the focusing on one thing building something for themselves, all of them including myself, are people just like you without any huge financial / rich background.
-
-The only thing they have in common is that they all have a skill that they turn into a product and create content around it to sell it.
-
-​
-
-For now, I don't want to sell you anything, I'll send you to a free video of mine to help you get more value and to show you how you can do it without having a masive audience. [Here's the free video](https://www.youtube.com/watch?v=o69Xi6r7bTw)
+### What should I do if sales drop?
+Step back, look at what you actually like talking about and which products bring recurring money, and focus on one clear offer.
