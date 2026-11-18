@@ -1,0 +1,17 @@
+---
+permalink: /llms-full.txt
+eleventyExcludeFromCollections: true
+---
+# {{ site.full_name or site.name }}: full article text
+
+> {{ site.description | replace("\n", " ") }}
+{% for post in collections.posts %}
+---
+
+# {{ post.data.title }}
+
+URL: {{ site.url }}{{ post.url }}
+Published: {{ post.date | isoDate }}
+
+{{ post.template.frontMatter.content | safe }}
+{% endfor %}

@@ -2,13 +2,14 @@
 permalink: /sitemap.xml
 eleventyExcludeFromCollections: true
 ---
+{%- set hidden = ["/admin/", "/analytics/", "/seo-tool/", "/skill-gameplan/", "/offer-blender/", "/customer-unlock-sprint/join/"] -%}
 <?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {%- for item in collections.all %}
-  {%- if not item.data.eleventyExcludeFromCollections %}
+  {%- if not item.data.eleventyExcludeFromCollections and item.url and item.url not in hidden and not item.data.draft %}
   <url>
     <loc>{{ site.url }}{{ item.url }}</loc>
-    <lastmod>{{ item.date | isoDate }}</lastmod>
+    <lastmod>{{ (item.data.modified or item.date) | isoDate }}</lastmod>
   </url>
   {%- endif %}
 {%- endfor %}

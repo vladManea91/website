@@ -2,20 +2,28 @@
 permalink: /llms.txt
 eleventyExcludeFromCollections: true
 ---
-# {{ site.name }}
+# {{ site.full_name or site.name }}
 
-> {{ site.description }}
+> {{ site.description | replace("\n", " ") | safe }}
 
-{{ site.name }} is a photographer and digital product creator. He works with brands including Adobe, Røde, and PGYTech, and his Color Grading Manual has been used by more than 1,000 photographers. This site publishes articles teaching photographers and artists how to turn their skills into digital products and build income online. His community is {{ site.community_name }}: {{ site.community_url }}
+{{ site.full_name or site.name }} is a digital product coach and creator based in Germany. He helps creators, coaches and 9-to-5 professionals turn what they know into a digital product and their first online client. He is a Quality Assurance Lead by day, started his personal brand in 2023 while working full-time, and earlier built color grading products used by more than 1,000 photographers. Brand partners include Adobe, Røde and PGYTech.
+
+Profiles: [Instagram]({{ site.instagram }}) | [YouTube]({{ site.youtube }}){% if site.threads %} | [Threads]({{ site.threads }}){% endif %}
+
+## Offers
+- [Customer Unlock Sprint]({{ site.url }}/customer-unlock-sprint/): 12-week cohort for creators, coaches and consultants who want to sign their first online client from the audience they already have.
+- [Digital Product Gameplan tool]({{ site.community_url | safe }}): {{ site.community_pitch | safe }}
 
 ## Articles
 {% for post in collections.posts %}
-- [{{ post.data.title }}]({{ site.url }}{{ post.url }}): {{ post.data.description }}
+- [{{ post.data.title | safe }}]({{ site.url }}{{ post.url }}): {{ post.data.description | replace("\n", " ") | safe }}
 {%- endfor %}
 
 ## Pages
 {% for p in collections.allPages %}
-- [{{ p.data.title }}]({{ site.url }}{{ p.url }}): {{ p.data.description }}
+- [{{ p.data.title }}]({{ site.url }}{{ p.url }}): {{ p.data.description | replace("\n", " ") }}
 {%- endfor %}
 - [All articles]({{ site.url }}/articles/): Full article archive
-- [Community]({{ site.community_url }}): {{ site.community_pitch }}
+
+## Full text
+- [llms-full.txt]({{ site.url }}/llms-full.txt): Every article in one plain-text file.

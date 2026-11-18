@@ -25,3 +25,45 @@
   to = "https://vlad-manea.swipefast.io/hub/edit-audit"
   status = 302
   force = true
+
+# Cleaner article URLs (old long slugs kept alive)
+[[redirects]]
+  from = "/articles/a-lambo-or-a-rolex-isn’t-a-flex/*"
+  to = "/articles/a-lambo-or-a-rolex-isnt-a-flex/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/ai-is-changing-digital-products-why-generic-courses-are-dying-and-personalized-game-plans-are-the-future/*"
+  to = "/articles/ai-digital-products-personalized-game-plans/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/traffic-for-digital-products-the-complete-guide-to-free-traffic-paid-traffic-and-building-an-ecosystem-that-sells/*"
+  to = "/articles/traffic-for-digital-products/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/where-to-sell-digital-products-without-bleeding-money-stan-store-vs-gumroad-vs-samcart-vs-shopify-vs-thrivecart/*"
+  to = "/articles/where-to-sell-digital-products/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/the-3-biggest-mistakes-that-stop-creators-from-selling-digital-products/*"
+  to = "/articles/mistakes-selling-digital-products/"
+  status = 301
+  force = true
+
+# Keep private/utility pages out of search
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/analytics/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
