@@ -99,7 +99,7 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
   .brand{margin-bottom:28px}
   h1{font-size:clamp(34px,10vw,46px)}
   .lede{font-size:17.5px}
-  #start{width:100%}
+  .door{width:100%}
   .question{font-size:clamp(23px,6.4vw,28px);margin-bottom:16px}
   .progress{margin-bottom:22px}
   #ask .row{position:sticky;bottom:0;z-index:5;margin:16px calc(-1*max(20px,env(safe-area-inset-left,0px))) 0;padding:12px max(20px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
@@ -144,6 +144,12 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
 @media (max-width:600px){.calc{padding:20px}.cctrl{grid-template-columns:1fr}.cbar span{font-size:10.5px}}
 .ferr{color:var(--orange);font-size:14px;margin:8px 0 0}
 
+.doors{display:grid;gap:12px;max-width:560px}
+.door{display:block;text-align:left;border-radius:16px;padding:18px 22px;line-height:1.35}
+.door strong{display:block;font-size:17px;margin-bottom:4px}
+.door span{display:block;font-weight:400;font-size:15px;opacity:.9}
+.door + .door{background:var(--field);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.door + .door:hover{box-shadow:inset 0 0 0 1.5px var(--orange)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -154,11 +160,14 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
   <section id="intro">
     <h1>Your roadmap from audience to first paying client.</h1>
     <div class="lede">
-      <p>I'll interview you the way I would on a strategy call, in six stages: your story, your skills, who'd pay, the offer, the price, and how to talk about it. Ten questions, one at a time.</p>
-      <p>Then you get your roadmap: one offer built on your experience, priced on the result it creates, plus your hook, your story angle and a content plan that attracts the people who want it.</p>
+      <p>One offer that's clear enough to buy, priced on the result it creates, plus your hook, your story angle, two weeks of posts and the DMs that turn comments into clients.</p>
+      <p>Pick where you're starting from.</p>
     </div>
-    <button id="start">Start my roadmap</button>
-    <p class="meta">Takes about 12 minutes. Honest, specific answers make a better offer. Your answers stay in this browser and are only sent to write your roadmap.</p>
+    <div class="doors">
+      <button id="start" class="door"><strong>Build my offer from scratch</strong><span>No offer yet. Ten questions about your story, your skills and who'd pay.</span></button>
+      <button id="startRefine" class="door"><strong>Refine the offer I have</strong><span>You have one, but it isn't selling. Paste it, answer five questions, and get it sharpened.</span></button>
+    </div>
+    <p class="meta">Takes 8 to 12 minutes. Honest, specific answers make a better offer. Your answers stay in this browser and are only sent to write your roadmap.</p>
   </section>
 
   <section id="contact" hidden>
@@ -238,8 +247,8 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
 
 <script>
 const LAUNCHOS_LINK = "https://docs.google.com/document/d/1-kZPOzLjudgzTBtkxuwDTKlfb5WaMPEQ3SxFKq11EAI/edit?tab=t.0";
-const STAGES = ["Background","Skills","Market","Offer","Price","Content"];
-const QUESTIONS = [
+const B_STAGES = ["Background","Skills","Market","Offer","Price","Content"];
+const B_QUESTIONS = [
   {st:0, q:"Let's begin. Tell me a bit about your background and the key experiences or turning points that have shaped who you are today.", f:"Give me one turning point. What happened, and what changed for you after it?"},
   {st:0, q:"What's the biggest challenge you've overcome, in your life or your career?", f:"What was hard about it, and what did you do that actually worked?"},
   {st:1, q:"What do you do for work, and what are you good at outside of it? Skills, side projects, things you taught yourself.", f:"Name two or three things you're genuinely better at than most people around you."},
@@ -251,6 +260,18 @@ const QUESTIONS = [
   {st:5, q:"Where do you post, or where would you post?", choices:["Instagram","LinkedIn","TikTok","YouTube","Not posting yet"]},
   {st:5, q:"How many hours a week can you give this?", choices:["1–2 hours","3–5 hours","6–10 hours","More than 10"]}
 ];
+const R_STAGES = ["Your offer","Proof","Price","Content"];
+const R_QUESTIONS = [
+  {st:0, q:"Paste your offer as it is today.", f:"Add who it's for, what they get, how it works and the price, even roughly."},
+  {st:0, q:"What's happened when you've shared it or tried to sell it?", f:"Any replies, questions, objections or sales? Even \"nobody bought\" tells me something."},
+  {st:1, q:"What results have you got with this, for yourself or someone else? Give me a before and after.", f:"Even a small one counts. What changed, for whom, and how long did it take?"},
+  {st:2, q:"What does it cost your buyer to not solve this problem? Money, time, missed chances, stress. And what's it worth to them once it's solved?", f:"Put a number on it if you can, even a rough one."},
+  {st:3, q:"Where do you post, or where would you post?", choices:["Instagram","LinkedIn","TikTok","YouTube","Not posting yet"]},
+  {st:3, q:"How many hours a week can you give this?", choices:["1–2 hours","3–5 hours","6–10 hours","More than 10"]}
+];
+const isRefine = () => state.mode === "refine";
+const Q = () => isRefine() ? R_QUESTIONS : B_QUESTIONS;
+const ST = () => isRefine() ? R_STAGES : B_STAGES;
 const KEY = "skill-offer-gameplan-v2";
 let state = {i:0, answers:[], asked:[]};
 let running = null;
@@ -261,9 +282,9 @@ function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); i
 function show(id){ if(id !== "result" && $("calc")) $("calc").hidden = true; ["intro","contact","ask","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo({top:0,behavior:"auto"}); }
 
 function renderQ(){
-  const n = state.i, item = QUESTIONS[n];
-  $("bar").style.width = ((n)/QUESTIONS.length*100)+"%";
-  $("qcount").textContent = "Question "+(n+1)+" of "+QUESTIONS.length+" · "+STAGES[item.st]+" (stage "+(item.st+1)+" of "+STAGES.length+")";
+  const n = state.i, item = Q()[n];
+  $("bar").style.width = ((n)/Q().length*100)+"%";
+  $("qcount").textContent = "Question "+(n+1)+" of "+Q().length+" · "+ST()[item.st]+" (stage "+(item.st+1)+" of "+ST().length+")";
   $("qtext").textContent = item.q;
   const inFollow = state.asked[n] === "follow";
   $("followup").hidden = !inFollow;
@@ -287,7 +308,7 @@ function renderQ(){
     $("choices").firstChild.focus();
     return;
   }
-  $("next").textContent = n===QUESTIONS.length-1 ? "Build my plan" : "Next question";
+  $("next").textContent = n===Q().length-1 ? "Build my plan" : "Next question";
   grow();
   const touch = window.matchMedia("(hover: none)").matches;
   if(!touch) $("answer").focus();
@@ -297,7 +318,7 @@ function grow(){ const t=$("answer"); t.style.height="auto"; t.style.height=Math
 function words(t){ return t.trim().split(/\s+/).filter(Boolean).length; }
 
 function next(){
-  const n = state.i, item = QUESTIONS[n], val = $("answer").value.trim();
+  const n = state.i, item = Q()[n], val = $("answer").value.trim();
   if(!val){ $("answer").focus(); return; }
   if(state.asked[n] === "follow"){
     state.answers[n] = state.answers[n] + "\n(Follow-up: " + item.f + ") " + val;
@@ -309,7 +330,7 @@ function next(){
     state.asked[n] = "done";
   }
   state.i++; save();
-  if(state.i >= QUESTIONS.length) buildPlan(); else renderQ();
+  if(state.i >= Q().length) buildPlan(); else renderQ();
 }
 
 function back(){
@@ -359,7 +380,7 @@ function errCopy(code){
   }
 }
 
-const SECTIONS = ["Your story and skills","Your market","Your offer","Your price","Your positioning","Your content plan","From comment to client","The gap"];
+const SECTIONS = ["Your story and skills","Your offer today","Your market","Your offer","Your price","Your positioning","Your content plan","From comment to client","The gap"];
 let loadTimer = null, loadStart = 0, thinking = false;
 function setFill(pct){ $("lfill").style.width = Math.max(3, Math.min(99, pct)) + "%"; }
 function startLoad(){
@@ -379,11 +400,11 @@ function startLoad(){
   }, 1000);
 }
 function progressFrom(text){
-  const done = SECTIONS.filter(h => text.includes("## " + h)).length;
+  const done = Math.min(8, SECTIONS.filter(h => text.includes("## " + h)).length);
   const current = SECTIONS[Math.max(0, done - 1)];
   $("lbar").classList.remove("pulse");
-  setFill(12 + (done / SECTIONS.length) * 85);
-  $("lstep").textContent = "Writing: " + current + " (" + Math.max(1, done) + " of " + SECTIONS.length + ")";
+  setFill(12 + (done / 8) * 85);
+  $("lstep").textContent = "Writing your roadmap (" + Math.max(1, done) + " of 8)";
   $("lnote").textContent = "Your roadmap is appearing below as it's written.";
 }
 function stopLoad(){ clearInterval(loadTimer); loadTimer = null; $("loadbox").hidden = true; }
@@ -401,7 +422,7 @@ async function buildPlan(){
     const res = await fetch("/api/skill-gameplan", {
       method:"POST", signal: running.signal,
       headers:{"Content-Type":"application/json","x-access-key": accessKey || ""},
-      body: JSON.stringify({answers: state.answers})
+      body: JSON.stringify({answers: state.answers, mode: isRefine() ? "refine" : "build"})
     });
     if(!res.ok){ let code="error"; try{ code=(await res.json()).code||code; }catch(e){} throw {code}; }
     const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "";
@@ -501,23 +522,33 @@ $("cGoalR").addEventListener("input", () => { $("cGoal").value = $("cGoalR").val
 ["cPrice","cStep","cRaise","cMonths"].forEach(id => $(id).addEventListener("input", () => { if(!$("cOut").hidden) runCalc(); }));
 
 
-$("start").onclick = () => {
+function begin(mode){
+  const cur = state.mode || "build";
+  if(cur !== mode && (state.i > 0 || state.plan)){
+    if(!confirm("Switch? Your current answers will be cleared.")) return;
+    state = {i:0, answers:[], asked:[], name: state.name, email: state.email};
+  }
+  state.mode = mode; save(); go();
+}
+$("start").onclick = () => begin("build");
+$("startRefine").onclick = () => begin("refine");
+function go(){
   if(!state.email){ show("contact"); $("cname").value = state.name || ""; if(!window.matchMedia("(hover: none)").matches) $("cname").focus(); return; }
-  if(state.i >= QUESTIONS.length){ buildPlan(); return; }
+  if(state.i >= Q().length){ buildPlan(); return; }
   show("ask"); renderQ();
-};
+}
 $("cgo").onclick = () => {
   const n = $("cname").value.trim(), e = $("cemail").value.trim();
   if(!n || !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(e)){ $("cerr").hidden = false; return; }
   $("cerr").hidden = true; state.name = n.slice(0,60); state.email = e.slice(0,120); save();
-  if(state.i >= QUESTIONS.length){ buildPlan(); return; }
+  if(state.i >= Q().length){ buildPlan(); return; }
   show("ask"); renderQ();
 };
 ["cname","cemail"].forEach(id => $(id).addEventListener("keydown", ev => { if(ev.key==="Enter"){ ev.preventDefault(); id==="cname" ? $("cemail").focus() : $("cgo").click(); } }));
 function notifyDone(text){
   if(state.notified) return;
   fetch("/api/skill-gameplan", {method:"POST", headers:{"Content-Type":"application/json","x-access-key": accessKey || ""},
-    body: JSON.stringify({action:"done", name: state.name || "", email: state.email || "", answers: state.answers, plan: text})})
+    body: JSON.stringify({action:"done", mode: isRefine() ? "refine" : "build", name: state.name || "", email: state.email || "", answers: state.answers, plan: text})})
   .then(r => { if(r.ok){ state.notified = true; save(); } else console.error("notify failed", r.status); })
   .catch(e => console.error("notify failed", e));
 }
@@ -536,8 +567,9 @@ $("restart").onclick = () => {
 };
 
 load();
-if(state.i >= QUESTIONS.length){ $("start").textContent = "See my plan"; }
-if(state.i > 0 && state.i < QUESTIONS.length){ $("start").textContent = "Continue where you left off"; }
+{ const b = $(isRefine() ? "startRefine" : "start").querySelector("strong");
+  if(state.i >= Q().length) b.textContent = "See my plan";
+  else if(state.i > 0) b.textContent = "Continue where you left off"; }
 
 let accessKey = "";
 try{
