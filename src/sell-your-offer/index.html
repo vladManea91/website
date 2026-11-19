@@ -121,6 +121,47 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
 .paths strong{display:block;font-family:Fraunces,Georgia,serif;font-size:19px;margin-bottom:2px}
 .plan blockquote{border-left:3px solid var(--orange)}
 .qbtn{margin-top:10px;font-size:14px;padding:10px 16px;min-height:40px}
+
+/* signal ladder */
+.sl{margin:4px 0 22px;padding:20px 16px 16px;background:var(--field);border:1.5px solid var(--line);border-radius:16px}
+.sl-cols{display:flex;align-items:flex-end;gap:6px;height:190px;padding-top:26px}
+.sl-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0;position:relative}
+.sl-bar{background:var(--line);border-radius:8px 8px 3px 3px;height:var(--h)}
+.sl-col.on .sl-bar{background:var(--orange)}
+.sl-start{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--h) + 6px);white-space:nowrap;font-size:11.5px;font-weight:600;color:var(--orange)}
+.sl-names{display:flex;gap:6px;margin-top:8px}
+.sl-names span{flex:1;min-width:0;text-align:center;font-size:11.5px;line-height:1.25;font-weight:600;overflow-wrap:normal;word-break:normal;hyphens:auto}
+.sl-names span.off{color:var(--muted);font-weight:500}
+.sl-axis{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.sl-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);margin:10px 0 0}
+.sl-legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--line)}
+.sl-legend i.on{background:var(--orange)}
+.sl-msgs{margin-top:18px;display:grid;gap:12px}
+.sl-msg h4{margin:0 0 6px;font:500 13.5px "DM Sans",sans-serif;color:var(--muted)}
+.sl-msg h4 b{color:var(--ink)}
+.sl-msg blockquote{margin:0!important}
+/* weekly tally */
+.tl{margin:4px 0 22px;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;background:var(--field)}
+.tl-head{padding:16px 18px;background:var(--forest);color:var(--cream)}
+.tl-head strong{display:block;font-family:Fraunces,Georgia,serif;font-size:19px;margin-bottom:4px}
+.tl-head p{margin:0;font-size:14.5px;color:#d9e2dc;line-height:1.5}
+.tl-row{padding:14px 18px;border-top:1px solid var(--line)}
+.tl-top{display:flex;align-items:center;gap:10px}
+.tl-n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--orange);color:#fff;font-size:13px;font-weight:600;display:grid;place-items:center}
+.tl-name{font-weight:600;flex:1;min-width:0}
+.tl-ctrl{display:flex;align-items:center;gap:6px;flex:none}
+.tl-ctrl button{min-height:36px;width:36px;padding:0;border-radius:10px;font-size:20px;line-height:1;background:var(--bg);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.tl-ctrl button.plus{background:var(--orange);color:#fff;box-shadow:none}
+.tl-ctrl output{min-width:28px;text-align:center;font-weight:600;font-size:18px;font-variant-numeric:tabular-nums}
+.tl-when{font-size:14px;color:var(--muted);margin:6px 0 8px 36px}
+.tl-bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-left:36px}
+.tl-bar span{display:block;height:100%;background:var(--sage);border-radius:8px;transition:width .3s}
+.tl-rate{font-size:13px;color:var(--muted);margin:6px 0 0 36px}
+.tl-row.drop .tl-bar span{background:var(--orange)}
+.tl-fix{display:none;font-size:14px;margin:8px 0 0 36px;padding:10px 12px;background:var(--bg);border-left:3px solid var(--orange);border-radius:0 10px 10px 0}
+.tl-row.drop .tl-fix{display:block}
+.tl-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.tl-foot button{min-height:36px;padding:8px 14px;font-size:14px}
 </style>
 </head>
 <body>
@@ -257,7 +298,7 @@ function next(){
   advance();
 }
 function advance(){
-  state.i++; delete state.kit; state.notified = false; save();
+  state.i++; delete state.kit; delete state.runId; state.notified = false; save();
   if(state.i >= QUESTIONS.length) buildKit(); else renderQ();
 }
 function back(){ if(state.i>0){ state.i--; save(); renderQ(); } }
@@ -270,12 +311,18 @@ function inline(s){
     .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
 }
 function md(text){
-  const lines = text.replace(/\r/g,"").split("\n"); let html="", list=false, ol=false, quote=[], para=[];
+  const lines = text.replace(/\r/g,"").split("\n"); let html="", list=false, ol=false, quote=[], para=[], fence=null, fbody=[];
   const flushP=()=>{ if(para.length){ html+="<p>"+inline(para.join(" "))+"</p>"; para=[]; } };
   const flushL=()=>{ if(list){ html+="</ul>"; list=false; } if(ol){ html+="</ol>"; ol=false; } };
   const flushQ=()=>{ if(quote.length){ html+="<blockquote>"+quote.map(inline).join("\n")+"</blockquote>"; quote=[]; } };
   for(const raw of lines){
     const l = raw.trimEnd();
+    if(fence!==null){
+      if(/^\s*```/.test(l)){ html += fence==="ladder" ? ladderHtml(fbody.join("\n")) : fence==="tally" ? tallyHtml(fbody.join("\n")) : "<blockquote>"+esc(fbody.join("\n"))+"</blockquote>"; fence=null; fbody=[]; }
+      else fbody.push(l);
+      continue;
+    }
+    if(/^\s*```/.test(l)){ flushP(); flushL(); flushQ(); fence = l.trim().slice(3).trim().toLowerCase(); continue; }
     if(/^>\s?/.test(l)){ flushP(); flushL(); quote.push(l.replace(/^>\s?/,"")); continue; } else flushQ();
     if(/^###\s+/.test(l)){ flushP(); flushL(); html+="<h3>"+inline(l.replace(/^###\s+/,""))+"</h3>"; }
     else if(/^##\s+/.test(l)){ flushP(); flushL(); html+="<h2>"+inline(l.replace(/^##\s+/,""))+"</h2>"; }
@@ -285,6 +332,71 @@ function md(text){
     else { flushL(); para.push(l.trim()); }
   }
   flushP(); flushL(); flushQ(); return html;
+}
+
+// ===== Signal ladder: drawn as rising bars, start rung marked =====
+function parseLadder(body){
+  const lines = body.split("\n").map(l=>l.trim()).filter(Boolean);
+  const sl = lines.find(l=>/^start\s*:/i.test(l));
+  const start = sl ? sl.replace(/^start\s*:/i,"").trim().toLowerCase() : "";
+  const rungs = lines.filter(l=>l.includes("|") && !/^start\s*:/i.test(l)).map(l=>{ const [n,...r]=l.split("|"); return {name:n.trim(), msg:r.join("|").trim()}; });
+  let s = rungs.findIndex(r=>{ const n=r.name.toLowerCase(); return start && (n===start || n.includes(start) || start.includes(n)); });
+  return {rungs, s: s<0 ? 0 : s};
+}
+function ladderHtml(body){
+  const {rungs, s} = parseLadder(body); const n = rungs.length;
+  if(!n) return "";
+  const h = i => Math.round(22 + (i/Math.max(1,n-1))*78) + "%";
+  return '<div class="sl" role="img" aria-label="Signal ladder from weakest to strongest. Start messaging at '+esc(rungs[s].name)+'.">' +
+    '<div class="sl-cols">' + rungs.map((r,i)=>'<div class="sl-col'+(i>=s?' on':'')+'" style="--h:'+h(i)+'">'+(i===s?'<span class="sl-start">Start here</span>':'')+'<div class="sl-bar"></div></div>').join("") + '</div>' +
+    '<div class="sl-names">' + rungs.map((r,i)=>'<span class="'+(i>=s?'':'off')+'">'+esc(r.name)+'</span>').join("") + '</div>' +
+    '<div class="sl-axis"><span>Weakest signal</span><span>Strongest signal</span></div>' +
+    '<p class="sl-legend"><span><i class="on"></i>Message these</span><span><i></i>Skip for now</span></p>' +
+    '<div class="sl-msgs">' + rungs.map((r,i)=>({r,i})).filter(x=>x.i>=s && x.r.msg).map(({r})=>'<div class="sl-msg"><h4>When someone: <b>'+esc(r.name)+'</b></h4><blockquote>'+inline(r.msg)+'</blockquote></div>').join("") + '</div></div>';
+}
+
+// ===== Weekly tally: tap + as it happens, bars show where people drop off =====
+const TALLY_DEFAULT = [
+  {stage:"Conversations started", when:"you send a first message", fix:""},
+  {stage:"Replies", when:"they write back", fix:"Change your first message."},
+  {stage:"Green lights", when:"all five lights are green", fix:"Message people who show a stronger signal."},
+  {stage:"Invitations", when:"you suggest the next step", fix:"Ask the help question earlier."},
+  {stage:"Yes", when:"they pay", fix:"Rework the invitation or the offer."}
+];
+let tallyRows = TALLY_DEFAULT;
+function tallyHtml(body){
+  const rows = body.split("\n").map(l=>l.trim()).filter(l=>l.includes("|")).map(l=>{ const [stage,when,fix]=l.split("|").map(x=>(x||"").trim()); return {stage,when,fix}; });
+  tallyRows = rows.length >= 3 ? rows : TALLY_DEFAULT;
+  return '<div class="tl" id="tally"><div class="tl-head"><strong>Your week in numbers</strong><p>Tap + each time one of these happens. After a week, look for the biggest drop between two steps. That step is the one to fix, and the tip appears right there.</p></div>' +
+    tallyRows.map((r,i)=>'<div class="tl-row" data-i="'+i+'"><div class="tl-top"><span class="tl-n">'+(i+1)+'</span><span class="tl-name">'+esc(r.stage)+'</span><span class="tl-ctrl"><button type="button" data-t="'+i+'" data-d="-1" aria-label="One less '+esc(r.stage)+'">−</button><output>0</output><button type="button" class="plus" data-t="'+i+'" data-d="1" aria-label="One more '+esc(r.stage)+'">+</button></span></div>' +
+      '<div class="tl-when">Counts when: '+esc(r.when)+'</div><div class="tl-bar"><span></span></div><div class="tl-rate"></div>'+(r.fix?'<div class="tl-fix"><strong>Most people stop here?</strong> '+esc(r.fix)+'</div>':'')+'</div>').join("") +
+    '<div class="tl-foot"><span>Saved in this browser.</span><button type="button" class="ghost" data-treset="1">Start a new week</button></div></div>';
+}
+function paintTally(){
+  const box = document.getElementById("tally"); if(!box) return;
+  const c = (state.tally||[]).slice(0, tallyRows.length); while(c.length<tallyRows.length) c.push(0);
+  const top = Math.max(1, c[0]);
+  // the biggest drop (only once there are a few conversations) gets highlighted with its fix
+  let worst = -1, worstRate = 2;
+  if(c[0] >= 5) for(let i=1;i<c.length;i++){ const r = c[i-1] ? c[i]/c[i-1] : 1; if(c[i-1] && r < worstRate){ worstRate = r; worst = i; } }
+  box.querySelectorAll(".tl-row").forEach((row,i)=>{
+    row.querySelector("output").textContent = c[i];
+    row.querySelector(".tl-bar span").style.width = (c[i]/top*100)+"%";
+    row.querySelector(".tl-rate").textContent = i===0 ? (c[0] ? "Your starting number" : "Start here: every first message counts") : (c[i-1] ? Math.round(c[i]/c[i-1]*100)+"% of the step before" : "");
+    row.classList.toggle("drop", i===worst && worstRate < 0.5);
+  });
+}
+document.addEventListener("click", ev => {
+  const b = ev.target.closest("[data-t],[data-treset]"); if(!b) return;
+  state.tally = (state.tally||[]).slice(); while(state.tally.length<tallyRows.length) state.tally.push(0);
+  if(b.dataset.treset){ if(!confirm("Clear this week's numbers?")) return; state.tally = tallyRows.map(()=>0); }
+  else { const i = +b.dataset.t; state.tally[i] = Math.max(0, state.tally[i] + (+b.dataset.d)); }
+  save(); paintTally();
+});
+// Plain text for the copy button: the ladder and tally as readable lines.
+function plainKit(text){
+  return text.replace(/```ladder\n([\s\S]*?)```/g, (m,b)=>{ const {rungs,s}=parseLadder(b); return rungs.map((r,i)=>(i===s?"START HERE · ":"")+r.name+(i>=s?": "+r.msg:" (skip for now)")).reverse().join("\n")+"\n"; })
+    .replace(/```tally\n([\s\S]*?)```/g, (m,b)=>b.split("\n").filter(l=>l.includes("|")).map((l,i)=>{ const [st,w,f]=l.split("|").map(x=>(x||"").trim()); return (i+1)+". "+st+" (counts when "+w+"): ____"+(f?"\n   Most people stop here? "+f:""); }).join("\n")+"\n");
 }
 
 function errCopy(code){
@@ -338,8 +450,9 @@ async function buildKit(){
     const res = await fetch("/api/sell-your-offer", {
       method:"POST", signal: running.signal,
       headers:{"Content-Type":"application/json","x-access-key": accessKey || ""},
-      body: JSON.stringify({answers: state.answers})
+      body: JSON.stringify({answers: state.answers, name: state.name || "", email: state.email || ""})
     });
+    if(res.ok) state.runId = res.headers.get("X-Run-Id") || "";
     if(!res.ok){ let code="error"; try{ code=(await res.json()).code||code; }catch(e){} throw {code}; }
     const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "";
     while(true){
@@ -356,7 +469,7 @@ async function buildKit(){
         const piece = ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.content;
         if(piece) text += piece;
       }
-      if(text){ $("status").hidden = true; $("plan").innerHTML = md(text); progressFrom(text); }
+      if(text){ $("status").hidden = true; $("plan").innerHTML = md(text); paintTally(); progressFrom(text); }
     }
     if(!text.trim()) throw {code:"empty_response"};
     stopLoad();
@@ -373,17 +486,18 @@ async function buildKit(){
 }
 function finish(text){
   $("status").hidden = true;
-  $("plan").innerHTML = md(text);
+  $("plan").innerHTML = md(text); paintTally();
   $("planActions").hidden = false; $("cta").hidden = false;
 }
-function notifyDone(text){
-  if(state.notified) return;
+// Asks the server to email the saved kit (to you and to them). The server may still be saving it, so retry a few times.
+function notifyDone(text, tries){
+  if(state.notified || !state.runId) return;
+  tries = tries || 0;
   fetch("/api/sell-your-offer", {method:"POST", headers:{"Content-Type":"application/json","x-access-key": accessKey || ""},
-    body: JSON.stringify({action:"done", name: state.name || "", email: state.email || "", answers: state.answers, kit: text})})
-  .then(r => { if(r.ok){ state.notified = true; save(); } })
+    body: JSON.stringify({action:"done", runId: state.runId})})
+  .then(r => { if(r.ok){ state.notified = true; save(); } else if(r.status===409 && tries < 8) setTimeout(()=>notifyDone(text, tries+1), 1500); })
   .catch(e => console.error("notify failed", e));
 }
-
 $("start").onclick = () => {
   if(!state.email){ show("contact"); $("cname").value = state.name || ""; return; }
   if(state.i >= QUESTIONS.length){ buildKit(); return; }
@@ -403,13 +517,13 @@ $("quick").onclick = () => { $("answer").value = QUESTIONS[state.i].quick; next(
 $("answer").addEventListener("input", grow);
 $("answer").addEventListener("keydown", e => { if(e.key==="Enter" && (e.metaKey||e.ctrlKey)){ e.preventDefault(); next(); } });
 $("copy").onclick = async () => {
-  try{ await navigator.clipboard.writeText(state.kit||""); $("copy").textContent = "Copied"; }
+  try{ await navigator.clipboard.writeText(plainKit(state.kit||"")); $("copy").textContent = "Copied"; }
   catch(e){ $("copy").textContent = "Select the text to copy"; }
   setTimeout(()=>{ $("copy").textContent = "Copy my kit"; }, 2000);
 };
 $("restart").onclick = () => {
   // Keep the offer and answers, go back to the "how do you want to sell" question.
-  state.i = 1; delete state.kit; state.notified = false; save(); show("ask"); renderQ();
+  state.i = 1; delete state.kit; delete state.runId; state.notified = false; save(); show("ask"); renderQ();
 };
 
 load();

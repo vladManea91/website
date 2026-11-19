@@ -8,6 +8,7 @@ import { getStore } from "@netlify/blobs";
 const DEFAULT_KEY = "sellkit3b027c4a";
 const SPRINT_LINK = "https://vlad-manea.de/customer-unlock-sprint/";
 const MAX_ANSWER = 4000;
+const RUNS = "sell-your-offer-runs";
 
 const QUESTIONS = [
   { id: "offer",   q: "Paste your offer." },
@@ -128,7 +129,12 @@ Write their kit in Markdown with "## " headings, "### " subheadings and "- " bul
 3-4 sentences: selling is an invitation, you are checking for fit, not convincing. Then explain why Vlad recommends discovery calls for the first 5 clients whatever path they picked: those first conversations are human talks, not sales pitches; they teach you the exact words people use for the problem, show you which part of the offer they care about, and give you the confidence to sell in DMs or with a doc later. If they picked DMs or a Google Doc, say their path works and they can still offer a call to anyone who asks for one.
 
 ## When to start a conversation
-Explain in 2 lines that engagement is a hand raised: someone who comments and gets ignored was left hanging. Then a short ladder from weakest to strongest signal for their platform (like or save, comment, new follow, story reply, DM). Based on what they get now ("${a.signal}"), name the signal they start messaging from and say that everything stronger gets a message too. If they get barely anything, tell them to message every like and save, and to warm up 5 people a day by replying to their posts first. Give one opening line for each signal type as a blockquote, for their platform.
+Explain in 2 lines that engagement is a hand raised: someone who comments and gets ignored was left hanging. Then the signal ladder as a fenced block in exactly this shape (the page draws it as a chart), weakest signal on the first rung line, strongest on the last, 5 or 6 rungs that exist on their platform (for example like, save, comment, new follow, story reply, DM):
+\`\`\`ladder
+start: [name of the rung they start messaging from, copied exactly]
+[signal] | [the first message they send to someone who did this, in their voice, for their platform]
+\`\`\`
+Pick the start rung from what they get now ("${a.signal}"): the weakest signal they get regularly, so they have enough people to talk to. Everything stronger than the start rung gets a message too. If they get barely anything, start at the weakest rung. After the block, one line saying which rungs to message, and if they get barely anything, one line telling them to warm up 5 people a day by replying to their posts first.
 
 ## Stage 1 · Start the engine
 Goal: get a reply. Rules in 3 bullets: open with their first name, ask one easy question tied to the offer that takes ten seconds to answer, then a this-or-that question where both answers are fine. Add that every reply earns a small, warm reaction ("Oh nice", "That's interesting") so the chat feels like a conversation, not a form.
@@ -152,7 +158,11 @@ One line on ending every chat warmly, then two goodbye messages in their voice (
 ${PATH_RULES[path]}
 
 ## Your tally
-A 5-line tracker to copy: conversations started, replies, green lights, invitations, yes. One line on what to change when a stage keeps failing (no replies: first message; no fit: who you message; no yes: the invitation or the offer).
+One line: track these five numbers every week, and the stage where most people stop is the one to fix. Then the tally as a fenced block in exactly this shape (the page turns it into a tracker), one line per stage in this order: Conversations started, Replies, Green lights, Invitations, Yes.
+\`\`\`tally
+[stage] | [when it counts, a few words, for their path] | [what to change if most people stop at this stage, one short sentence]
+\`\`\`
+Nothing else in this section.
 
 ## When you want a second pair of eyes
 2 honest sentences: the kit gives the words, but the first calls and chats teach the most when someone reviews them with you. End with exactly:
@@ -180,12 +190,24 @@ async function handle(req, context) {
   let body;
   try { body = await req.json(); } catch { return json("bad_input", 400); }
 
+  // Finished kit: two separate emails (you, and the buyer), built only from the run this server saved.
   if (body && body.action === "done") {
+    const runId = String(body.runId || "");
+    if (!/^[0-9a-f-]{36}$/.test(runId)) return json("bad_input", 400);
+    const runs = getStore(RUNS);
+    let run = null;
+    try { const raw = await runs.get(runId); run = raw ? JSON.parse(raw) : null; } catch (e) { console.error("run read", e); }
+    if (!run || !run.text) return json("not_ready", 409);
+    if (run.sent) return json("ok", 200);
+    run.sent = true;
+    try { await runs.set(runId, JSON.stringify(run)); } catch (e) { console.error("run write", e); }
     if (!env("RESEND_API_KEY") || !env("NOTIFY_EMAIL")) { console.error("Resend not configured"); return json("ok", 200); }
-    try { await sendRunEmail(env, body); return json("ok", 200); }
-    catch (e) { console.error("Resend:", e); return json("email_failed", 502); }
+    const result = await sendRunEmails(env, run);
+    return json(result.owner ? "ok" : "email_failed", result.owner ? 200 : 502);
   }
 
+  const leadName = cut(body && body.name, 60).replace(/\s+/g, " ").trim();
+  const leadEmail = EMAIL_RE.test(String((body && body.email) || "").trim()) ? String(body.email).trim().slice(0, 120) : "";
   const raw = body && body.answers;
   if (!raw || typeof raw !== "object") return json("bad_input", 400);
   const a = {};
@@ -230,40 +252,217 @@ async function handle(req, context) {
     console.error("openrouter", upstream.status, detail);
     return json("openrouter_" + upstream.status, 502);
   }
-  return new Response(upstream.body, {
-    headers: { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-store" }
+  // One copy streams to the browser, the other is saved here, so the emails use exactly what was written.
+  const runId = crypto.randomUUID();
+  const [toBrowser, toSave] = upstream.body.tee();
+  const saving = saveRun(runId, toSave, { name: leadName, email: leadEmail, answers: a, at: new Date().toISOString() });
+  if (context && typeof context.waitUntil === "function") context.waitUntil(saving);
+  return new Response(toBrowser, {
+    headers: { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-store", "X-Run-Id": runId }
   });
+}
+
+async function saveRun(runId, stream, run) {
+  try {
+    const reader = stream.getReader(), dec = new TextDecoder();
+    let buf = "", text = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split("\n"); buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith("data:")) continue;
+        const data = line.slice(5).trim();
+        if (!data || data === "[DONE]") continue;
+        try { const ev = JSON.parse(data); const p = ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.content; if (p) text += p; } catch {}
+      }
+    }
+    if (!text.trim()) return;
+    await getStore(RUNS).set(runId, JSON.stringify({ ...run, text: text.slice(0, 50000) }));
+  } catch (e) { console.error("saveRun", e); }
 }
 
 const EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 const escHtml = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const cut = (t, n) => String(t || "").slice(0, n);
 
-async function sendRunEmail(env, body) {
-  const name = cut(body.name, 60).replace(/\s+/g, " ").trim();
-  const email = EMAIL_RE.test(String(body.email || "").trim()) ? String(body.email).trim() : "";
-  const ans = body.answers && typeof body.answers === "object" ? body.answers : {};
-  const kit = cut(body.kit, 50000);
-  const pairs = QUESTIONS.map(q => [q.q, cut(ans[q.id], MAX_ANSWER)]);
-  const html = '<div style="max-width:640px;font:14px/1.55 sans-serif">' +
-    '<h2 style="font:600 16px sans-serif;margin:0 0 8px">Who</h2><p>' + escHtml(name || "No name") + (email ? " &lt;" + escHtml(email) + "&gt;" : "") + "</p>" +
-    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their answers</h2>' +
-    pairs.map(p => "<p><strong>" + escHtml(p[0]) + "</strong><br>" + escHtml(p[1]).replace(/\n/g, "<br>") + "</p>").join("") +
-    '<h2 style="font:600 16px sans-serif;margin:24px 0 8px">Their kit</h2><pre style="white-space:pre-wrap;font:13px/1.55 sans-serif">' + escHtml(kit) + "</pre></div>";
-  const text = "Who: " + (name || "No name") + (email ? " <" + email + ">" : "") + "\n\n" +
-    pairs.map(p => p[0] + "\n" + p[1]).join("\n\n") + "\n\n--- Kit ---\n\n" + kit;
+// ===== Emails: same design as the Offer Blender, sent twice, separately =====
+const C = { cream: "#F3EDE0", card: "#FFFFFF", forest: "#0E241C", orange: "#E9622B", muted: "#4d6157", line: "#E4DCCB", soft: "#FBF8F1", sage: "#9FB6A8" };
+
+function inlineMd(t) {
+  return escHtml(t)
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:' + C.forest + '">$1</strong>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" style="color:' + C.orange + '">$1</a>');
+}
+
+function parseLadder(body) {
+  const lines = body.split("\n").map(l => l.trim()).filter(Boolean);
+  const startLine = lines.find(l => /^start\s*:/i.test(l));
+  const start = startLine ? startLine.replace(/^start\s*:/i, "").trim().toLowerCase() : "";
+  const rungs = lines.filter(l => l.includes("|") && !/^start\s*:/i.test(l)).map(l => {
+    const [name, ...rest] = l.split("|"); return { name: name.trim(), msg: rest.join("|").trim() };
+  });
+  let s = rungs.findIndex(r => start && (r.name.toLowerCase() === start || r.name.toLowerCase().includes(start) || start.includes(r.name.toLowerCase())));
+  if (s < 0) s = 0;
+  return { rungs, s };
+}
+function parseTally(body) {
+  return body.split("\n").map(l => l.trim()).filter(l => l.includes("|")).map(l => {
+    const [stage, when, fix] = l.split("|").map(x => (x || "").trim()); return { stage, when, fix };
+  });
+}
+
+// Signal ladder as an email-safe bar chart: strongest on top, bars grow with the signal.
+function ladderEmail(body) {
+  const { rungs, s } = parseLadder(body);
+  if (!rungs.length) return "";
+  const n = rungs.length;
+  const rows = rungs.map((r, i) => ({ r, i })).reverse().map(({ r, i }) => {
+    const on = i >= s, w = Math.round(35 + (i / Math.max(1, n - 1)) * 65);
+    return '<tr><td style="padding:3px 0">' +
+      '<table role="presentation" cellpadding="0" cellspacing="0" width="' + w + '%"><tr><td style="background:' + (on ? C.orange : C.line) + ';border-radius:8px;padding:9px 12px;font-size:14px;font-weight:bold;color:' + (on ? "#ffffff" : C.muted) + '">' +
+      escHtml(r.name) + (i === s ? ' <span style="font-weight:normal">&#8592; start here</span>' : "") + "</td></tr></table></td></tr>";
+  }).join("");
+  const msgs = rungs.map((r, i) => ({ r, i })).filter(x => x.i >= s && x.r.msg).map(({ r }) =>
+    '<div style="margin:0 0 4px;font-size:13px;color:' + C.muted + '">When someone: <strong style="color:' + C.forest + '">' + escHtml(r.name) + "</strong></div>" +
+    '<div style="margin:0 0 14px;padding:12px 16px;background:' + C.soft + ";border-left:3px solid " + C.orange + ';border-radius:0 10px 10px 0;font-size:15px;line-height:1.55;color:' + C.forest + '">' + inlineMd(r.msg) + "</div>").join("");
+  return '<div style="margin:0 0 6px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:' + C.muted + '">Strongest signal</div>' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 6px">' + rows + "</table>" +
+    '<div style="margin:0 0 10px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:' + C.muted + '">Weakest signal</div>' +
+    '<p style="margin:0 0 18px;font-size:14px;color:' + C.muted + '"><span style="color:' + C.orange + '">&#9632;</span> Message these &nbsp; <span style="color:' + C.line + '">&#9632;</span> Skip for now</p>' + msgs;
+}
+
+// Weekly tally as a table they can fill in.
+function tallyEmail(body) {
+  const rows = parseTally(body);
+  if (!rows.length) return "";
+  const th = 'style="padding:10px 10px;text-align:left;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:#ffffff;background:' + C.forest + '"';
+  return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;border:1px solid ' + C.line + ';border-radius:10px;border-collapse:separate;overflow:hidden">' +
+    "<tr><th " + th + ">Stage</th><th " + th + ">Counts when</th><th " + th + ">This week</th></tr>" +
+    rows.map((r, i) =>
+      '<tr><td valign="top" style="padding:12px 10px;border-top:1px solid ' + C.line + ';font-size:15px;font-weight:bold;color:' + C.forest + '">' + (i + 1) + ". " + escHtml(r.stage) + "</td>" +
+      '<td valign="top" style="padding:12px 10px;border-top:1px solid ' + C.line + ';font-size:14px;line-height:1.5;color:' + C.forest + '">' + escHtml(r.when) +
+        (r.fix ? '<div style="margin-top:6px;font-size:13px;color:' + C.muted + '">Most people stop here? ' + escHtml(r.fix) + "</div>" : "") + "</td>" +
+      '<td valign="top" style="padding:12px 10px;border-top:1px solid ' + C.line + ';font-size:15px;color:' + C.muted + '">____</td></tr>').join("") +
+    "</table>";
+}
+
+function mdToEmail(text) {
+  const out = []; let list = [], para = [], quote = [], fence = null, fenceBody = [];
+  const P = 'style="margin:0 0 14px;font-size:16px;line-height:1.6;color:' + C.forest + '"';
+  const flushPara = () => { if (para.length) { out.push("<p " + P + ">" + inlineMd(para.join(" ")) + "</p>"); para = []; } };
+  const flushList = () => { if (list.length) { out.push('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px">' + list.map(li => '<tr><td valign="top" style="width:18px;padding:3px 0;color:' + C.orange + ';font-size:16px;line-height:1.6">&#8226;</td><td style="padding:3px 0;font-size:16px;line-height:1.6;color:' + C.forest + '">' + inlineMd(li) + "</td></tr>").join("") + "</table>"); list = []; } };
+  const flushQuote = () => { if (quote.length) { out.push('<div style="margin:0 0 16px;padding:14px 18px;background:' + C.soft + ";border-left:3px solid " + C.orange + ";border-radius:0 10px 10px 0;font-size:16px;line-height:1.6;color:" + C.forest + '">' + quote.map(inlineMd).join("<br>") + "</div>"); quote = []; } };
+  const flush = () => { flushPara(); flushList(); flushQuote(); };
+  for (const raw of String(text).split("\n")) {
+    const l = raw.trim();
+    if (fence !== null) {
+      if (l.startsWith("```")) {
+        const b = fenceBody.join("\n");
+        out.push(fence === "ladder" ? ladderEmail(b) : fence === "tally" ? tallyEmail(b) : '<pre style="white-space:pre-wrap;font-size:14px">' + escHtml(b) + "</pre>");
+        fence = null; fenceBody = [];
+      } else fenceBody.push(raw);
+      continue;
+    }
+    if (l.startsWith("```")) { flush(); fence = l.slice(3).trim().toLowerCase(); continue; }
+    if (!l) { flush(); continue; }
+    if (l.startsWith("### ")) { flush(); out.push('<h3 style="margin:22px 0 8px;font-family:Georgia,serif;font-size:19px;line-height:1.3;color:' + C.forest + '">' + inlineMd(l.slice(4)) + "</h3>"); continue; }
+    if (l.startsWith("## ")) { flush(); out.push('<h2 style="margin:30px 0 12px;padding-top:22px;border-top:1px solid ' + C.line + ';font-family:Georgia,serif;font-size:23px;line-height:1.25;color:' + C.forest + '">' + inlineMd(l.slice(3)) + "</h2>"); continue; }
+    if (/^[-*] /.test(l)) { flushPara(); flushQuote(); list.push(l.slice(2)); continue; }
+    if (/^\d+[.)] /.test(l)) { flushPara(); flushQuote(); list.push(l.replace(/^\d+[.)] /, "")); continue; }
+    if (l.startsWith(">")) { flushPara(); flushList(); quote.push(l.replace(/^>\s?/, "")); continue; }
+    flushList(); flushQuote(); para.push(l);
+  }
+  flush();
+  return out.join("").replace('style="margin:30px 0 12px;padding-top:22px;border-top:1px solid ' + C.line + ';', 'style="margin:0 0 12px;');
+}
+
+// forOwner: true = your copy (buyer details on top), false = their copy (no sign you get one too).
+function buildEmail(run, forOwner) {
+  const a = run.answers || {};
+  const first = (run.name || "").split(" ")[0];
+  const path = a.path || "Discovery calls";
+  const subject = forOwner
+    ? "New Sell Your Offer Kit: " + (run.name || "No name") + (run.email ? " <" + run.email + ">" : "") + " · " + path
+    : "Your Sell Your Offer Kit: " + path;
+
+  const ownerBox = forOwner ?
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;background:' + C.soft + ';border:1px solid ' + C.line + ';border-radius:12px"><tr><td style="padding:16px 20px;font-size:15px;line-height:1.7;color:' + C.forest + '">' +
+      "<strong>Name:</strong> " + escHtml(run.name || "Not given") + "<br>" +
+      "<strong>Email:</strong> " + (run.email ? '<a href="mailto:' + escHtml(run.email) + '" style="color:' + C.orange + '">' + escHtml(run.email) + "</a>" : "Not given") + "<br>" +
+      "<strong>Way to sell:</strong> " + escHtml(path) + " · " + escHtml(a.where || "") + "<br>" +
+      '<span style="color:' + C.muted + ';font-size:13px">Reply to this email to answer them directly. They received the same email without this box.</span>' +
+    "</td></tr></table>" : "";
+
+  const hello = forOwner
+    ? '<h1 style="margin:0 0 8px;font-family:Georgia,serif;font-size:28px;line-height:1.2;color:' + C.forest + '">New kit: ' + escHtml(first || "someone") + "</h1>" +
+      '<p style="margin:0 0 22px;font-size:16px;line-height:1.6;color:' + C.muted + '">They chose <strong style="color:' + C.forest + '">' + escHtml(path) + "</strong>. Their kit is below.</p>"
+    : '<h1 style="margin:0 0 8px;font-family:Georgia,serif;font-size:28px;line-height:1.2;color:' + C.forest + '">' + (first ? "Hi " + escHtml(first) + ", here's your kit." : "Here's your kit.") + "</h1>" +
+      '<p style="margin:0 0 22px;font-size:16px;line-height:1.6;color:' + C.muted + '">Every message for selling your offer with ' + escHtml(path.toLowerCase()) + ", saved in one place. Keep it open next to your DMs. Reply to this email if anything's unclear. It comes straight to me.</p>";
+
+  const inputsHtml =
+    '<h2 style="margin:0 0 12px;font-family:Georgia,serif;font-size:21px;color:' + C.forest + '">' + (forOwner ? "Their " : "Your ") + "answers</h2>" +
+    QUESTIONS.map(q => [q.q, a[q.id] || ""]).map(([q, v]) =>
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 10px;background:' + C.soft + ';border-radius:10px"><tr><td style="padding:12px 16px">' +
+      '<div style="font-size:13px;line-height:1.5;color:' + C.muted + ';margin:0 0 4px">' + escHtml(q) + "</div>" +
+      '<div style="font-size:15px;line-height:1.55;color:' + C.forest + '">' + escHtml(v).replace(/\n/g, "<br>") + "</div></td></tr></table>").join("");
+
+  const cta =
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 0;background:' + C.forest + ';border-radius:14px"><tr><td style="padding:24px 24px 26px">' +
+    '<div style="font-family:Georgia,serif;font-size:21px;line-height:1.3;color:' + C.cream + ';margin:0 0 10px">Want me next to you for the first conversations?</div>' +
+    '<div style="font-size:15px;line-height:1.6;color:#d9e2dc;margin:0 0 18px">In the Customer Unlock Sprint we go through your real chats and calls together, adjust the offer from what people say, and work towards your first online client over 12 weeks.</div>' +
+    '<a href="' + SPRINT_LINK + '" style="display:inline-block;background:' + C.orange + ';color:#ffffff;text-decoration:none;font-weight:bold;font-size:15px;padding:13px 22px;border-radius:999px">See how the Sprint works</a>' +
+    "</td></tr></table>";
+
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escHtml(subject) + "</title></head>" +
+    '<body style="margin:0;padding:0;background:' + C.cream + '">' +
+    '<div style="display:none;max-height:0;overflow:hidden;opacity:0">' + escHtml(forOwner ? (run.email || "") + " just built their Sell Your Offer Kit" : "Your first messages, your invitation and your weekly tally") + "</div>" +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:' + C.cream + '"><tr><td align="center" style="padding:28px 12px">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;font-family:Helvetica,Arial,sans-serif">' +
+    '<tr><td style="padding:0 6px 14px;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:' + C.orange + '">Sell Your Offer Kit</td></tr>' +
+    '<tr><td style="background:' + C.card + ';border-radius:16px;padding:30px 26px">' +
+      hello + ownerBox + inputsHtml +
+      '<div style="height:1px;background:' + C.line + ';margin:26px 0"></div>' +
+      mdToEmail(run.text) + cta +
+    "</td></tr>" +
+    '<tr><td style="padding:18px 6px 0;font-size:13px;line-height:1.6;color:' + C.muted + '">Vlad Manea · <a href="https://vlad-manea.de" style="color:' + C.muted + '">vlad-manea.de</a></td></tr>' +
+    "</table></td></tr></table></body></html>";
+
+  const text = (forOwner
+      ? "New kit: " + (run.name || "No name") + (run.email ? " <" + run.email + ">" : "") + "\nWay to sell: " + path + "\n\n"
+      : (first ? "Hi " + first + ", here's your kit." : "Here's your kit.") + "\n\n") +
+    QUESTIONS.map(q => q.q + "\n" + (a[q.id] || "")).join("\n\n") + "\n\n--- " + (forOwner ? "Their" : "Your") + " kit ---\n\n" + run.text +
+    "\n\nCustomer Unlock Sprint: " + SPRINT_LINK + "\n\nVlad Manea · vlad-manea.de";
+  return { subject, html, text };
+}
+
+async function resend(env, payload) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: "Bearer " + env("RESEND_API_KEY"), "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: env("NOTIFY_FROM") || "Sell Your Offer Kit <onboarding@resend.dev>",
-      to: String(env("NOTIFY_EMAIL")).split(",").map(e => e.trim()).filter(Boolean),
-      ...(email ? { reply_to: email } : {}),
-      subject: "New Sell Your Offer Kit" + (name || email ? ": " + [name, email && "<" + email + ">"].filter(Boolean).join(" ") : ""),
-      html, text
-    })
+    body: JSON.stringify(payload)
   });
-  if (!res.ok) throw new Error(res.status + " " + (await res.text()));
+  if (!res.ok) throw new Error(res.status + " " + (await res.text()).slice(0, 300));
+}
+
+// Two separate sends. Your copy replies to them; their copy replies to you. Neither shows the other address.
+// Uses the Offer Blender's sender settings unless SELL_KIT_FROM / SELL_KIT_REPLY_TO are set.
+async function sendRunEmails(env, run) {
+  const from = env("NOTIFY_FROM") || "Sell Your Offer Kit <onboarding@resend.dev>";
+  const owners = String(env("NOTIFY_EMAIL")).split(",").map(e => e.trim()).filter(Boolean);
+  const out = { owner: false, lead: false };
+  const mine = buildEmail(run, true);
+  try { await resend(env, { from, to: owners, ...(run.email ? { reply_to: run.email } : {}), subject: mine.subject, html: mine.html, text: mine.text }); out.owner = true; }
+  catch (e) { console.error("Resend (owner):", e); }
+  if (run.email) {
+    const theirs = buildEmail(run, false);
+    const leadFrom = env("SELL_KIT_FROM") || env("OFFER_BLENDER_FROM") || from;
+    const replyTo = env("SELL_KIT_REPLY_TO") || env("OFFER_BLENDER_REPLY_TO") || owners[0];
+    try { await resend(env, { from: leadFrom, to: [run.email], reply_to: replyTo, subject: theirs.subject, html: theirs.html, text: theirs.text }); out.lead = true; }
+    catch (e) { console.error("Resend (lead):", e); }
+  }
+  return out;
 }
 
 export const config = { path: "/api/sell-your-offer" };
