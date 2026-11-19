@@ -2,6 +2,7 @@
 // Built from the Skill to Offer Gameplan function: same streaming, same Resend email, no buyer key (it's free).
 // The prompt lives here, so the page can only ever ask for an Offer Blender.
 import { getStore } from "@netlify/blobs";
+import { parseOffer, saveOfferToKit } from "../lib/kit-offer.js";
 
 const MAX_ANSWER = 1500;
 
@@ -173,6 +174,11 @@ async function handle(req, context) {
     try { await runs.set(runId, JSON.stringify(run)); } catch (e) { console.error("run write", e); }
     // Second chance for Kit, and its result goes in your email so you can see it.
     const kitStatus = run.email ? await addToKit(env, run.name, run.email) : { ok: false, detail: "no email given" };
+    // Save the offer itself on their Kit subscriber, so emails can use {{ subscriber.offer_name }} etc.
+    if (run.email) {
+      const f = await saveOfferToKit(env, run.email, run.name, parseOffer(run.text, "Offer Blender"));
+      kitStatus.detail += f.ok ? "; " + f.detail : "; offer fields not saved: " + f.detail;
+    }
     if (!env("RESEND_API_KEY") || !env("NOTIFY_EMAIL")) { console.error("Resend not configured"); return json("ok", 200); }
     const result = await sendRunEmails(env, run, kitStatus);
     return json(result.owner ? "ok" : "email_failed", result.owner ? 200 : 502);

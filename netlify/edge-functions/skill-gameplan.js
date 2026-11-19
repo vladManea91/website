@@ -2,6 +2,7 @@
 // Edge functions can stream for as long as the model writes, so long plans don't time out.
 // The prompt lives here, so the page can only ever ask for a roadmap.
 import { getStore } from "@netlify/blobs";
+import { parseOffer, saveOfferToKit } from "../lib/kit-offer.js";
 
 const LAUNCHOS_LINK = "https://docs.google.com/document/d/1-kZPOzLjudgzTBtkxuwDTKlfb5WaMPEQ3SxFKq11EAI/edit?tab=t.0";
 const MAX_ANSWER = 2500;
@@ -54,7 +55,7 @@ Write their roadmap in Markdown, with exactly these eight sections as "## " head
 ## Your offer
 A "### Your one-sentence offer" subheading with: "I help [specific person] get [specific, measurable result] through [named format and length]."
 Then a "### How it works" subheading with bullets: the promised result, the format (keep their format unless it clearly blocks sales; if you change it, say why in one line), how long it lasts, what's included (3-5 concrete things, keeping the strong parts of their offer), and who it's not for.
-Give the offer a short, plain name (keep their name if it's clear).
+Start this section with the line "**Offer name:** [a short, plain name]" (keep their name if it's clear).
 Then a "### What changed" subheading with 2-4 bullets: before (their wording) and after, one line each.
 
 ## Your price
@@ -114,7 +115,7 @@ Write their roadmap in Markdown, with exactly these eight sections as "## " head
 ## Your offer
 A "### Your one-sentence offer" subheading with: "I help [specific person] get [specific, measurable result] through [named format and length]."
 Then a "### How it works" subheading with bullets: the promised result, the format (respect the format they chose; if "Not sure yet", pick the one that best fits their skill, hours and person, and say why in one line), how long it lasts, what's included (3-5 concrete things), and who it's not for.
-Give the offer a short, plain name.
+Start this section with the line "**Offer name:** [a short, plain name]".
 
 ## Your price
 Validate the price from the interview, never from wishful thinking.
@@ -173,6 +174,12 @@ async function handle(req, context) {
 
   // Finished run: email it to you via Resend (uses the same RESEND_API_KEY / NOTIFY_EMAIL / NOTIFY_FROM as the old tool).
   if (body && body.action === "done") {
+    // Save their offer on their Kit subscriber, so emails can use {{ subscriber.offer_name }} etc.
+    const kitEmail = EMAIL_RE.test(String(body.email || "").trim()) ? String(body.email).trim() : "";
+    if (kitEmail) {
+      const f = await saveOfferToKit(env, kitEmail, cut(body.name, 60).trim(), parseOffer(cut(body.plan, 40000), "First Client Roadmap"));
+      if (!f.ok) console.error("Kit offer fields:", f.detail);
+    }
     if (!env("RESEND_API_KEY") || !env("NOTIFY_EMAIL")) { console.error("Resend not configured"); return json("ok", 200); }
     try { await sendRunEmail(env, body); return json("ok", 200); }
     catch (e) { console.error("Resend:", e); return json("email_failed", 502); }
