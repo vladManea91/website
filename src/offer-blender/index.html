@@ -134,7 +134,7 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
     <h1>What do I sell?</h1>
     <div class="lede">
       <p>You've got skills, experience, taste or results. But your bio says what you do, and nobody knows what to buy.</p>
-      <p>Answer six short questions and I'll blend your skills into one first paid offer, plus the sentence that sells it, a price to test, and the message to send to 10 real people this week.</p>
+      <p>Answer six short questions and I'll blend your skills into one first paid offer: who it's for, what they get, how long it takes and what it costs.</p>
     </div>
     <div class="row doors"><button id="start">Blend my offer</button><button id="startCheck" class="ghost">I already have an offer</button></div>
     <p class="meta">New offer: six questions, under 10 minutes. We're building a front door, not a mansion.<br>Already selling something? Paste it and I'll show you where it fails.</p>
@@ -173,14 +173,14 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
   <section id="check" hidden>
     <p class="qcount">Offer check</p>
     <h2 class="question">Show me what you're selling.</h2>
-    <p class="helper">Paste your offer the way buyers see it: your sales page text, your bio, the DM you send, or all three. I'll check it against the Offer Blend format, show you where it fails, and reshape it.</p>
+    <p class="helper">Paste your offer the way buyers see it: your sales page text, your bio, the DM you send, or all three. I'll refine it into one clear offer in the same format.</p>
     <label for="offerText" class="flabel">Your offer</label>
     <textarea id="offerText" maxlength="8000" placeholder="e.g. 1:1 photography mentoring for beginners. 4 sessions over a month, €300. DM me to book." autocapitalize="sentences" spellcheck="true"></textarea>
     <label for="offerUrl" class="flabel">Your landing page link <span>(optional)</span></label>
     <input id="offerUrl" class="cin" type="url" inputmode="url" autocapitalize="off" autocomplete="url" spellcheck="false" placeholder="https://">
     <p class="ferr" id="checkErr" hidden></p>
     <div class="row">
-      <button id="checkGo">Check my offer</button>
+      <button id="checkGo">Refine my offer</button>
       <button id="checkBack" class="ghost">Back</button>
     </div>
   </section>
@@ -200,7 +200,7 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
     </div>
     <div class="cta" id="cta" hidden>
       <h3 id="ctaH">You've named the offer. Now get someone to pay for it.</h3>
-      <p>Send your message to 10 people this week. That part's on you, and it's the part most people skip.</p>
+      <p>Next is selling it: in your DMs, with a simple Google Doc offer, or on a sales call.</p>
       <p>If you'd rather not figure out the rest alone after work, this is exactly what I do in the Customer Unlock Sprint: we sharpen this offer, find warm buyers in the audience you already have, set up a clean checkout, and work toward your first online client together. 10 spots, starting Monday, November 30.</p>
       <a class="btn" id="ctaLink" href="/customer-unlock-sprint/" target="_blank" rel="noopener">See how the Sprint works</a>
       <p class="ctasub">Not ready yet? DM me "OFFER" on <a href="https://ig.me/m/c.vladmanea" target="_blank" rel="noopener">Instagram</a> and I'll send you the simple message to test it without feeling salesy.</p>
@@ -214,7 +214,7 @@ const QUESTIONS = [
   {h:"This finds your skill. What people already ask you for is the strongest sign of what they'd pay for.", st:0, q:"What do people come to you for help with? At work, with friends, online. Think of the last few times someone asked.", f:"Pick one recent moment: who asked you, and what did they want help with?", p:"e.g. Friends send me their photos to edit. At work I'm the one who fixes the messy spreadsheets."},
   {h:"This is your proof. Even a small win makes the offer believable, to buyers and to you.", st:0, q:"What's one result you've got with it, for yourself or someone else? Give me the before and after.", f:"Even a small one counts. What changed, for whom, and how fast?"},
   {h:"This picks your buyer. The more specific the person, the easier the offer is to sell.", st:1, q:"Who do you most want to help with it? Describe one specific person, not a whole market.", f:"Be specific: their job or situation, and where they are right now."},
-  {h:"This becomes your sales message. People buy to fix something that annoys them right now.", st:1, q:"What's the messy moment they're stuck in right now? Say it the way they'd say it.", f:"What's the annoying thing that happens to them this week? Something they'd actually complain about."},
+  {h:"This becomes the problem your offer solves. People buy to fix something that annoys them right now.", st:1, q:"What's the messy moment they're stuck in right now? Say it the way they'd say it.", f:"What's the annoying thing that happens to them this week? Something they'd actually complain about."},
   {h:"This shapes your offer. You'll promise the result without the thing they hate.", st:1, q:"What do they hate, fear, or refuse to do to fix it?", f:"Think of what they've tried, or what they avoid: too expensive, too slow, too complicated, feels fake?"},
   {h:"This sets the format. Start with the smallest version someone can say yes to this week.", st:2, q:"Which simple version could you sell this week?", choices:["1:1 session","2-week sprint","4-week coaching package","Audit + action plan","Done-with-you setup","Template + feedback","Small group workshop","Not sure, pick for me"]}
 ];
@@ -315,7 +315,7 @@ function md(text){
 function errCopy(code){
   switch(code){
     case "rate_limited": return "You've used the Offer Blender twice today already. Come back tomorrow for another run. Your answers are saved.";
-    case "url_failed": return "I couldn't read that page. Some sites block tools like this one. Paste the text from your page instead, then press Check my offer.";
+    case "url_failed": return "I couldn't read that page. Some sites block tools like this one. Paste the text from your page instead, then press Refine my offer.";
     case "bad_url": return "That link doesn't look like a public web page. Check it, or paste your page text instead.";
     case "bad_input": return "Some answers are missing or too long. Press Start over and try again.";
     case "cancelled": return "Stopped. Press Try again when you're ready.";
@@ -325,13 +325,13 @@ function errCopy(code){
     case "openrouter_401": return "Setup issue: OpenRouter rejected the API key. Check OPENROUTER_API_KEY in Netlify. Your answers are saved.";
     case "openrouter_402": return "Setup issue: the OpenRouter account is out of credits. Your answers are saved.";
     case "openrouter_400": case "openrouter_404": return "Setup issue: OpenRouter doesn't recognise the model ID in OPENROUTER_MODEL. Your answers are saved.";
-    default: return "Your " + (isCheck() ? "Offer Check" : "Offer Blend") + " couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
+    default: return "Your " + (isCheck() ? "refined offer" : "offer") + " couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
   }
 }
 
 const isCheck = () => state.mode === "check";
-const BLEND_SECTIONS = ["Your Offer Blend","Your first paid offer","Your offer sentence","Your first price to test","Your first sales message","The beige check","Do this today"];
-const CHECK_SECTIONS = ["Your verdict","Where it fails","Your reshaped offer","Your price","Fix these first","Your new sales message","Do this today"];
+const BLEND_SECTIONS = ["Your offer"];
+const CHECK_SECTIONS = ["Your refined offer"];
 const sections = () => isCheck() ? CHECK_SECTIONS : BLEND_SECTIONS;
 let loadTimer = null, loadStart = 0, thinking = false;
 function setFill(pct){ $("lfill").style.width = Math.max(3, Math.min(99, pct)) + "%"; }
@@ -346,7 +346,7 @@ function startLoad(){
     $("ltime").textContent = t < 60 ? t + "s" : Math.floor(t/60) + "m " + (t%60) + "s";
     if(!$("plan").textContent){
       setFill(3 + 9 * (1 - Math.exp(-t / 25)));
-      $("lstep").textContent = thinking ? "Thinking it through" : isCheck() ? (t < 8 ? "Reading your offer" : t < 20 ? "Checking it against the format" : "Reshaping your offer") : (t < 8 ? "Reading your answers" : t < 20 ? "Finding your person" : "Naming your offer");
+      $("lstep").textContent = thinking ? "Thinking it through" : isCheck() ? (t < 8 ? "Reading your offer" : t < 20 ? "Finding what's vague" : "Reshaping your offer") : (t < 8 ? "Reading your answers" : t < 20 ? "Finding your person" : "Naming your offer");
       if(t > 60) $("lnote").textContent = "Still working. Longer answers take a little longer.";
     }
   }, 1000);
@@ -358,14 +358,14 @@ function progressFrom(text){
   $("lbar").classList.remove("pulse");
   setFill(12 + (done / S.length) * 85);
   $("lstep").textContent = "Writing: " + current + " (" + Math.max(1, done) + " of " + S.length + ")";
-  $("lnote").textContent = "Your " + (isCheck() ? "Offer Check" : "Offer Blend") + " is appearing below as it's written.";
+  $("lnote").textContent = "Your " + (isCheck() ? "refined offer" : "offer") + " is appearing below as it's written.";
 }
 function stopLoad(){ clearInterval(loadTimer); loadTimer = null; $("loadbox").hidden = true; }
 
 async function buildPlan(){
   show("result");
   $("plan").innerHTML = ""; $("err").hidden = true; $("cta").hidden = true; $("planActions").hidden = true;
-  $("status").textContent = isCheck() ? "Got it. I'm checking your offer against the format." : "That's everything I need. I'm blending your offer.";
+  $("status").textContent = isCheck() ? "Got it. I'm refining your offer." : "That's everything I need. I'm blending your offer.";
   $("status").hidden = false;
   if(state.plan){ finish(state.plan); notifyDone(state.plan); return; }
   if(running) return;
@@ -418,7 +418,7 @@ async function buildPlan(){
 function finish(text){
   $("status").hidden = true;
   $("plan").innerHTML = md(text);
-  $("ctaH").textContent = isCheck() ? "Now you know where it leaks. Let's get someone to pay for it." : "You've named the offer. Now get someone to pay for it.";
+  $("ctaH").textContent = isCheck() ? "Your offer is sharper now. Time to sell it." : "You have your offer. Time to sell it.";
   $("planActions").hidden = false; $("cta").hidden = false;
 }
 
@@ -500,9 +500,9 @@ $("restart").onclick = () => {
 };
 
 load();
-if(isCheck()){ if(state.plan) $("startCheck").textContent = "See my Offer Check"; }
+if(isCheck()){ if(state.plan) $("startCheck").textContent = "See my refined offer"; }
 else {
-  if(state.i >= QUESTIONS.length){ $("start").textContent = "See my Offer Blend"; }
+  if(state.i >= QUESTIONS.length){ $("start").textContent = "See my offer"; }
   if(state.i > 0 && state.i < QUESTIONS.length){ $("start").textContent = "Continue where you left off"; }
 }
 
