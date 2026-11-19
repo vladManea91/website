@@ -230,11 +230,11 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
     <section class="calc" id="calc" hidden aria-labelledby="calcH">
       <p class="kick">Price calculator</p>
       <h3 id="calcH">How many clients do you need?</h3>
-      <p class="muted">Start with what you want this offer to bring in every month.</p>
+      <p class="muted">Here's how your price grows when you raise it every few clients. Type your own monthly goal, then move the sliders and watch the months change.</p>
       <label for="cGoal">Your monthly income goal</label>
       <div class="cgoal">
         <div class="money"><span id="cCur1">$</span><input class="cin" id="cGoal" type="number" inputmode="numeric" min="100" step="100" placeholder="e.g. 3000"></div>
-        <button id="cGo" type="button">Show me</button>
+        <button id="cGo" type="button">Update</button>
       </div>
       <p class="ferr" id="cErr" hidden>Type a monthly goal, for example 3000.</p>
       <div id="cOut" hidden>
@@ -495,7 +495,9 @@ function initCalc(text){
   $("cPrice").value = state.calcPrice || C.start;
   $("cStep").value = state.calcStep || 5; $("cRaise").value = state.calcRaise || 20; $("cMonths").value = state.calcMonths || 6;
   $("calc").hidden = false;
-  if(state.calcGoal){ $("cGoal").value = state.calcGoal; runCalc(); }
+  // Show the projection straight away with a starting goal, so the growth is visible before they type anything.
+  $("cGoal").value = state.calcGoal || 3000;
+  runCalc();
 }
 function runCalc(){
   const goal = Math.max(100, Math.round(+$("cGoal").value || 0));
