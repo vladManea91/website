@@ -162,6 +162,36 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
 .tl-row.drop .tl-fix{display:block}
 .tl-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
 .tl-foot button{min-height:36px;padding:8px 14px;font-size:14px}
+.calc{margin-top:36px;padding:26px;border:1.5px solid var(--line);border-radius:20px;background:var(--field)}
+.calc .kick{font:700 12px/1.4 "DM Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin:0 0 8px}
+.calc h3{font:800 26px/1.15 "Fraunces",Georgia,serif;margin:0 0 6px}
+.calc .muted{color:var(--muted);margin:0 0 16px}
+.calc label{display:block;font-weight:600;font-size:15px;margin:0 0 8px}
+.cgoal{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.cgoal .money{position:relative;flex:1;min-width:180px}
+.cgoal .money span{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600}
+.cgoal .money input{padding-left:32px}
+.cbig{font:800 clamp(22px,3.6vw,30px)/1.25 "Fraunces",Georgia,serif;margin:22px 0 6px}
+.cbig em{font-style:normal;color:var(--orange)}
+.cctrl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 22px;margin:20px 0 8px}
+.cctrl .f{display:grid;gap:6px}
+.cctrl .f label{display:flex;justify-content:space-between;gap:8px;margin:0;font-size:14px}
+.cctrl .f label b{font-weight:700;color:var(--orange)}
+.cctrl input[type=range]{width:100%;accent-color:var(--orange)}
+.cctrl input[type=number]{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:9px 12px}
+.cbars{display:flex;align-items:flex-end;gap:6px;height:170px;margin:22px 0 6px;padding-top:26px}
+.cbar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.cbar i{display:block;width:100%;background:var(--orange);border-radius:6px 6px 2px 2px;min-height:4px;position:relative}
+.cbar i b{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font:700 13px "DM Sans",sans-serif;color:var(--ink);font-style:normal}
+.cbar span{font-size:11.5px;line-height:1.3;color:var(--muted);margin-top:6px;text-align:center}
+.ctable{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:14px}
+.ctable th,.ctable td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+.ctable th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.ctable tr.up td{color:var(--orange);font-weight:700}
+.cwrap{overflow-x:auto}
+.cnote{font-size:13.5px;color:var(--muted);margin:14px 0 0}
+@media (max-width:600px){.calc{padding:20px}.cctrl{grid-template-columns:1fr}.cbar span{font-size:10.5px}}
+.ferr{color:var(--orange);font-size:14px;margin:8px 0 0}
 </style>
 </head>
 <body>
@@ -224,6 +254,31 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
       <button id="copy" class="ghost">Copy my kit</button>
       <button id="restart" class="ghost">Try another way to sell</button>
     </div>
+    <section class="calc" id="calc" hidden aria-labelledby="calcH">
+      <p class="kick">Price calculator</p>
+      <h3 id="calcH">How many clients do you need?</h3>
+      <p class="muted">Here's how your price grows as you sign clients and raise it every few. Type your own monthly goal, then move the sliders and watch the months change.</p>
+      <label for="cGoal">Your monthly income goal</label>
+      <div class="cgoal">
+        <div class="money"><span id="cCur1">$</span><input class="cin" id="cGoal" type="number" inputmode="numeric" min="100" step="100" placeholder="e.g. 3000"></div>
+        <button id="cGo" type="button">Update</button>
+      </div>
+      <p class="ferr" id="cErr" hidden>Type a monthly goal, for example 3000.</p>
+      <div id="cOut" hidden>
+        <p class="cbig" id="cBig"></p>
+        <p class="muted" id="cSub"></p>
+        <div class="cctrl">
+          <div class="f"><label for="cGoalR">Monthly goal <b id="vGoal"></b></label><input type="range" id="cGoalR" min="500" max="20000" step="100"></div>
+          <div class="f"><label for="cPrice">Starting price <b id="vPrice"></b></label><input type="number" id="cPrice" min="10" max="10000" step="1"></div>
+          <div class="f"><label for="cStep">Raise the price after <b id="vStep"></b></label><input type="range" id="cStep" min="2" max="10" step="1" value="5"></div>
+          <div class="f"><label for="cRaise">Raise it by <b id="vRaise"></b></label><input type="range" id="cRaise" min="5" max="50" step="5" value="20"></div>
+          <div class="f"><label for="cMonths">Months to show <b id="vMonths"></b></label><input type="range" id="cMonths" min="3" max="12" step="1" value="6"></div>
+        </div>
+        <div class="cbars" id="cBars" aria-hidden="true"></div>
+        <div class="cwrap"><table class="ctable"><thead><tr><th>Month</th><th>Price</th><th>Clients</th><th>Income</th></tr></thead><tbody id="cRows"></tbody></table></div>
+        <p class="cnote">This assumes you sign exactly the clients you need each month, and raise the price once you've signed enough at the current one. It's a planning tool to play with, not a promise.</p>
+      </div>
+    </section>
     <div class="cta" id="cta" hidden>
       <h3>Want me next to you for the first conversations?</h3>
       <p>In the Customer Unlock Sprint we go through your real chats and calls together, adjust the offer from what people say, and work towards your first online client over 12 weeks.</p>
@@ -255,7 +310,7 @@ let running = null;
 const $ = id => document.getElementById(id);
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
 function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && s.answers && typeof s.answers==="object") state = s; }catch(e){} }
-function show(id){ ["intro","contact","ask","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo({top:0,behavior:"auto"}); }
+function show(id){ if(id !== "result" && $("calc")) $("calc").hidden = true; ["intro","contact","ask","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo({top:0,behavior:"auto"}); }
 
 function renderQ(){
   const n = state.i, item = QUESTIONS[n];
@@ -488,7 +543,65 @@ function finish(text){
   $("status").hidden = true;
   $("plan").innerHTML = md(text); paintTally();
   $("planActions").hidden = false; $("cta").hidden = false;
+  try{ initCalc(); }catch(e){ console.error("calc", e); }
 }
+// ===== Price calculator: goal per month -> clients needed, with the price rising every few clients =====
+const C = { cur:"$", start:0 };
+function parseOfferPrice(text){
+  const line = String(text).replace(/\*\*/g, "");
+  const m = line.match(/([$€£])\s?(\d[\d,.]*)/);
+  if(!m) return null;
+  const n = parseFloat(m[2].replace(/,/g,"").replace(/\.(?=\d{3}\b)/g,""));
+  return isFinite(n) && n > 0 ? {cur:m[1], price:Math.round(n)} : null;
+}
+const nice = p => p < 100 ? Math.round(p) : Math.round(p/10)*10 - 3;
+const fmt = n => C.cur + Math.round(n).toLocaleString("en-US");
+function initCalc(){
+  const pr = parseOfferPrice(state.answers.pay || "") || parseOfferPrice(state.answers.offer || "");
+  C.cur = pr ? pr.cur : "$"; C.start = pr ? pr.price : 297;
+  $("cCur1").textContent = C.cur;
+  $("cPrice").value = state.calcPrice || C.start;
+  $("cStep").value = state.calcStep || 5; $("cRaise").value = state.calcRaise || 20; $("cMonths").value = state.calcMonths || 6;
+  $("calc").hidden = false;
+  // Show the projection straight away with a starting goal, so the growth is visible before they type anything.
+  $("cGoal").value = state.calcGoal || 3000;
+  runCalc();
+}
+function runCalc(){
+  const goal = Math.max(100, Math.round(+$("cGoal").value || 0));
+  const price0 = Math.max(1, Math.round(+$("cPrice").value || C.start));
+  const step = +$("cStep").value, raise = +$("cRaise").value / 100, months = +$("cMonths").value;
+  $("cGoalR").value = Math.min(20000, Math.max(500, goal));
+  $("vGoal").textContent = fmt(goal); $("vPrice").textContent = fmt(price0);
+  $("vStep").textContent = step + " clients"; $("vRaise").textContent = Math.round(raise*100) + "%"; $("vMonths").textContent = months;
+  state.calcGoal = goal; state.calcPrice = price0; state.calcStep = step; state.calcRaise = Math.round(raise*100); state.calcMonths = months; save();
+  let p = price0, atPrice = 0; const rows = [];
+  for(let m = 1; m <= months; m++){
+    const need = Math.ceil(goal / p);
+    const raisedNow = rows.length && rows[rows.length-1].price !== p;
+    rows.push({m, price:p, need, income:need*p, up:raisedNow});
+    atPrice += need;
+    if(atPrice >= step){ p = Math.max(p + 1, nice(p * (1 + raise))); atPrice = 0; }
+  }
+  const first = rows[0], last = rows[rows.length-1];
+  $("cBig").innerHTML = `At ${fmt(first.price)}, you need <em>${first.need} client${first.need===1?"":"s"}</em> a month to reach ${fmt(goal)}.`;
+  $("cSub").textContent = last.need < first.need
+    ? `Raise the price after every ${step} clients and by month ${last.m} you're at ${fmt(last.price)}, needing ${last.need} client${last.need===1?"":"s"} a month for the same goal.`
+    : `Raise the price after every ${step} clients and watch the number go down. Try a higher raise or more months.`;
+  const max = Math.max(...rows.map(r => r.need));
+  $("cBars").innerHTML = rows.map(r => `<div class="cbar"><i style="height:${Math.max(3, r.need/max*100)}%"><b>${r.need}</b></i><span>M${r.m}<br>${fmt(r.price)}</span></div>`).join("");
+  $("cRows").innerHTML = rows.map(r => `<tr${r.up?' class="up"':""}><td>M${r.m}</td><td>${fmt(r.price)}${r.up?" ↑":""}</td><td>${r.need}</td><td>${fmt(r.income)}</td></tr>`).join("");
+  $("cOut").hidden = false;
+}
+$("cGo").addEventListener("click", () => {
+  if(!(+$("cGoal").value > 0)){ $("cErr").hidden = false; return; }
+  $("cErr").hidden = true; runCalc();
+});
+$("cGoal").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); $("cGo").click(); } });
+$("cGoal").addEventListener("input", () => { if(!$("cOut").hidden && +$("cGoal").value > 0) runCalc(); });
+$("cGoalR").addEventListener("input", () => { $("cGoal").value = $("cGoalR").value; runCalc(); });
+["cPrice","cStep","cRaise","cMonths"].forEach(id => $(id).addEventListener("input", () => { if(!$("cOut").hidden) runCalc(); }));
+
 // Asks the server to email the saved kit (to you and to them). The server may still be saving it, so retry a few times.
 function notifyDone(text, tries){
   if(state.notified || !state.runId) return;
