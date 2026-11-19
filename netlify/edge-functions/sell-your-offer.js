@@ -14,7 +14,7 @@ const QUESTIONS = [
   { id: "path",    q: "How do you want to sell it?", choices: ["Discovery calls", "DMs", "Google Doc offer"] },
   { id: "where",   q: "Where do your people find you?", choices: ["Instagram", "LinkedIn", "TikTok", "YouTube", "Threads", "Facebook", "Email list"] },
   { id: "signal",  q: "What do you get from your audience right now?", choices: ["Mostly likes and saves", "Comments", "New followers", "People already DM me", "Barely anything yet"] },
-  { id: "measure", q: "What number does your buyer want to move? Where are they now, and where do they want to be?" },
+  { id: "measure", q: "Where is your buyer right now, and where do they want to be?" },
   { id: "pay",     q: "How can people pay? Price, payment plan, founding spots or discount, and the payment or booking link you'll use." },
   { id: "proof",   q: "Any result you've had with this, for yourself or someone else?" }
 ];
@@ -40,7 +40,7 @@ Open with one line: this is a fit call, not a pitch. They talk most, you lead. P
 ### Part 2 · The map (20 to 30 minutes)
 Destination first, then the current spot, then the roadblocks. Say in one line why the destination goes first: when people picture the result before they talk about the struggle, the distance they want to travel becomes clear to both of you.
 - Where they want to be: the exact question, framed at the length of their offer ("Imagine we talk again [length of the offer] from now and you're really happy with how it went. What happened?"), plus 3 follow-up questions built from the parts of their offer.
-- Where they are now: 4 questions about what's working, what's not, what they've tried, using their number from the interview.
+- Where they are now: 4 questions about what's working, what's not, what they've tried, using the before and after they gave.
 - What's in the way: the exact question to list everything slowing them down or stopping them, plus the stretch question "If nothing changes and it's still like this [length] from now, what does that cost you?"
 - The recap line after each part: "So you want X, because Y. Anything else I should know?"
 Say plainly: don't coach or fix anything on this call. You diagnose here, you solve once they're in.
@@ -112,7 +112,7 @@ ${a.offer}
 How they want to sell: ${path}
 Where their people find them: ${a.where}
 What they get from their audience now: ${a.signal}
-The number their buyer wants to move: ${a.measure}
+Where their buyer is now, and where they want to be: ${a.measure}
 Payment details: ${a.pay}
 Results so far: ${a.proof}
 </data>
@@ -139,7 +139,7 @@ One line: if 10 people in a row don't reply, change the first message, not the p
 
 ## Stage 2 · Find the route
 Goal: find out fast if they fit, so the chat doesn't drift into small talk. Three questions as blockquotes:
-- The gap question, in ONE message, using their number: where it is now and where they want it to be.
+- The gap question, in ONE message, using their buyer's before and after: where they are now and where they want to be.
 - "What do you think you need most right now?" (tweaked to their voice). Add one line on what to do if what they need isn't what the offer does: either an honest goodbye or the line "A lot of people think they need X, what usually moves it is Y."
 - "Would you like some help with that?"
 
