@@ -7,6 +7,7 @@ Disallow: /admin/
 Disallow: /analytics/
 Disallow: /seo-tool/
 Disallow: /skill-gameplan/
+Disallow: /sell-your-offer/
 Disallow: /offer-blender/
 Disallow: /offer-fix/
 Disallow: /customer-unlock-sprint/join/
@@ -31,6 +32,7 @@ Disallow: /admin/
 Disallow: /analytics/
 Disallow: /seo-tool/
 Disallow: /skill-gameplan/
+Disallow: /sell-your-offer/
 Disallow: /offer-blender/
 Disallow: /offer-fix/
 Disallow: /customer-unlock-sprint/join/

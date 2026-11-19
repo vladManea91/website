@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sell Your Offer Kit · Vlad Manea</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F3EDE0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E241C" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#0E241C; --cream:#F3EDE0; --sage:#9FB6A8; --orange:#E9622B;
+  --bg:var(--cream); --ink:var(--forest); --muted:#4d6157; --line:#d8cfbd; --field:#fbf8f1;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --bg:var(--forest); --ink:var(--cream); --muted:#b9c7bf; --line:#2c4a3e; --field:#14322a; }
+}
+:root[data-theme="dark"]{ --bg:var(--forest); --ink:var(--cream); --muted:#b9c7bf; --line:#2c4a3e; --field:#14322a; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 "DM Sans",system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:640px;margin:0 auto;padding:40px 22px 80px}
+.brand{font-size:14px;color:var(--muted);margin:0 0 48px;display:flex;justify-content:space-between;gap:12px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;margin:0}
+h1{font-size:clamp(40px,10vw,64px);letter-spacing:-.02em;margin-bottom:20px}
+.lede{font-size:19px;color:var(--muted);max-width:34em;margin:0 0 32px}
+.lede p{margin:0 0 12px}
+button,.btn{font:600 16px/1 "DM Sans",system-ui,sans-serif;border:0;border-radius:999px;padding:16px 26px;cursor:pointer;background:var(--orange);color:#fff;text-decoration:none;display:inline-block}
+button:disabled{opacity:.45;cursor:default}
+button.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+button:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:3px solid var(--sage);outline-offset:3px}
+.meta{font-size:14px;color:var(--muted);margin-top:16px}
+.progress{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:36px}
+.progress span{display:block;height:100%;background:var(--orange);transition:width .35s ease}
+.qcount{font-size:14px;color:var(--muted);margin-bottom:10px}
+.question{font-family:Fraunces,Georgia,serif;font-size:clamp(26px,6vw,34px);line-height:1.2;margin:0 0 22px}
+.followup{background:var(--field);border-left:3px solid var(--orange);padding:12px 16px;border-radius:0 10px 10px 0;margin:0 0 16px;font-size:16px}
+.prev{font-size:15px;color:var(--muted);margin:0 0 12px;white-space:pre-wrap}
+.choices{display:grid;gap:10px}
+.choices button{background:var(--field);color:var(--ink);text-align:left;border-radius:14px;box-shadow:inset 0 0 0 1.5px var(--line);padding:18px 20px;font-weight:500}
+.choices button:hover{box-shadow:inset 0 0 0 1.5px var(--orange)}
+.choices button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--orange);font-weight:600}
+textarea{width:100%;min-height:150px;resize:vertical;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:16px}
+.row{display:flex;gap:12px;margin-top:16px;align-items:center;flex-wrap:wrap}
+.hint{font-size:13px;color:var(--muted);margin-left:auto}
+.status{font-family:Fraunces,Georgia,serif;font-size:24px;margin:8px 0 18px}
+.loadbox{background:var(--field);border:1.5px solid var(--line);border-radius:16px;padding:18px 20px;margin:0 0 28px;display:grid;gap:10px}
+.lbar{height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+.lbar span{display:block;height:100%;width:3%;background:var(--orange);border-radius:8px;transition:width .6s ease-out}
+.lrow{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.lstep{font-weight:600;margin:0}
+.ltime{font-size:14px;color:var(--muted);margin:0;font-variant-numeric:tabular-nums}
+.lnote{font-size:14px;color:var(--muted);margin:0}
+.lbar.pulse span{animation:lpulse 1.6s ease-in-out infinite}
+@keyframes lpulse{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){.lbar span{transition:none}.lbar.pulse span{animation:none}}
+.plan h2{font-size:30px;margin:44px 0 14px;padding-top:24px;border-top:1.5px solid var(--line)}
+.plan h2:first-child{margin-top:0;border-top:0;padding-top:0}
+.plan h3{font-size:21px;margin:26px 0 8px}
+.plan p{margin:0 0 14px}
+.plan ul{margin:0 0 16px;padding-left:22px}
+.plan li{margin:0 0 8px}
+.plan blockquote{margin:0 0 16px;padding:14px 18px;background:var(--field);border-radius:12px;white-space:pre-wrap}
+.plan a{color:var(--orange)}
+.cta{margin-top:40px;padding:28px;background:var(--forest);color:var(--cream);border-radius:20px}
+:root[data-theme="dark"] .cta{background:#173a2e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cta{background:#173a2e}}
+.cta h3{font-size:26px;margin-bottom:10px}
+.cta p{margin:0 0 20px;color:#d9e2dc}
+.error{background:var(--field);border:1.5px solid var(--orange);border-radius:14px;padding:18px;margin:16px 0}
+[hidden]{display:none!important}
+.cin{width:100%;font:inherit;font-size:max(16px,1em);color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px}
+.cin:focus-visible{outline:3px solid var(--sage);outline-offset:3px}
+/* ===== web + mobile app fit ===== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{min-height:100dvh;overflow-x:hidden}
+.wrap{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+button,.btn,.choices button,textarea{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button,.btn{min-height:48px}
+textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55dvh;overflow-y:auto}
+.plan{overflow-wrap:anywhere}
+.plan blockquote{overflow-wrap:anywhere}
+@media (hover:none){.hint{display:none!important}}
+@media (min-width:900px){
+  .wrap{max-width:720px;padding-block:64px 96px}
+  .question{font-size:36px}
+}
+@media (max-width:600px){
+  body{font-size:16.5px}
+  .wrap{padding-block:24px 40px}
+  .brand{margin-bottom:28px}
+  h1{font-size:clamp(34px,10vw,46px)}
+  .lede{font-size:17.5px}
+  #start{width:100%}
+  .question{font-size:clamp(23px,6.4vw,28px);margin-bottom:16px}
+  .progress{margin-bottom:22px}
+  #ask .row{position:sticky;bottom:0;z-index:5;margin:16px calc(-1*max(20px,env(safe-area-inset-left,0px))) 0;padding:12px max(20px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
+  #ask .row #next{flex:1}
+  .choices button{padding:16px 18px}
+  .plan h2{font-size:25px;margin-top:34px}
+  .plan h3{font-size:19px}
+  #planActions button{flex:1}
+  .cta{padding:22px;border-radius:16px}
+  .cta .btn{display:block;text-align:center}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.helper{font-size:15px;color:var(--muted);margin:-10px 0 18px}
+.choices button small{display:block;font-weight:400;font-size:14px;color:var(--muted);margin-top:4px;line-height:1.4}
+.rec{display:inline-block;font-size:12px;font-weight:600;background:var(--orange);color:#fff;border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:2px}
+.paths{display:grid;gap:12px;margin:0 0 32px;padding:0;list-style:none}
+.paths li{background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:14px 18px;font-size:16px}
+.paths strong{display:block;font-family:Fraunces,Georgia,serif;font-size:19px;margin-bottom:2px}
+.plan blockquote{border-left:3px solid var(--orange)}
+.qbtn{margin-top:10px;font-size:14px;padding:10px 16px;min-height:40px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="brand"><span>Vlad Manea</span><span>Sell Your Offer Kit</span></p>
+
+  <section id="intro">
+    <h1>You have the offer. Here are the words to sell it.</h1>
+    <div class="lede">
+      <p>Pick how you want to sell, answer seven quick questions, and get every message and every line written for your offer and your buyer.</p>
+    </div>
+    <ul class="paths">
+      <li><strong>Discovery calls <span class="rec">Recommended for your first 5</span></strong>From the first DM to a booked call, then the call itself: how to open it, the questions to ask, and how to bring up the offer only when it fits.</li>
+      <li><strong>DMs</strong>The whole sale inside the chat: the first message, the fit questions, the invitation, and replies to "how much?" and "can I think about it?".</li>
+      <li><strong>Google Doc offer</strong>The chat that leads to your doc, plus the full one-page offer doc, written and ready to paste into Google Docs.</li>
+    </ul>
+    <button id="start">Build my kit</button>
+    <p class="meta">Takes about 5 minutes. Have your offer from the First Client Roadmap or the Offer Generator ready to paste. Your answers stay in this browser and are only sent to write your kit.</p>
+  </section>
+
+  <section id="contact" hidden>
+    <h2 class="question">First, who am I talking to?</h2>
+    <p class="lede" style="margin-bottom:20px">So I know whose kit this is, and can reply if you have questions.</p>
+    <div style="display:grid;gap:12px">
+      <label for="cname" class="qcount" style="margin:0">Your first name</label>
+      <input id="cname" class="cin" type="text" autocomplete="given-name" autocapitalize="words" enterkeyhint="next">
+      <label for="cemail" class="qcount" style="margin:0">Your email</label>
+      <input id="cemail" class="cin" type="email" inputmode="email" autocomplete="email" autocapitalize="off" enterkeyhint="go">
+      <p class="qcount" id="cerr" style="color:var(--orange);margin:0" hidden>Please add your name and a valid email.</p>
+    </div>
+    <div class="row"><button id="cgo">Start</button></div>
+  </section>
+
+  <section id="ask" hidden>
+    <div class="progress"><span id="bar"></span></div>
+    <p class="qcount" id="qcount"></p>
+    <h2 class="question" id="qtext"></h2>
+    <p class="helper" id="helper"></p>
+    <label for="answer" class="qcount" style="position:absolute;left:-9999px">Your answer</label>
+    <textarea id="answer" rows="5" enterkeyhint="next" autocapitalize="sentences" autocomplete="off" spellcheck="true"></textarea>
+    <button type="button" id="quick" class="ghost qbtn" hidden></button>
+    <div class="choices" id="choices" hidden></div>
+    <div class="row">
+      <button id="next">Next</button>
+      <button id="back" class="ghost">Back</button>
+      <span class="hint">Ctrl/⌘ + Enter to continue</span>
+    </div>
+  </section>
+
+  <section id="result" hidden>
+    <p class="status" id="status">Got it. I'm writing your messages now.</p>
+    <div class="loadbox" id="loadbox" role="status" aria-live="polite" hidden>
+      <div class="lbar pulse" id="lbar"><span id="lfill"></span></div>
+      <div class="lrow"><p class="lstep" id="lstep">Reading your offer</p><p class="ltime" id="ltime">0s</p></div>
+      <p class="lnote" id="lnote">This usually takes 1 to 2 minutes. Keep this page open.</p>
+    </div>
+    <div id="err" class="error" hidden></div>
+    <article class="plan" id="plan" aria-live="polite"></article>
+    <div class="row" id="planActions" hidden>
+      <button id="copy" class="ghost">Copy my kit</button>
+      <button id="restart" class="ghost">Try another way to sell</button>
+    </div>
+    <div class="cta" id="cta" hidden>
+      <h3>Want me next to you for the first conversations?</h3>
+      <p>In the Customer Unlock Sprint we go through your real chats and calls together, adjust the offer from what people say, and work towards your first online client over 12 weeks.</p>
+      <a class="btn" href="/customer-unlock-sprint/">See the Customer Unlock Sprint</a>
+    </div>
+  </section>
+</main>
+
+<script>
+const QUESTIONS = [
+  {id:"offer", q:"Paste your offer.", h:"The one from your First Client Roadmap or the Offer Generator. Who it's for, what they get, how it works, and the price.", p:"Paste your whole offer here."},
+  {id:"path", q:"How do you want to sell it?", h:"Pick one. You can come back and build the kit for another way later.",
+    choices:[
+      {v:"Discovery calls", t:"Discovery calls", rec:true, d:"A real conversation, not a pitch. Best for your first 5 clients: you learn the words people use and what they actually want."},
+      {v:"DMs", t:"DMs", d:"The whole sale inside the chat, ending with a payment link."},
+      {v:"Google Doc offer", t:"Google Doc offer", d:"A short chat, then a one-page offer doc they read before they pay."}
+    ]},
+  {id:"where", q:"Where do your people find you?", h:"The place your messages will happen.", choices:["Instagram","LinkedIn","TikTok","YouTube","Threads","Facebook","Email list"]},
+  {id:"signal", q:"What do you get from your audience right now?", h:"This decides who you message first.", choices:["Mostly likes and saves","Comments","New followers","People already DM me","Barely anything yet"]},
+  {id:"measure", q:"What number does your buyer want to move? Where are they now, and where do they want to be?", h:"This becomes your main question in the chat. Clients per month, kilos, hours, income, a score from 1 to 10.", p:"Example: 0 paying clients now, 3 a month in 12 weeks."},
+  {id:"pay", q:"How can people pay?", h:"Price, pay in full or a payment plan, founding spots or a founding price, and the link you'll send. Leave the link out if you don't have one yet.", p:"Example: $497 in full or 3 × $179. First 5 people get it for $297 in exchange for a testimonial."},
+  {id:"proof", q:"Any result you've had with this, for yourself or someone else?", h:"Only real ones. No result yet is completely fine, the kit then writes the honest founding-client version.", p:"Example: helped a friend book her first 2 clients in a month.", quick:"No result yet"}
+];
+const KEY = "sell-your-offer-v1";
+const SECTIONS = ["Before you send a single message","When to start a conversation","Stage 1","Stage 2","Your invitation","Your call, in three parts","Your Google Doc offer","Replies to the usual questions","Your tally"];
+let state = {i:0, answers:{}};
+let running = null;
+
+const $ = id => document.getElementById(id);
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && s.answers && typeof s.answers==="object") state = s; }catch(e){} }
+function show(id){ ["intro","contact","ask","result"].forEach(s => $(s).hidden = s!==id); window.scrollTo({top:0,behavior:"auto"}); }
+
+function renderQ(){
+  const n = state.i, item = QUESTIONS[n];
+  $("bar").style.width = (n/QUESTIONS.length*100)+"%";
+  $("qcount").textContent = "Question "+(n+1)+" of "+QUESTIONS.length;
+  $("qtext").textContent = item.q;
+  $("helper").textContent = item.h;
+  $("back").hidden = n===0;
+  const isChoice = !!item.choices;
+  $("answer").hidden = isChoice; $("choices").hidden = !isChoice; $("next").hidden = isChoice;
+  document.querySelector(".hint").hidden = isChoice;
+  $("quick").hidden = isChoice || !item.quick;
+  if(item.quick) $("quick").textContent = item.quick;
+  if(isChoice){
+    $("choices").innerHTML = "";
+    item.choices.forEach(c => {
+      const o = typeof c === "string" ? {v:c, t:c} : c;
+      const b = document.createElement("button"); b.type = "button";
+      b.textContent = o.t;
+      if(o.rec){ const r = document.createElement("span"); r.className = "rec"; r.textContent = "Recommended"; b.appendChild(r); }
+      if(o.d){ const s = document.createElement("small"); s.textContent = o.d; b.appendChild(s); }
+      b.setAttribute("aria-pressed", state.answers[item.id]===o.v ? "true" : "false");
+      b.onclick = () => { state.answers[item.id] = o.v; advance(); };
+      $("choices").appendChild(b);
+    });
+    return;
+  }
+  $("answer").placeholder = item.p || "";
+  $("answer").value = state.answers[item.id] || "";
+  $("next").textContent = n===QUESTIONS.length-1 ? "Build my kit" : "Next";
+  grow();
+  if(!window.matchMedia("(hover: none)").matches) $("answer").focus();
+}
+function grow(){ const t=$("answer"); t.style.height="auto"; t.style.height=Math.min(t.scrollHeight+2, window.innerHeight*0.55)+"px"; }
+
+function next(){
+  const item = QUESTIONS[state.i], val = $("answer").value.trim();
+  if(!val){ $("answer").focus(); return; }
+  state.answers[item.id] = val.slice(0, 4000);
+  advance();
+}
+function advance(){
+  state.i++; delete state.kit; state.notified = false; save();
+  if(state.i >= QUESTIONS.length) buildKit(); else renderQ();
+}
+function back(){ if(state.i>0){ state.i--; save(); renderQ(); } }
+
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function inline(s){
+  return esc(s)
+    .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+    .replace(/(^|[^*])\*(?!\s)(.+?)\*/g,"$1<em>$2</em>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function md(text){
+  const lines = text.replace(/\r/g,"").split("\n"); let html="", list=false, ol=false, quote=[], para=[];
+  const flushP=()=>{ if(para.length){ html+="<p>"+inline(para.join(" "))+"</p>"; para=[]; } };
+  const flushL=()=>{ if(list){ html+="</ul>"; list=false; } if(ol){ html+="</ol>"; ol=false; } };
+  const flushQ=()=>{ if(quote.length){ html+="<blockquote>"+quote.map(inline).join("\n")+"</blockquote>"; quote=[]; } };
+  for(const raw of lines){
+    const l = raw.trimEnd();
+    if(/^>\s?/.test(l)){ flushP(); flushL(); quote.push(l.replace(/^>\s?/,"")); continue; } else flushQ();
+    if(/^###\s+/.test(l)){ flushP(); flushL(); html+="<h3>"+inline(l.replace(/^###\s+/,""))+"</h3>"; }
+    else if(/^##\s+/.test(l)){ flushP(); flushL(); html+="<h2>"+inline(l.replace(/^##\s+/,""))+"</h2>"; }
+    else if(/^\s*[-*]\s+/.test(l)){ flushP(); if(ol){ html+="</ol>"; ol=false; } if(!list){ html+="<ul>"; list=true; } html+="<li>"+inline(l.replace(/^\s*[-*]\s+/,""))+"</li>"; }
+    else if(/^\s*\d+[.)]\s+/.test(l)){ flushP(); if(list){ html+="</ul>"; list=false; } if(!ol){ html+="<ol>"; ol=true; } html+="<li>"+inline(l.replace(/^\s*\d+[.)]\s+/,""))+"</li>"; }
+    else if(!l.trim()){ flushP(); flushL(); }
+    else { flushL(); para.push(l.trim()); }
+  }
+  flushP(); flushL(); flushQ(); return html;
+}
+
+function errCopy(code){
+  switch(code){
+    case "no_access": return "This kit is for buyers. Please open it from the link on your purchase confirmation page or in your purchase email.";
+    case "rate_limited": return "You've built a few kits today already. Come back tomorrow, or reply to your purchase email and I'll help. Your answers are saved.";
+    case "bad_input": return "An answer is missing or too long. Press Back and check your answers.";
+    case "cancelled": return "Stopped. Press Try again when you're ready.";
+    case "empty_response": return "The AI model finished without writing anything. Press Try again. Your answers are saved.";
+    default: return "Your kit couldn't be finished this time (" + code + "). Press Try again. Your answers are saved.";
+  }
+}
+
+let loadTimer = null, loadStart = 0;
+function setFill(pct){ $("lfill").style.width = Math.max(3, Math.min(99, pct)) + "%"; }
+function startLoad(){
+  loadStart = Date.now();
+  $("loadbox").hidden = false; $("lbar").classList.add("pulse"); setFill(3);
+  $("lstep").textContent = "Reading your offer";
+  $("lnote").textContent = "This usually takes 1 to 2 minutes. Keep this page open.";
+  clearInterval(loadTimer);
+  loadTimer = setInterval(() => {
+    const t = Math.round((Date.now() - loadStart) / 1000);
+    $("ltime").textContent = t < 60 ? t + "s" : Math.floor(t/60) + "m " + (t%60) + "s";
+    if(!$("plan").textContent){
+      setFill(3 + 9 * (1 - Math.exp(-t / 25)));
+      $("lstep").textContent = t < 8 ? "Reading your offer" : t < 20 ? "Thinking like your buyer" : "Writing your first message";
+    }
+  }, 1000);
+}
+function progressFrom(text){
+  const total = 7;
+  const done = Math.min(total, SECTIONS.filter(h => text.includes("## " + h)).length);
+  $("lbar").classList.remove("pulse");
+  setFill(12 + (done / total) * 85);
+  $("lstep").textContent = "Writing your kit (" + Math.max(1, done) + " of " + total + ")";
+  $("lnote").textContent = "Your kit is appearing below as it's written.";
+}
+function stopLoad(){ clearInterval(loadTimer); loadTimer = null; $("loadbox").hidden = true; }
+
+async function buildKit(){
+  show("result");
+  $("plan").innerHTML = ""; $("err").hidden = true; $("cta").hidden = true; $("planActions").hidden = true;
+  $("status").hidden = false;
+  if(state.kit){ finish(state.kit); notifyDone(state.kit); return; }
+  if(running) return;
+  running = new AbortController();
+  let text = "";
+  startLoad();
+  try{
+    const res = await fetch("/api/sell-your-offer", {
+      method:"POST", signal: running.signal,
+      headers:{"Content-Type":"application/json","x-access-key": accessKey || ""},
+      body: JSON.stringify({answers: state.answers})
+    });
+    if(!res.ok){ let code="error"; try{ code=(await res.json()).code||code; }catch(e){} throw {code}; }
+    const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "";
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buf += dec.decode(value, {stream:true});
+      const lines = buf.split("\n"); buf = lines.pop();
+      for(const line of lines){
+        if(!line.startsWith("data:")) continue;
+        const data = line.slice(5).trim();
+        if(data === "[DONE]") continue;
+        let ev; try{ ev = JSON.parse(data); }catch(e){ continue; }
+        if(ev.error){ console.error("stream error", ev.error); throw {code:"error", text}; }
+        const piece = ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.content;
+        if(piece) text += piece;
+      }
+      if(text){ $("status").hidden = true; $("plan").innerHTML = md(text); progressFrom(text); }
+    }
+    if(!text.trim()) throw {code:"empty_response"};
+    stopLoad();
+    state.kit = text; save(); finish(text); notifyDone(text);
+  }catch(e){
+    stopLoad();
+    $("status").hidden = true;
+    const partial = (e && e.text) || text;
+    if(partial) $("plan").innerHTML = md(partial);
+    $("err").hidden = false;
+    $("err").innerHTML = esc(errCopy(e && (e.code || (e.name==="AbortError" ? "cancelled" : "error")))) + ' <div class="row"><button id="retry">Try again</button></div>';
+    $("retry").onclick = () => buildKit();
+  }finally{ running = null; }
+}
+function finish(text){
+  $("status").hidden = true;
+  $("plan").innerHTML = md(text);
+  $("planActions").hidden = false; $("cta").hidden = false;
+}
+function notifyDone(text){
+  if(state.notified) return;
+  fetch("/api/sell-your-offer", {method:"POST", headers:{"Content-Type":"application/json","x-access-key": accessKey || ""},
+    body: JSON.stringify({action:"done", name: state.name || "", email: state.email || "", answers: state.answers, kit: text})})
+  .then(r => { if(r.ok){ state.notified = true; save(); } })
+  .catch(e => console.error("notify failed", e));
+}
+
+$("start").onclick = () => {
+  if(!state.email){ show("contact"); $("cname").value = state.name || ""; return; }
+  if(state.i >= QUESTIONS.length){ buildKit(); return; }
+  show("ask"); renderQ();
+};
+$("cgo").onclick = () => {
+  const n = $("cname").value.trim(), e = $("cemail").value.trim();
+  if(!n || !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(e)){ $("cerr").hidden = false; return; }
+  $("cerr").hidden = true; state.name = n.slice(0,60); state.email = e.slice(0,120); save();
+  if(state.i >= QUESTIONS.length){ buildKit(); return; }
+  show("ask"); renderQ();
+};
+["cname","cemail"].forEach(id => $(id).addEventListener("keydown", ev => { if(ev.key==="Enter"){ ev.preventDefault(); id==="cname" ? $("cemail").focus() : $("cgo").click(); } }));
+$("next").onclick = next;
+$("back").onclick = back;
+$("quick").onclick = () => { $("answer").value = QUESTIONS[state.i].quick; next(); };
+$("answer").addEventListener("input", grow);
+$("answer").addEventListener("keydown", e => { if(e.key==="Enter" && (e.metaKey||e.ctrlKey)){ e.preventDefault(); next(); } });
+$("copy").onclick = async () => {
+  try{ await navigator.clipboard.writeText(state.kit||""); $("copy").textContent = "Copied"; }
+  catch(e){ $("copy").textContent = "Select the text to copy"; }
+  setTimeout(()=>{ $("copy").textContent = "Copy my kit"; }, 2000);
+};
+$("restart").onclick = () => {
+  // Keep the offer and answers, go back to the "how do you want to sell" question.
+  state.i = 1; delete state.kit; state.notified = false; save(); show("ask"); renderQ();
+};
+
+load();
+if(state.i >= QUESTIONS.length){ $("start").textContent = "See my kit"; }
+else if(state.i > 0){ $("start").textContent = "Continue where you left off"; }
+
+let accessKey = "";
+try{
+  const p = new URLSearchParams(location.search).get("access");
+  if(p){ localStorage.setItem(KEY+"-access", p); history.replaceState(null, "", location.pathname); }
+  accessKey = localStorage.getItem(KEY+"-access") || p || "";
+}catch(e){ accessKey = new URLSearchParams(location.search).get("access") || ""; }
+</script>
+</body>
+</html>
