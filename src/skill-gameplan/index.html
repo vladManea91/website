@@ -160,12 +160,12 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
   <section id="intro">
     <h1>Your roadmap from audience to first paying client.</h1>
     <div class="lede">
-      <p>One offer that's clear enough to buy, priced on the result it creates, plus your hook, your story angle, two weeks of posts and the DMs that turn comments into clients.</p>
+      <p>One offer so clear and specific that the right person says "I need this". Priced on the result it creates, with a guarantee you can keep, and a calculator that shows how many clients your goal takes.</p>
       <p>Pick where you're starting from.</p>
     </div>
     <div class="doors">
-      <button id="start" class="door"><strong>Build my offer from scratch</strong><span>No offer yet. Ten questions about your story, your skills and who'd pay.</span></button>
-      <button id="startRefine" class="door"><strong>Refine the offer I have</strong><span>You have one, but it isn't selling. Paste it, answer five questions, and get it sharpened.</span></button>
+      <button id="start" class="door"><strong>Build my offer from scratch</strong><span>No offer yet. Nine questions about your story, your skills and who'd pay.</span></button>
+      <button id="startRefine" class="door"><strong>Refine the offer I have</strong><span>You have one, but it isn't selling. Paste it, answer four questions, and get the stronger version.</span></button>
     </div>
     <p class="meta">Takes 8 to 12 minutes. Honest, specific answers make a better offer. Your answers stay in this browser and are only sent to write your roadmap.</p>
   </section>
@@ -238,16 +238,16 @@ textarea{font-size:max(16px,1em);line-height:1.5;min-height:140px;max-height:55d
       </div>
     </section>
     <div class="cta" id="cta" hidden>
-      <h3>Want help running this plan?</h3>
-      <p>Inside LaunchOS we sharpen the offer with you, review your content, and work out what to do with the first DMs and the first yes.</p>
-      <a class="btn" id="ctaLink" href="https://docs.google.com/document/d/1-kZPOzLjudgzTBtkxuwDTKlfb5WaMPEQ3SxFKq11EAI/edit?tab=t.0" target="_blank" rel="noopener">Read about LaunchOS</a>
+      <h3>Want me next to you while you sell it?</h3>
+      <p>In the Customer Unlock Sprint we take this offer and sell it together over 12 weeks: the first conversations, holding your price, and adjusting the offer from what real buyers say.</p>
+      <a class="btn" id="ctaLink" href="/customer-unlock-sprint/">See the Customer Unlock Sprint</a>
     </div>
   </section>
 </main>
 
 <script>
 const LAUNCHOS_LINK = "https://docs.google.com/document/d/1-kZPOzLjudgzTBtkxuwDTKlfb5WaMPEQ3SxFKq11EAI/edit?tab=t.0";
-const B_STAGES = ["Background","Skills","Market","Offer","Price","Content"];
+const B_STAGES = ["Background","Skills","Market","Offer","Price"];
 const B_QUESTIONS = [
   {st:0, q:"Let's begin. Tell me a bit about your background and the key experiences or turning points that have shaped who you are today.", f:"Give me one turning point. What happened, and what changed for you after it?"},
   {st:0, q:"What's the biggest challenge you've overcome, in your life or your career?", f:"What was hard about it, and what did you do that actually worked?"},
@@ -257,16 +257,14 @@ const B_QUESTIONS = [
   {st:2, q:"Who would benefit most from what you know? Describe the person or industry, and what they're struggling with right now.", f:"Be specific: their job or situation, and the exact problem that keeps them stuck."},
   {st:4, q:"What does it cost that person to not solve this problem? Money, time, missed chances, stress. And what's it worth to them once it's solved?", f:"Put a number on it if you can, even a rough one: lost income, hours wasted, a price they already pay for something worse."},
   {st:3, q:"Which way of delivering it fits you best?", choices:["1:1 coaching","Done-with-you (we build it together)","Done-for-you service","Small group or community","Digital product or course","Not sure yet"]},
-  {st:5, q:"Where do you post, or where would you post?", choices:["Instagram","LinkedIn","TikTok","YouTube","Not posting yet"]},
-  {st:5, q:"How many hours a week can you give this?", choices:["1–2 hours","3–5 hours","6–10 hours","More than 10"]}
+  {st:3, q:"How many hours a week can you give this?", choices:["1–2 hours","3–5 hours","6–10 hours","More than 10"]}
 ];
-const R_STAGES = ["Your offer","Proof","Price","Content"];
+const R_STAGES = ["Your offer","Proof","Price","Your time"];
 const R_QUESTIONS = [
   {st:0, q:"Paste your offer as it is today.", f:"Add who it's for, what they get, how it works and the price, even roughly."},
   {st:0, q:"What's happened when you've shared it or tried to sell it?", f:"Any replies, questions, objections or sales? Even \"nobody bought\" tells me something."},
   {st:1, q:"What results have you got with this, for yourself or someone else? Give me a before and after.", f:"Even a small one counts. What changed, for whom, and how long did it take?"},
   {st:2, q:"What does it cost your buyer to not solve this problem? Money, time, missed chances, stress. And what's it worth to them once it's solved?", f:"Put a number on it if you can, even a rough one."},
-  {st:3, q:"Where do you post, or where would you post?", choices:["Instagram","LinkedIn","TikTok","YouTube","Not posting yet"]},
   {st:3, q:"How many hours a week can you give this?", choices:["1–2 hours","3–5 hours","6–10 hours","More than 10"]}
 ];
 const isRefine = () => state.mode === "refine";
@@ -380,7 +378,7 @@ function errCopy(code){
   }
 }
 
-const SECTIONS = ["Your story and skills","Your offer today","Your market","Your offer","Your price","Your positioning","Your content plan","From comment to client","The gap"];
+const SECTIONS = ["Your story and skills","Your offer today","Your market","Your offer","Your price","Why this offer is strong","The gap"];
 let loadTimer = null, loadStart = 0, thinking = false;
 function setFill(pct){ $("lfill").style.width = Math.max(3, Math.min(99, pct)) + "%"; }
 function startLoad(){
@@ -400,11 +398,11 @@ function startLoad(){
   }, 1000);
 }
 function progressFrom(text){
-  const done = Math.min(8, SECTIONS.filter(h => text.includes("## " + h)).length);
+  const done = Math.min(6, SECTIONS.filter(h => text.includes("## " + h)).length);
   const current = SECTIONS[Math.max(0, done - 1)];
   $("lbar").classList.remove("pulse");
-  setFill(12 + (done / 8) * 85);
-  $("lstep").textContent = "Writing your roadmap (" + Math.max(1, done) + " of 8)";
+  setFill(12 + (done / 6) * 85);
+  $("lstep").textContent = "Writing your roadmap (" + Math.max(1, done) + " of 6)";
   $("lnote").textContent = "Your roadmap is appearing below as it's written.";
 }
 function stopLoad(){ clearInterval(loadTimer); loadTimer = null; $("loadbox").hidden = true; }
